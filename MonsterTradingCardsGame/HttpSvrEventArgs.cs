@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Collections.Generic;
 
-namespace FHTW.Swen1.Swamp
+namespace MonsterTradingCardsGame
 {
     /// <summary>This class provides HTTP server event arguments.</summary>
     public class HttpSvrEventArgs : EventArgs
@@ -44,8 +44,8 @@ namespace FHTW.Swen1.Swamp
                 case 404:
                     data = "HTTP/1.1 404 Not Found\n"; break;
                 default:
-                    data = "HTTP/1.1 503 Service Unavailable\n"; 
-                    payload = "Sorry, can't process your request. I'm currently busy contemplating the meaning of the universe."; 
+                    data = "HTTP/1.1 503 Service Unavailable\n";
+                    payload = "Sorry, can't process your request. I'm currently busy contemplating the meaning of the universe.";
                     break;
             }
 

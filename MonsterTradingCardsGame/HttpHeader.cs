@@ -2,24 +2,24 @@
 
 
 
-namespace FHTW.Swen1.Swamp
+namespace MonsterTradingCardsGame
 {
     /// <summary>This class represents a HTTP header.</summary>
     public class HttpHeader
     {
         /// <summary>Creates a new instance of this class.</summary>
         /// <param name="header">Header text.</param>
-        public HttpHeader(string header) 
+        public HttpHeader(string header)
         {
             Name = Value = string.Empty;
 
             try
             {
                 int n = header.IndexOf(':');
-                Name  = header.Substring(0, n).Trim();
+                Name = header.Substring(0, n).Trim();
                 Value = header.Substring(n + 1).Trim();
             }
-            catch(Exception) {}
+            catch (Exception) { }
         }
 
 
@@ -27,7 +27,7 @@ namespace FHTW.Swen1.Swamp
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // public properties                                                                                                //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+
         /// <summary>Gets the header name.</summary>
         public string Name
         {
@@ -36,9 +36,9 @@ namespace FHTW.Swen1.Swamp
 
 
         /// <summary>Gets the header value.</summary>
-        public string Value 
-        { 
-            get; protected set; 
+        public string Value
+        {
+            get; protected set;
         }
     }
 }

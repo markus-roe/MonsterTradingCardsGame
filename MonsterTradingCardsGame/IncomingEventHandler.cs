@@ -2,7 +2,7 @@
 
 
 
-namespace FHTW.Swen1.Swamp
+namespace MonsterTradingCardsGame
 {
     /// <summary>Implements an event handler for Incoming HTTP events.</summary>
     /// <param name="sender">Sender.</param>
