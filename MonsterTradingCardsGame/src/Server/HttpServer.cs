@@ -1,18 +1,17 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using MonsterTradingCardsGame.Controllers;
+using BaseCtrl = MonsterTradingCardsGame.Controllers.BaseController;
+
 
 namespace MonsterTradingCardsGame.Server
 {
     /// <summary>This class implements a HTTP server.</summary>
     public sealed class HttpServer
     {
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // private members                                                                                                  //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>TCP listener.</summary>
         private TcpListener? _Listener;
@@ -20,18 +19,10 @@ namespace MonsterTradingCardsGame.Server
 
 
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // constructor                                                                                                  //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         public HttpServer(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
-
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // public events                                                                                                    //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>Occurs when a HTTP message has been received.</summary>
         public event IncomingEventHandler? Incoming;
@@ -61,7 +52,31 @@ namespace MonsterTradingCardsGame.Server
         {
             var routePatterns = new Dictionary<string, Action<HttpServerEventArguments, Dictionary<string, string>>>
             {
-                { "GET /users/:username", HandleGetUser }
+                // Users
+                { "POST /users", RegisterUser },
+                { "GET /users/:username", GetUser },
+/*              { "PUT /users/:username", UpdateUser },
+                { "POST /sessions", LoginUser },
+
+                // Package management
+                { "POST /packages", CreatePackage },
+                { "POST /transactions/packages", BuyPackage },
+
+                // Card management
+                { "GET /cards", ShowUserCards },
+                { "GET /deck", ShowUserDeck },
+                { "PUT /deck", ConfigureDeck },
+
+                // Game management
+                { "GET /stats", GetStats },
+                { "GET /scoreboard", GetScoreboard },
+                { "POST /battles", StartBattle },
+
+                // Trading
+                { "GET /tradings", GetTradingDeals },
+                { "POST /tradings", CreateTradingDeal },
+                { "POST /tradings/:tradingdealid", CarryOutTrade },
+                { "DELETE /tradings/:tradingdealid", DeleteTradingDeal }*/
             };
 
             foreach (var routePattern in routePatterns.Keys)
@@ -75,6 +90,7 @@ namespace MonsterTradingCardsGame.Server
 
             return null;
         }
+
 
         private bool IsRouteMatch(string pattern, string method, string path, Dictionary<string, string> parameters)
         {
@@ -107,11 +123,11 @@ namespace MonsterTradingCardsGame.Server
             return true;
         }
 
-        private void HandleGetUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        private void GetUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
             if (parameters.TryGetValue("username", out var username))
             {
-                var userController = _serviceProvider.GetService<UserController>();
+                var userController = _serviceProvider.GetService<Controllers.UserController>();
                 var user = userController?.GetUser(username);
 
                 if (user == null)
@@ -129,6 +145,37 @@ namespace MonsterTradingCardsGame.Server
                 e.Reply(400, "Bad Request: Username parameter is missing.");
             }
         }
+
+        private void RegisterUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        {
+            // Assuming the user credentials are sent in the body of the POST request
+            var userCredentials = JsonSerializer.Deserialize<BaseCtrl.UserCredentials>(e.Payload);
+
+            if (userCredentials == null)
+            {
+                e.Reply(400, "Invalid user credentials.");
+                return;
+            }
+
+            var userController = _serviceProvider.GetService<Controllers.UserController>();
+            var response = userController?.RegisterUser(userCredentials);
+
+            switch (response)
+            {
+                case UserController.Response.Success:
+                    e.Reply(200, "User successfully registered.");
+                    break;
+                case UserController.Response.UsernameAlreadyExists:
+                    e.Reply(404, "Username already exists.");
+                    break;
+                default:
+                    e.Reply(400, "Invalid request.");
+                    break;
+            }
+        }
+
+
+
 
 
         private void HandleException(HttpServerEventArguments e, Exception ex)
@@ -188,4 +235,6 @@ namespace MonsterTradingCardsGame.Server
             Active = false;
         }
     }
+
+
 }

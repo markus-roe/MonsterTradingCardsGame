@@ -1,6 +1,7 @@
 ﻿using MonsterTradingCardsGame.Server;
 using Microsoft.Extensions.DependencyInjection;
 using MonsterTradingCardsGame.Database;
+using MonsterTradingCardsGame.Controllers;
 
 namespace MonsterTradingCardsGame
 {

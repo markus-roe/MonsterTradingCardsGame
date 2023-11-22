@@ -1,15 +1,15 @@
 ﻿using System;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Database;
+using MonsterTradingCardsGame.Controllers;
 
 
-namespace MonsterTradingCardsGame
+namespace MonsterTradingCardsGame.Controllers
 {
-    public class UserController
+    public class UserController : BaseController
     {
 
         public readonly DatabaseService _databaseService;
-
 
         public UserController(DatabaseService databaseService)
         {
@@ -20,10 +20,21 @@ namespace MonsterTradingCardsGame
         // methods                                                                                                           //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public int RegisterUser(HttpServerEventArguments e)
+        public Response RegisterUser(UserCredentials userCredentials)
         {
-            return 0;
+            // Check if user already exists
+            var existingUser = GetUser(userCredentials.Username);
+            if (existingUser != null)
+            {
+                return Response.UsernameAlreadyExists;
+            }
+
+            //TODO Create new user in the database -> EXECUTE QUERY NOT WORKING?
+            _databaseService.ExecuteQuery($"INSERT INTO users (username, password) VALUES ('{userCredentials.Username}', '{userCredentials.Password}');");
+
+            return Response.Success;
         }
+
 
         public bool LoginUser(HttpServerEventArguments e)
         {
