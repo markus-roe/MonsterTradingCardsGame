@@ -8,7 +8,7 @@ using System.Text;
 namespace MonsterTradingCardsGame
 {
     /// <summary>This class implements a HTTP server.</summary>
-    public sealed class HttpSvr
+    public sealed class HttpServer
     {
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // private members                                                                                                  //
@@ -65,7 +65,7 @@ namespace MonsterTradingCardsGame
                     data += Encoding.ASCII.GetString(buf, 0, n);
                 }
 
-                Incoming?.Invoke(this, new HttpSvrEventArgs(client, data));
+                Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
             }
 
             _Listener.Stop();

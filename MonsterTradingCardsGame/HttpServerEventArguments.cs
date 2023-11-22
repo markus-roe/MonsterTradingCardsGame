@@ -6,13 +6,13 @@ using System.Collections.Generic;
 namespace MonsterTradingCardsGame
 {
     /// <summary>This class provides HTTP server event arguments.</summary>
-    public class HttpSvrEventArgs : EventArgs
+    public class HttpServerEventArguments : EventArgs
     {
         // Protected member: TCP client
         protected TcpClient _Client;
 
         // Constructor
-        public HttpSvrEventArgs(TcpClient client, string plainMessage)
+        public HttpServerEventArguments(TcpClient client, string plainMessage)
         {
             _Client = client;
             PlainMessage = plainMessage;

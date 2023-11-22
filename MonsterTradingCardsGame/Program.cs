@@ -10,7 +10,7 @@
         /// <param name="args">Arguments.</param>
         static void Main(string[] args)
         {
-            HttpSvr svr = new();
+            HttpServer svr = new();
             svr.Incoming += _ProcessMessage;
 
             svr.Run();
@@ -20,7 +20,7 @@
         /// <summary>Event handler for incoming server requests.</summary>
         /// <param name="sender">Sender.</param>
         /// <param name="e">Event arguments.</param>
-        private static void _ProcessMessage(object sender, HttpSvrEventArgs e)
+        private static void _ProcessMessage(object sender, HttpServerEventArguments e)
         {
             Console.WriteLine(e.PlainMessage);
 
