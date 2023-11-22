@@ -1,8 +1,6 @@
 ﻿using System;
 
-
-
-namespace MonsterTradingCardsGame
+namespace MonsterTradingCardsGame.Server
 {
     /// <summary>Implements an event handler for Incoming HTTP events.</summary>
     /// <param name="sender">Sender.</param>

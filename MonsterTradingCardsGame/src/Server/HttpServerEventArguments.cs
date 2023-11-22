@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Collections.Generic;
 
-namespace MonsterTradingCardsGame
+namespace MonsterTradingCardsGame.Server
 {
     /// <summary>This class provides HTTP server event arguments.</summary>
     public class HttpServerEventArguments : EventArgs

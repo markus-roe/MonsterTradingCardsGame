@@ -1,8 +1,6 @@
 ﻿using System;
 
-
-
-namespace MonsterTradingCardsGame
+namespace MonsterTradingCardsGame.Server
 {
     /// <summary>This class represents a HTTP header.</summary>
     public class HttpHeader
@@ -21,7 +19,6 @@ namespace MonsterTradingCardsGame
             }
             catch (Exception) { }
         }
-
 
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
