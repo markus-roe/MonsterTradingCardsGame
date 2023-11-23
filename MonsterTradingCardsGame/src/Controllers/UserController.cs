@@ -8,6 +8,11 @@ namespace MonsterTradingCardsGame.Controllers
 {
     public class UserController : BaseController
     {
+        public class UserCredentials
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
 
         public readonly DatabaseService _databaseService;
 
@@ -30,7 +35,7 @@ namespace MonsterTradingCardsGame.Controllers
             }
 
             //TODO Create new user in the database -> EXECUTE QUERY NOT WORKING?
-            _databaseService.ExecuteQuery($"INSERT INTO users (username, password) VALUES ('{userCredentials.Username}', '{userCredentials.Password}');");
+            _databaseService.ExecuteQuery($"INSERT INTO users (username, password_hash) VALUES ('{userCredentials.Username}', '{userCredentials.Password}');");
 
             return Response.Success;
         }

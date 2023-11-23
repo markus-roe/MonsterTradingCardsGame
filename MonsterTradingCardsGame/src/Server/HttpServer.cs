@@ -149,7 +149,7 @@ namespace MonsterTradingCardsGame.Server
         private void RegisterUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
             // Assuming the user credentials are sent in the body of the POST request
-            var userCredentials = JsonSerializer.Deserialize<BaseCtrl.UserCredentials>(e.Payload);
+            var userCredentials = JsonSerializer.Deserialize<UserController.UserCredentials>(e.Payload);
 
             if (userCredentials == null)
             {
@@ -158,6 +158,8 @@ namespace MonsterTradingCardsGame.Server
             }
 
             var userController = _serviceProvider.GetService<Controllers.UserController>();
+
+            //TODO hash PW
             var response = userController?.RegisterUser(userCredentials);
 
             switch (response)
