@@ -92,6 +92,7 @@ namespace MonsterTradingCardsGame.Server
         }
 
 
+
         private bool IsRouteMatch(string pattern, string method, string path, Dictionary<string, string> parameters)
         {
             var patternParts = pattern.Split(' ');
@@ -128,55 +129,52 @@ namespace MonsterTradingCardsGame.Server
             if (parameters.TryGetValue("username", out var username))
             {
                 var userController = _serviceProvider.GetService<Controllers.UserController>();
-                var user = userController?.GetUser(username);
+                var user = userController.FindUserByUsername(username);
 
                 if (user == null)
                 {
                     e.Reply(404, "User not found.");
+
                 }
                 else
                 {
                     var response = JsonSerializer.Serialize(user);
                     e.Reply(200, response);
                 }
-            }
-            else
+                }
+                else
+                {
+                    e.Reply(400, "Bad Request: Username parameter is missing.");
+                }
+             }  
+
+            private void RegisterUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
             {
-                e.Reply(400, "Bad Request: Username parameter is missing.");
+                var userCredentials = JsonSerializer.Deserialize<UserController.UserCredentials>(e.Payload);
+
+                if (userCredentials == null || string.IsNullOrWhiteSpace(userCredentials.Username) || string.IsNullOrWhiteSpace(userCredentials.Password))
+                {
+                    e.Reply(404, "Invalid user credentials.");
+                    return;
+                }
+
+                var userController = _serviceProvider.GetService<UserController>();
+
+                var response = userController.RegisterUser(userCredentials);
+
+                switch (response)
+                {
+                    case UserController.Response.Success:
+                        e.Reply(200, "User successfully registered.");
+                        break;
+                    case UserController.Response.UsernameAlreadyExists:
+                        e.Reply(409, "Username already exists.");
+                        break;
+                    default:
+                        e.Reply(500, "Registration failed due to an unknown error."); // 500 Internal Server Error
+                        break;
+                }
             }
-        }
-
-        private void RegisterUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
-        {
-            // Assuming the user credentials are sent in the body of the POST request
-            var userCredentials = JsonSerializer.Deserialize<UserController.UserCredentials>(e.Payload);
-
-            if (userCredentials == null)
-            {
-                e.Reply(400, "Invalid user credentials.");
-                return;
-            }
-
-            var userController = _serviceProvider.GetService<Controllers.UserController>();
-
-            //TODO hash PW
-            var response = userController?.RegisterUser(userCredentials);
-
-            switch (response)
-            {
-                case UserController.Response.Success:
-                    e.Reply(200, "User successfully registered.");
-                    break;
-                case UserController.Response.UsernameAlreadyExists:
-                    e.Reply(404, "Username already exists.");
-                    break;
-                default:
-                    e.Reply(400, "Invalid request.");
-                    break;
-            }
-        }
-
-
 
 
 

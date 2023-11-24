@@ -27,18 +27,17 @@ namespace MonsterTradingCardsGame.Controllers
 
         public Response RegisterUser(UserCredentials userCredentials)
         {
-            // Check if user already exists
-            var existingUser = GetUser(userCredentials.Username);
-            if (existingUser != null)
+
+            var existingUser = FindUserByUsername(userCredentials.Username);
+            if (existingUser == null)
             {
                 return Response.UsernameAlreadyExists;
             }
 
-            //TODO Create new user in the database -> EXECUTE QUERY NOT WORKING?
-            _databaseService.ExecuteQuery($"INSERT INTO users (username, password_hash) VALUES ('{userCredentials.Username}', '{userCredentials.Password}');");
-
+            AddUserToDatabase(userCredentials);
             return Response.Success;
         }
+
 
 
         public bool LoginUser(HttpServerEventArguments e)
@@ -80,26 +79,33 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
 
-        public User GetUser(string username)
+        public User FindUserByUsername(string username)
         {
             var records = _databaseService.ExecuteQuery($"SELECT * FROM users WHERE username = '{username}';");
-
-            Console.WriteLine(records.Count);
-
             if (records.Count == 0)
             {
-                return null; // or handle the user not found scenario
+                return null;
             }
 
-            var record = records[0]; // Assuming username is unique and returns only one record
-            User user = new User
+            // Mapping the record to a User object
+            return MapToUser(records[0]);
+        }
+
+        private void AddUserToDatabase(UserCredentials userCredentials)
+        {
+            //TODO Hash Password
+            _databaseService.ExecuteQuery($"INSERT INTO users (username, password_hash) VALUES ('{userCredentials.Username}', '{userCredentials.Password}');");
+        }
+
+        private User MapToUser(Dictionary<string, object> record)
+        {
+            // Method to map a database record to a User object
+            return new User
             {
                 Username = record["username"].ToString(),
                 Coins = Convert.ToInt32(record["coins"]),
                 Elo = Convert.ToInt32(record["elo"])
             };
-
-            return user;
         }
 
 

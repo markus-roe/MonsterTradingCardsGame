@@ -20,8 +20,8 @@ namespace MonsterTradingCardsGame
             // Configure DI container
             var serviceProvider = new ServiceCollection()
                 .AddTransient<UserController>() // Transient lifecycle
-                .AddTransient<HttpServer>() // Singleton lifecycle
-                .AddScoped(sp => new DatabaseService(connectionString)) // Scoped lifecycle
+                .AddSingleton<HttpServer>() // Singleton lifecycle
+                .AddTransient(sp => new DatabaseService(connectionString)) // Scoped lifecycle
                 .BuildServiceProvider(); // Build service provider (DI container)
 
             var httpServer = serviceProvider.GetService<HttpServer>(); // Resolve HttpServer
