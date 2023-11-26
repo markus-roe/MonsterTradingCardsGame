@@ -43,9 +43,10 @@ namespace MonsterTradingCardsGame.Server
                     data = "HTTP/1.1 400 Bad Request\n"; break;
                 case 404:
                     data = "HTTP/1.1 404 Not Found\n"; break;
+                case 409:
+                    data = "HTTP/1.1 409 Conflict\n"; break;
                 default:
                     data = "HTTP/1.1 503 Service Unavailable\n";
-                    payload = "Sorry, can't process your request. I'm currently busy contemplating the meaning of the universe.";
                     break;
             }
 
@@ -53,10 +54,7 @@ namespace MonsterTradingCardsGame.Server
             {
                 data += "Content-Length: 0\n";
             }
-            else
-            {
-                data += "Content-Length: " + Encoding.ASCII.GetByteCount(payload) + "\n";
-            }
+
             data += "Content-Type: text/plain\n\n";
 
             if (!string.IsNullOrEmpty(payload)) { data += payload; }

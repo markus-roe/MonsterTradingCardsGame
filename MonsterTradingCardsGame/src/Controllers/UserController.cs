@@ -46,7 +46,7 @@ namespace MonsterTradingCardsGame.Controllers
 
             // TODO: Hash the password before storing it
             AddUserToDatabase(userCredentials);
-            e.Reply(200, "User successfully registered."); // OK
+            e.Reply(201, "User successfully registered."); // OK
         }
 
 
