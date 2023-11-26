@@ -1,8 +1,6 @@
-﻿using System;
-using MonsterTradingCardsGame.Server;
+﻿using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Database;
-using MonsterTradingCardsGame.Controllers;
-
+using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Controllers
 {
@@ -21,100 +19,98 @@ namespace MonsterTradingCardsGame.Controllers
             _databaseService = databaseService;
         }
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // methods                                                                                                           //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        public Response RegisterUser(UserCredentials userCredentials)
+        public void RegisterUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
-
-            var existingUser = FindUserByUsername(userCredentials.Username);
-            if (existingUser == null)
+            UserCredentials userCredentials;
+            try
             {
-                return Response.UsernameAlreadyExists;
-            }
-
-            AddUserToDatabase(userCredentials);
-            return Response.Success;
-        }
-
-
-
-        public bool LoginUser(HttpServerEventArguments e)
-        {
-            return true;
-        }
-
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // setter                                                                                                           //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        public bool EditUser(HttpServerEventArguments e)
-        {
-            return true;
-        }
-
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // getter                                                                                                           //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        public List<User> GetUsers()
-        {
-            var records = _databaseService.ExecuteQuery("SELECT * FROM users;");
-            var userList = new List<User>();
-
-            foreach (var record in records)
-            {
-                User user = new User
+                userCredentials = JsonSerializer.Deserialize<UserCredentials>(e.Payload);
+                if (userCredentials == null || string.IsNullOrWhiteSpace(userCredentials.Username) || string.IsNullOrWhiteSpace(userCredentials.Password))
                 {
-                    Username = record["username"].ToString(),
-                    Coins = Convert.ToInt32(record["coins"]),
-                    Elo = Convert.ToInt32(record["elo"])
-                };
-                userList.Add(user);
+                    e.Reply(400, "Invalid user credentials."); // Bad Request
+                    return;
+                }
             }
-
-            return userList;
-        }
-
-
-        public User FindUserByUsername(string username)
-        {
-            var records = _databaseService.ExecuteQuery($"SELECT * FROM users WHERE username = '{username}';");
-            if (records.Count == 0)
+            catch (JsonException)
             {
-                return null;
+                e.Reply(400, "Bad request: Invalid JSON format."); // Bad Request
+                return;
             }
 
-            // Mapping the record to a User object
-            return MapToUser(records[0]);
+            var existingUser = _databaseService.GetUserByUsername(userCredentials.Username);
+            if (existingUser != null)
+            {
+                e.Reply(409, "Username already exists."); // Conflict
+                return;
+            }
+
+            // TODO: Hash the password before storing it
+            AddUserToDatabase(userCredentials);
+            e.Reply(200, "User successfully registered."); // OK
         }
+
+
+        public void EditUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        {
+            if (!parameters.TryGetValue("username", out var username))
+            {
+                e.Reply(400, "Bad Request: Username parameter is missing.");
+                return;
+            }
+
+            try
+            {
+                var newDetails = JsonSerializer.Deserialize<UserCredentials>(e.Payload);
+                if (newDetails == null || string.IsNullOrWhiteSpace(newDetails.Password))
+                {
+                    e.Reply(400, "Invalid new details."); // Bad Request
+                    return;
+                }
+
+                var passwordHash = HashPassword(newDetails.Password);
+
+                _databaseService.UpdateUserDetails(username, passwordHash);
+                e.Reply(200, "User successfully updated."); // OK
+            }
+            catch (JsonException)
+            {
+                e.Reply(400, "Bad request: Invalid JSON format."); // Bad Request
+            }
+        }
+
+        public void GetUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        {
+            if (!parameters.TryGetValue("username", out var username))
+            {
+                e.Reply(400, "Bad Request: Username parameter is missing.");
+                return;
+            }
+
+            var user = _databaseService.GetUserByUsername(username);
+            if (user == null)
+            {
+                e.Reply(404, "User not found.");
+            }
+            else
+            {
+                var response = JsonSerializer.Serialize(user);
+                e.Reply(200, response); // OK
+            }
+        }
+
+        // *********************************************************************************************************************
+        // Private methods
 
         private void AddUserToDatabase(UserCredentials userCredentials)
         {
-            //TODO Hash Password
-            _databaseService.ExecuteQuery($"INSERT INTO users (username, password_hash) VALUES ('{userCredentials.Username}', '{userCredentials.Password}');");
+            var passwordHash = HashPassword(userCredentials.Password);
+            _databaseService.AddUser(userCredentials.Username, passwordHash);
         }
 
-        private User MapToUser(Dictionary<string, object> record)
+        private string HashPassword(string password)
         {
-            // Method to map a database record to a User object
-            return new User
-            {
-                Username = record["username"].ToString(),
-                Coins = Convert.ToInt32(record["coins"]),
-                Elo = Convert.ToInt32(record["elo"])
-            };
-        }
-
-
-        public void GetStack(HttpServerEventArguments e)
-        {
-        }
-
-        public void GetDeck(HttpServerEventArguments e)
-        {
+            //TODO Implement HashPassword method
+            return password;
         }
 
 
