@@ -1,7 +1,10 @@
 ﻿using MonsterTradingCardsGame.Server;
 using Microsoft.Extensions.DependencyInjection;
-using MonsterTradingCardsGame.Database;
 using MonsterTradingCardsGame.Controllers;
+using MonsterTradingCardsGame.Repositories;
+using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Interfaces;
+using MonsterTradingCardsGame.Data;
 
 namespace MonsterTradingCardsGame
 {
@@ -15,14 +18,14 @@ namespace MonsterTradingCardsGame
         /// <param name="args">Arguments.</param>
         static void Main(string[] args)
         {
-            var connectionString = "Server=127.0.0.1;Port=5432;Database=MTCG;User Id=postgres;Password=mtcgpw;";
 
             // Configure DI container
             var serviceProvider = new ServiceCollection()
+                .AddScoped<UserRepository>()
+                .AddTransient<IRepository<User>, UserRepository>()
+                .AddScoped<IUnitOfWork, UnitOfWork>()  // Register UnitOfWork
                 .AddTransient<UserController>() // Transient lifecycle
-                .AddTransient<UserModel>() // Transient lifecycle
                 .AddSingleton<HttpServer>() // Singleton lifecycle
-                .AddTransient(sp => new DatabaseService(connectionString)) // Scoped lifecycle
                 .BuildServiceProvider(); // Build service provider (DI container)
 
             var httpServer = serviceProvider.GetService<HttpServer>(); // Resolve HttpServer
@@ -49,7 +52,7 @@ namespace MonsterTradingCardsGame
             var httpServer = sender as HttpServer;
             httpServer?.HandleIncomingRequests(e);
 
- /*           e.Reply(200, "Understood!");*/
+            /*           e.Reply(200, "Understood!");*/
         }
 
     }

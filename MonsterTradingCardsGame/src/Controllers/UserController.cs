@@ -1,6 +1,6 @@
-﻿using MonsterTradingCardsGame.Server;
-using MonsterTradingCardsGame.Database;
-using System.Text.Json;
+﻿using System.Text.Json;
+using MonsterTradingCardsGame.Server;
+using MonsterTradingCardsGame.Interfaces;
 
 namespace MonsterTradingCardsGame.Controllers
 {
@@ -12,45 +12,39 @@ namespace MonsterTradingCardsGame.Controllers
             public string Password { get; set; }
         }
 
-        public readonly DatabaseService _databaseService;
+        private readonly IUnitOfWork unitOfWork;
 
-        public UserController(DatabaseService databaseService)
+        public UserController(IUnitOfWork unitOfWork)
         {
-            _databaseService = databaseService;
+            this.unitOfWork = unitOfWork;
         }
 
-        public void RegisterUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        public void GetAll(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
-            UserCredentials userCredentials;
             try
             {
-                userCredentials = JsonSerializer.Deserialize<UserCredentials>(e.Payload);
-                if (userCredentials == null || string.IsNullOrWhiteSpace(userCredentials.Username) || string.IsNullOrWhiteSpace(userCredentials.Password))
-                {
-                    e.Reply(400, "Invalid user credentials."); // Bad Request
-                    return;
-                }
-            }
-            catch (JsonException)
-            {
-                e.Reply(400, "Bad request: Invalid JSON format."); // Bad Request
-                return;
-            }
+                unitOfWork.CreateTransaction();
 
-            var existingUser = _databaseService.GetUserByUsername(userCredentials.Username);
-            if (existingUser != null)
-            {
-                e.Reply(409, "Username already exists."); // Conflict
-                return;
-            }
+                var users = unitOfWork.UserRepository().GetAll();
 
-            // TODO: Hash the password before storing it
-            AddUserToDatabase(userCredentials);
-            e.Reply(201, "User successfully registered."); // OK
+                var response = JsonSerializer.Serialize(users);
+                e.Reply(200, response);
+
+                unitOfWork.Commit();
+            }
+            catch (Exception ex)
+            {
+                unitOfWork.Rollback();
+                e.Reply(500, "Internal Server Error");
+            }
+            finally
+            {
+                /*unitOfWork.Dispose();*/
+            }
         }
 
 
-        public void EditUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        public void GetUserByUsername(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
             if (!parameters.TryGetValue("username", out var username))
             {
@@ -60,59 +54,21 @@ namespace MonsterTradingCardsGame.Controllers
 
             try
             {
-                var newDetails = JsonSerializer.Deserialize<UserCredentials>(e.Payload);
-                if (newDetails == null || string.IsNullOrWhiteSpace(newDetails.Password))
+                var user = unitOfWork.UserRepository().GetUserByUsername(username);
+                if (user == null)
                 {
-                    e.Reply(400, "Invalid new details."); // Bad Request
+                    e.Reply(404, "User not found.");
                     return;
                 }
 
-                var passwordHash = HashPassword(newDetails.Password);
-
-                _databaseService.UpdateUserDetails(username, passwordHash);
-                e.Reply(200, "User successfully updated."); // OK
+                var jsonResponse = JsonSerializer.Serialize(user);
+                e.Reply(200, jsonResponse);
             }
-            catch (JsonException)
+            catch (Exception ex)
             {
-                e.Reply(400, "Bad request: Invalid JSON format."); // Bad Request
+                e.Reply(500, "Internal server error.");
             }
         }
-
-        public void GetUser(HttpServerEventArguments e, Dictionary<string, string> parameters)
-        {
-            if (!parameters.TryGetValue("username", out var username))
-            {
-                e.Reply(400, "Bad Request: Username parameter is missing.");
-                return;
-            }
-
-            var user = _databaseService.GetUserByUsername(username);
-            if (user == null)
-            {
-                e.Reply(404, "User not found.");
-            }
-            else
-            {
-                var response = JsonSerializer.Serialize(user);
-                e.Reply(200, response); // OK
-            }
-        }
-
-        // *********************************************************************************************************************
-        // Private methods
-
-        private void AddUserToDatabase(UserCredentials userCredentials)
-        {
-            var passwordHash = HashPassword(userCredentials.Password);
-            _databaseService.AddUser(userCredentials.Username, passwordHash);
-        }
-
-        private string HashPassword(string password)
-        {
-            //TODO Implement HashPassword method
-            return password;
-        }
-
-
     }
 }
+

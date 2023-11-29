@@ -32,9 +32,10 @@ namespace MonsterTradingCardsGame.Server
             var userController = _serviceProvider.GetService<UserController>();
             if (userController != null)
             {
-                _routeHandler.AddRoute("POST", "/users", userController.RegisterUser);
-                _routeHandler.AddRoute("GET", "/users/:username", userController.GetUser);
-                _routeHandler.AddRoute("PUT", "/users/:username", userController.EditUser);
+                _routeHandler.AddRoute("GET", "/users", userController.GetAll);
+                _routeHandler.AddRoute("GET", "/users/:username", userController.GetUserByUsername);
+                /*_routeHandler.AddRoute("POST", "/users", userController.RegisterUser);*/
+                /*_routeHandler.AddRoute("PUT", "/users/:username", userController.EditUser);*/
             }
         }
 

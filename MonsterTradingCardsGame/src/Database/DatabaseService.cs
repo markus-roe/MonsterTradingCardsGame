@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using MonsterTradingCardsGame.Models;
+using Npgsql;
 
 namespace MonsterTradingCardsGame.Database
 {
