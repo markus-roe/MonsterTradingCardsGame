@@ -14,6 +14,9 @@ namespace MonsterTradingCardsGame.Server
         private readonly IServiceProvider _serviceProvider;
         private readonly Router _routeHandler = new Router();
 
+        /// <summary>Occurs when a HTTP message has been received.</summary>
+        public event IncomingEventHandler? Incoming;
+
         public HttpServer(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -25,30 +28,31 @@ namespace MonsterTradingCardsGame.Server
         public event IncomingEventHandler? Incoming;
 
 
-        public void HandleIncomingRequests(HttpServerEventArguments e)
+        public void HandleIncomingRequests(HttpServerEventArguments httpEventArguments)
         {
             try
             {
                 var routeHandler = _routeHandler.GetRoute(e.Method, e.Path);
+                var routeHandler = _routeHandler.GetRoute(httpEventArguments.Method, httpEventArguments.Path);
                 if (routeHandler != null)
                 {
                     var parameters = new Dictionary<string, string>();
-                    routeHandler(e, parameters);
+                    routeHandler(httpEventArguments, parameters);
 
                 }
                 else
                 {
-                    e.Reply(404, "Not Found");
+                    httpEventArguments.Reply(404, "Not Found");
                 }
             }
             catch (Exception ex)
             {
-                HandleException(e, ex);
+                HandleException(httpEventArguments, ex);
             }
         }
 
 
-        private void HandleException(HttpServerEventArguments e, Exception ex)
+        private void HandleException(HttpServerEventArguments httpEventArguments, Exception ex)
         {
             // Centralized exception handling
             e.Reply(500, $"Internal Server Error: {ex.Message}");
