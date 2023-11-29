@@ -9,12 +9,12 @@ namespace MonsterTradingCardsGame.Server
         /// <param name="header">Header text.</param>
         public HttpHeader(string header)
         {
-            Name = Value = string.Empty;
+            Key = Value = string.Empty;
 
             try
             {
                 int n = header.IndexOf(':');
-                Name = header.Substring(0, n).Trim();
+                Key = header.Substring(0, n).Trim();
                 Value = header.Substring(n + 1).Trim();
             }
             catch (Exception) { }
@@ -26,7 +26,7 @@ namespace MonsterTradingCardsGame.Server
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>Gets the header name.</summary>
-        public string Name
+        public string Key
         {
             get; protected set;
         }

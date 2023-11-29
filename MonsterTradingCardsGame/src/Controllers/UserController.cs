@@ -20,7 +20,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/users")]
-        public void GetAll(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        public void GetAll(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {
@@ -29,14 +29,14 @@ namespace MonsterTradingCardsGame.Controllers
                 var users = unitOfWork.UserRepository().GetAll();
 
                 var response = JsonSerializer.Serialize(users);
-                e.Reply(200, response);
+                httpEventArguments.Reply(200, response);
 
                 unitOfWork.Commit();
             }
             catch (Exception ex)
             {
                 unitOfWork.Rollback();
-                e.Reply(500, "Internal Server Error");
+                httpEventArguments.Reply(500, "Internal Server Error");
             }
             finally
             {
@@ -45,11 +45,11 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/users/:username")]
-        public void GetUserByUsername(HttpServerEventArguments e, Dictionary<string, string> parameters)
+        public void GetUserByUsername(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             if (!parameters.TryGetValue("username", out var username))
             {
-                e.Reply(400, "Bad Request: Username parameter is missing.");
+                httpEventArguments.Reply(400, "Bad Request: Username parameter is missing.");
                 return;
             }
 
@@ -58,16 +58,16 @@ namespace MonsterTradingCardsGame.Controllers
                 var user = unitOfWork.UserRepository().GetUserByUsername(username);
                 if (user == null)
                 {
-                    e.Reply(404, "User not found.");
+                    httpEventArguments.Reply(404, "User not found.");
                     return;
                 }
 
                 var jsonResponse = JsonSerializer.Serialize(user);
-                e.Reply(200, jsonResponse);
+                httpEventArguments.Reply(200, jsonResponse);
             }
             catch (Exception ex)
             {
-                e.Reply(500, "Internal server error.");
+                httpEventArguments.Reply(500, "Internal server error.");
             }
         }
     }
