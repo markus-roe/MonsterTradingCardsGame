@@ -23,7 +23,10 @@ namespace MonsterTradingCardsGame.Server
                 if (controller == null)
                 {
                     // If controller is null, meaning it was not registered in the DI container or does not exist
-                    throw new InvalidOperationException("Controller does not exist.");
+                    /*throw new InvalidOperationException("Controller does not exist.");*/
+
+                    /// ERROR:
+                    // UserCredentials inside UserController class is no controller class
 
                 }
 

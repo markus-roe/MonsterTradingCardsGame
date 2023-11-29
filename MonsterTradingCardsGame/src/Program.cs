@@ -5,6 +5,7 @@ using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Data;
+using MonsterTradingCardsGame.Middleware;
 
 namespace MonsterTradingCardsGame
 {
@@ -34,6 +35,8 @@ namespace MonsterTradingCardsGame
                 throw new InvalidOperationException("HttpServer could not be resolved.");
             }
 
+            httpServer.UseMiddleware(new AuthenticationMiddleware());
+
             httpServer.Incoming += _ProcessMessage;
             httpServer.Run();
 
@@ -43,14 +46,14 @@ namespace MonsterTradingCardsGame
         /// <summary>Event handler for incoming server requests.</summary>
         /// <param name="sender">Sender.</param>
         /// <param name="e">Event arguments.</param>
-        private static void _ProcessMessage(object sender, HttpServerEventArguments e)
+        private static void _ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
         {
             // Existing code to log the incoming message
-            Console.WriteLine(e.PlainMessage);
+            Console.WriteLine(httpEventArguments.PlainMessage);
 
             // Call the HandleIncomingRequests method to process specific requests
             var httpServer = sender as HttpServer;
-            httpServer?.HandleIncomingRequests(e);
+            httpServer?.HandleIncomingRequests(httpEventArguments);
 
             /*           e.Reply(200, "Understood!");*/
         }

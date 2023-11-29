@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-
+using MonsterTradingCardsGame.Middleware;
 
 namespace MonsterTradingCardsGame.Server
 {
@@ -12,6 +12,7 @@ namespace MonsterTradingCardsGame.Server
         /// <summary>TCP listener.</summary>
         private TcpListener? _Listener;
         private readonly IServiceProvider _serviceProvider;
+        private readonly List<IMiddleware> _middlewares = new List<IMiddleware>();
         private readonly Router _routeHandler = new Router();
 
         /// <summary>Occurs when a HTTP message has been received.</summary>
@@ -24,15 +25,30 @@ namespace MonsterTradingCardsGame.Server
 
         }
 
-        /// <summary>Occurs when a HTTP message has been received.</summary>
-        public event IncomingEventHandler? Incoming;
+        public void UseMiddleware(IMiddleware middleware)
+        {
+            _middlewares.Add(middleware);
+        }
+
 
 
         public void HandleIncomingRequests(HttpServerEventArguments httpEventArguments)
         {
             try
             {
-                var routeHandler = _routeHandler.GetRoute(e.Method, e.Path);
+
+                foreach (var middleware in _middlewares)
+                {
+                    middleware.Invoke(httpEventArguments);
+
+                    // Check if the response has been set by the middleware
+                    // If so, stop further processing
+                    if (httpEventArguments.ResponseSent)
+                    {
+                        return;
+                    }
+                }
+
                 var routeHandler = _routeHandler.GetRoute(httpEventArguments.Method, httpEventArguments.Path);
                 if (routeHandler != null)
                 {
