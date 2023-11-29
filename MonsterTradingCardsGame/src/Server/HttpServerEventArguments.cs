@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Text;
-using System.Collections.Generic;
 
 namespace MonsterTradingCardsGame.Server
 {
-    /// <summary>This class provides HTTP server event arguments.</summary>
+    /// <summary>
+    /// This class provides HTTP server event arguments, handling the parsing
+    /// of HTTP requests and sending replies.
+    /// </summary>
     public class HttpServerEventArguments : EventArgs
     {
-        // Protected member: TCP client
-        protected TcpClient _Client;
+        protected TcpClient _Client; // TCP client for the current connection
 
         // Constructor
         public HttpServerEventArguments(TcpClient client, string plainMessage)
@@ -17,55 +18,83 @@ namespace MonsterTradingCardsGame.Server
             _Client = client;
             PlainMessage = plainMessage;
             Payload = string.Empty;
-
-            // Process the plain message to extract details
-            string[] lines = plainMessage.Replace("\r\n", "\n").Replace("\r", "\n").Split('\n');
-            ParseHttpRequest(lines);
+            ParseHttpRequest(plainMessage);
         }
 
         // Public properties
-        public virtual string Method { get; protected set; } = string.Empty;
-        public virtual string Path { get; protected set; } = string.Empty;
-        public virtual List<HttpHeader> Headers { get; protected set; } = new List<HttpHeader>();
-        public virtual string Payload { get; protected set; } = string.Empty;
-        public string PlainMessage { get; protected set; }
+        public string Method { get; private set; } = string.Empty;
+        public string Path { get; private set; } = string.Empty;
+        public List<HttpHeader> Headers { get; private set; } = new List<HttpHeader>();
+        public string Payload { get; private set; } = string.Empty;
+        public string PlainMessage { get; private set; }
+        public bool ResponseSent { get; private set; } = false;
 
-        // Reply method
-        public virtual void Reply(int status, string? payload = null)
+        /// <summary>
+        /// Sends a reply to the client.
+        /// </summary>
+        /// <param name="status">HTTP status code of the response.</param>
+        /// <param name="payload">Optional payload to include in the response.</param>
+        public void Reply(int status, string? payload = null)
         {
-            string data;
+            string responseHeader = BuildResponseHeader(status, payload);
+            byte[] buffer = Encoding.ASCII.GetBytes(responseHeader);
 
-            switch (status)
-            {
-                case 200:
-                    data = "HTTP/1.1 200 OK\n"; break;
-                case 400:
-                    data = "HTTP/1.1 400 Bad Request\n"; break;
-                case 404:
-                    data = "HTTP/1.1 404 Not Found\n"; break;
-                case 409:
-                    data = "HTTP/1.1 409 Conflict\n"; break;
-                default:
-                    data = "HTTP/1.1 503 Service Unavailable\n";
-                    break;
-            }
+            _Client.GetStream().Write(buffer, 0, buffer.Length);
+            ResponseSent = true;
 
-            if (string.IsNullOrEmpty(payload))
-            {
-                data += "Content-Length: 0\n";
-            }
+            CloseClientConnection();
+        }
 
-            data += "Content-Type: text/plain\n\n";
+        // Private helper methods
 
-            if (!string.IsNullOrEmpty(payload)) { data += payload; }
-
-            byte[] buf = Encoding.ASCII.GetBytes(data);
-            _Client.GetStream().Write(buf, 0, buf.Length);
+        private void CloseClientConnection()
+        {
             _Client.Close();
             _Client.Dispose();
         }
 
-        // Private methods for parsing HTTP request
+        private string BuildResponseHeader(int status, string? payload)
+        {
+            var responseBuilder = new StringBuilder();
+            responseBuilder.AppendLine($"HTTP/1.1 {status} {GetStatusMessage(status)}");
+            responseBuilder.AppendLine("Content-Type: text/plain");
+
+            if (string.IsNullOrEmpty(payload))
+            {
+                responseBuilder.AppendLine("Content-Length: 0");
+            }
+            else
+            {
+                responseBuilder.AppendLine($"Content-Length: {Encoding.ASCII.GetByteCount(payload)}");
+                responseBuilder.AppendLine();
+                responseBuilder.Append(payload);
+            }
+
+            return responseBuilder.ToString();
+        }
+
+        private string GetStatusMessage(int status)
+        {
+            return status switch
+            {
+                200 => "OK",
+                400 => "Bad Request",
+                404 => "Not Found",
+                409 => "Conflict",
+                _ => "Service Unavailable",
+            };
+        }
+
+        private void ParseHttpRequest(string plainMessage)
+        {
+            string[] lines = plainMessage.Replace("\r\n", "\n").Split('\n');
+            ParseRequestLine(lines[0]);
+
+            int payloadStartIndex = Array.FindIndex(lines, 1, line => string.IsNullOrWhiteSpace(line)) + 1;
+            ParseHeaders(lines, payloadStartIndex);
+            Payload = BuildPayload(lines, payloadStartIndex);
+        }
+
         private void ParseRequestLine(string requestLine)
         {
             string[] parts = requestLine.Split(' ');
@@ -76,7 +105,7 @@ namespace MonsterTradingCardsGame.Server
             }
             else
             {
-                // Handle invalid request line
+                // TODO: Handle invalid request line
             }
         }
 
@@ -100,15 +129,6 @@ namespace MonsterTradingCardsGame.Server
                 payloadBuilder.Append(lines[i]);
             }
             return payloadBuilder.ToString();
-        }
-
-        private void ParseHttpRequest(string[] lines)
-        {
-            ParseRequestLine(lines[0]);
-
-            int payloadStartIndex = Array.FindIndex(lines, 1, line => string.IsNullOrWhiteSpace(line)) + 1;
-            ParseHeaders(lines, payloadStartIndex);
-            Payload = BuildPayload(lines, payloadStartIndex);
         }
     }
 }
