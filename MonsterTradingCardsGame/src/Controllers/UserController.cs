@@ -8,8 +8,8 @@ namespace MonsterTradingCardsGame.Controllers
     {
         public class UserCredentials
         {
-            public string Username { get; set; }
-            public string Password { get; set; }
+            public string? Username { get; set; }
+            public string? Password { get; set; }
         }
 
         private readonly IUnitOfWork unitOfWork;
@@ -33,7 +33,7 @@ namespace MonsterTradingCardsGame.Controllers
 
                 unitOfWork.Commit();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 unitOfWork.Rollback();
                 httpEventArguments.Reply(500, "Internal Server Error");
@@ -65,7 +65,7 @@ namespace MonsterTradingCardsGame.Controllers
                 var jsonResponse = JsonSerializer.Serialize(user);
                 httpEventArguments.Reply(200, jsonResponse);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 httpEventArguments.Reply(500, "Internal server error.");
             }

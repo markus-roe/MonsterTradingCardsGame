@@ -71,7 +71,7 @@ namespace MonsterTradingCardsGame.Server
         private void HandleException(HttpServerEventArguments httpEventArguments, Exception ex)
         {
             // Centralized exception handling
-            e.Reply(500, $"Internal Server Error: {ex.Message}");
+            httpEventArguments.Reply(500, $"Internal Server Error: {ex.Message}");
         }
 
 

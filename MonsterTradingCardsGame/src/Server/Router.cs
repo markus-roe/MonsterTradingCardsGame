@@ -43,7 +43,7 @@ namespace MonsterTradingCardsGame.Server
 
                         AddRoute(routeMethod.Attribute.Method, routeMethod.Attribute.Path, action);
                     }
-                    catch (ArgumentException ex)
+                    catch (ArgumentException)
                     {
                         // Handle or log the exception for delegate creation failure
                         // This might indicate a method signature mismatch
