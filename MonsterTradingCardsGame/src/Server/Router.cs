@@ -1,4 +1,6 @@
 ﻿
+using System.Reflection;
+
 namespace MonsterTradingCardsGame.Server
 {
     public class Router
@@ -10,6 +12,42 @@ namespace MonsterTradingCardsGame.Server
             _routes[$"{method} {path}"] = action;
         }
 
+        public void AutoRegisterRoutes(IServiceProvider serviceProvider)
+        {
+            var controllerTypes = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => t.Namespace == "MonsterTradingCardsGame.Controllers" && t.IsClass && !t.IsAbstract);
+
+            foreach (var controllerType in controllerTypes)
+            {
+                var controller = serviceProvider.GetService(controllerType);
+                if (controller == null)
+                {
+                    // If controller is null, meaning it was not registered in the DI container or does not exist
+                    throw new InvalidOperationException("Controller does not exist.");
+
+                }
+
+                var routeMethods = controllerType.GetMethods()
+                    .SelectMany(method => method.GetCustomAttributes<RouteAttribute>(inherit: false)
+                    .Select(attr => new { Method = method, Attribute = attr }));
+
+                foreach (var routeMethod in routeMethods)
+                {
+                    try
+                    {
+                        var action = (Action<HttpServerEventArguments, Dictionary<string, string>>)Delegate.CreateDelegate(
+                            typeof(Action<HttpServerEventArguments, Dictionary<string, string>>), controller, routeMethod.Method);
+
+                        AddRoute(routeMethod.Attribute.Method, routeMethod.Attribute.Path, action);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        // Handle or log the exception for delegate creation failure
+                        // This might indicate a method signature mismatch
+                    }
+                }
+            }
+        }
         public Action<HttpServerEventArguments, Dictionary<string, string>>? GetRoute(string method, string path)
         {
             foreach (var route in _routes)

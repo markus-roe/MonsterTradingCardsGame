@@ -1,9 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
-using MonsterTradingCardsGame.Controllers;
 
 
 namespace MonsterTradingCardsGame.Server
@@ -20,24 +17,13 @@ namespace MonsterTradingCardsGame.Server
         public HttpServer(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            InitializeRoutes();
+           _routeHandler.AutoRegisterRoutes(serviceProvider);
 
         }
 
         /// <summary>Occurs when a HTTP message has been received.</summary>
         public event IncomingEventHandler? Incoming;
 
-        private void InitializeRoutes()
-        {
-            var userController = _serviceProvider.GetService<UserController>();
-            if (userController != null)
-            {
-                _routeHandler.AddRoute("GET", "/users", userController.GetAll);
-                _routeHandler.AddRoute("GET", "/users/:username", userController.GetUserByUsername);
-                /*_routeHandler.AddRoute("POST", "/users", userController.RegisterUser);*/
-                /*_routeHandler.AddRoute("PUT", "/users/:username", userController.EditUser);*/
-            }
-        }
 
         public void HandleIncomingRequests(HttpServerEventArguments e)
         {

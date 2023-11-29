@@ -19,6 +19,7 @@ namespace MonsterTradingCardsGame.Controllers
             this.unitOfWork = unitOfWork;
         }
 
+        [Route("GET", "/users")]
         public void GetAll(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
             try
@@ -43,7 +44,7 @@ namespace MonsterTradingCardsGame.Controllers
             }
         }
 
-
+        [Route("GET", "/users/:username")]
         public void GetUserByUsername(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
             if (!parameters.TryGetValue("username", out var username))
