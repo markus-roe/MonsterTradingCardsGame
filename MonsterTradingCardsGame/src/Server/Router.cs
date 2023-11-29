@@ -17,7 +17,7 @@ namespace MonsterTradingCardsGame.Server
                 var parameters = new Dictionary<string, string>();
                 if (IsRouteMatch(route.Key, method, path, parameters))
                 {
-                    Action<HttpServerEventArguments, Dictionary<string, string>> action = (e, p) => route.Value(e, parameters);
+                    Action<HttpServerEventArguments, Dictionary<string, string>> action = (e, _) => route.Value(e, parameters);
                     return action;
                 }
             }
