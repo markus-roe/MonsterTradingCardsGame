@@ -1,56 +1,60 @@
 ﻿using MonsterTradingCardsGame.Server;
 using Microsoft.Extensions.DependencyInjection;
 using MonsterTradingCardsGame.Controllers;
-using MonsterTradingCardsGame.Repositories;
-using MonsterTradingCardsGame.Models;
-using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Middleware;
 
 namespace MonsterTradingCardsGame
 {
     internal class Program
     {
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // entry point                                                                                                      //
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>Main entry point.</summary>
-        /// <param name="args">Arguments.</param>
         static void Main(string[] args)
         {
+            try
+            {
+                // Configure Dependency Injection container
+                var serviceProvider = ConfigureServices();
 
-            // Configure DI container
-            var serviceProvider = new ServiceCollection()
+                // Resolve HttpServer
+                var httpServer = serviceProvider.GetService<HttpServer>();
+                if (httpServer == null)
+                {
+                    throw new InvalidOperationException("HttpServer could not be resolved.");
+                }
+
+                httpServer.UseMiddleware(new AuthenticationMiddleware());
+                httpServer.Incoming += ProcessMessage;
+                httpServer.Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unhandled Exception: {ex.Message}\n{ex.StackTrace}");
+
+
+                Console.WriteLine("An error occurred. The application will now close.");
+            }
+        }
+
+        /// <summary>Configures services and returns the service provider for dependency injection.</summary>
+        /// <returns>Configured service provider.</returns>
+        private static ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
                 .AddTransient<UserController>() // Transient lifecycle
                 .AddSingleton<HttpServer>() // Singleton lifecycle
                 .BuildServiceProvider(); // Build service provider (DI container)
-
-            var httpServer = serviceProvider.GetService<HttpServer>(); // Resolve HttpServer
-            if (httpServer == null)
-            {
-                throw new InvalidOperationException("HttpServer could not be resolved.");
-            }
-
-            httpServer.UseMiddleware(new AuthenticationMiddleware());
-
-            httpServer.Incoming += _ProcessMessage;
-            httpServer.Run();
-
         }
-
 
         /// <summary>Event handler for incoming server requests.</summary>
         /// <param name="sender">Sender.</param>
-        /// <param name="e">Event arguments.</param>
-        private static void _ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
+        /// <param name="httpEventArguments">Event arguments.</param>
+        private static void ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
         {
             Console.WriteLine(httpEventArguments.PlainMessage);
 
             // Call the HandleIncomingRequests method to process specific requests
             var httpServer = sender as HttpServer;
             httpServer?.HandleIncomingRequests(httpEventArguments);
-
         }
-
     }
 }
