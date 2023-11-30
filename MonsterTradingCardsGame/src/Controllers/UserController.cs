@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using MonsterTradingCardsGame.Server;
-using MonsterTradingCardsGame.Interfaces;
+using MonsterTradingCardsGame.Repositories;
 
 namespace MonsterTradingCardsGame.Controllers
 {
@@ -12,11 +12,11 @@ namespace MonsterTradingCardsGame.Controllers
             public string? Password { get; set; }
         }
 
-        private readonly IUnitOfWork unitOfWork;
+        private readonly UserRepository userRepository;
 
-        public UserController(IUnitOfWork unitOfWork)
+        public UserController()
         {
-            this.unitOfWork = unitOfWork;
+            userRepository = new UserRepository();
         }
 
         [Route("GET", "/users")]
@@ -24,23 +24,13 @@ namespace MonsterTradingCardsGame.Controllers
         {
             try
             {
-                unitOfWork.CreateTransaction();
-
-                var users = unitOfWork.UserRepository().GetAll();
-
+                var users = userRepository.GetAll();
                 var response = JsonSerializer.Serialize(users);
                 httpEventArguments.Reply(200, response);
-
-                unitOfWork.Commit();
             }
             catch (Exception)
             {
-                unitOfWork.Rollback();
                 httpEventArguments.Reply(500, "Internal Server Error");
-            }
-            finally
-            {
-                /*unitOfWork.Dispose();*/
             }
         }
 
@@ -55,7 +45,7 @@ namespace MonsterTradingCardsGame.Controllers
 
             try
             {
-                var user = unitOfWork.UserRepository().GetUserByUsername(username);
+                var user = userRepository.GetUserByUsername(username); 
                 if (user == null)
                 {
                     httpEventArguments.Reply(404, "User not found.");
@@ -70,6 +60,6 @@ namespace MonsterTradingCardsGame.Controllers
                 httpEventArguments.Reply(500, "Internal server error.");
             }
         }
+
     }
 }
-

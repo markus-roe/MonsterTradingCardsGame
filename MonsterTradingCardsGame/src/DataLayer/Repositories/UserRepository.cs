@@ -1,81 +1,75 @@
-﻿using MonsterTradingCardsGame.Interfaces;
-using MonsterTradingCardsGame.Models;
+﻿using System.Data;
 using Npgsql;
+using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Interfaces;
 
 namespace MonsterTradingCardsGame.Repositories
 {
-    public class UserRepository : IRepository<User>
+    public class UserRepository : BaseRepository<User>, IRepository<User>
     {
-        private readonly IUnitOfWork unitOfWork;
+        public UserRepository() : base() { }
 
-        public UserRepository(IUnitOfWork unitOfWork)
+        protected override void Fill(User user, IDataRecord record)
         {
-            this.unitOfWork = unitOfWork;
+            user.Username = record.GetString(record.GetOrdinal("Username"));
+            // Populate other User properties from the record as needed
         }
 
-        public List<User>? GetAll()
+        public override List<User> GetAll()
         {
             var users = new List<User>();
-
-            // Assuming unitOfWork exposes the NpgsqlConnection and NpgsqlTransaction
-            var command = new NpgsqlCommand("SELECT * FROM Users", unitOfWork.Connection, unitOfWork.Transaction);
-
+            using (var command = new NpgsqlCommand("SELECT * FROM Users", connection))
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    users.Add(new User
-                    {
-                        Username = reader.GetString(reader.GetOrdinal("Username")),
-                    });
+                    var user = new User();
+                    Fill(user, reader);
+                    users.Add(user);
                 }
             }
-
             return users;
         }
 
         public User? GetUserByUsername(string username)
         {
-            var command = new NpgsqlCommand("SELECT * FROM users WHERE username = @username", unitOfWork.Connection, unitOfWork.Transaction);
-            command.Parameters.AddWithValue("@username", username);
-
-            using (var reader = command.ExecuteReader())
+            User? user = null;
+            using (var command = new NpgsqlCommand("SELECT * FROM Users WHERE Username = @username", connection))
             {
-                if (reader.Read())
+                command.Parameters.AddWithValue("@username", username);
+
+                using (var reader = command.ExecuteReader())
                 {
-                    return new User
+                    if (reader.Read())
                     {
-                        Username = reader.GetString(reader.GetOrdinal("username")),
-                    };
+                        user = new User();
+                        Fill(user, reader);
+                    }
                 }
             }
-
-            return null;
+            return user;
         }
 
-        public bool Delete(User obj)
+        public override void Save(User user)
         {
-            throw new NotImplementedException();
+            using (var command = new NpgsqlCommand("INSERT INTO Users (Username, ...) VALUES (@username, ...) ON CONFLICT (Id) DO UPDATE SET Username = @username, ...", connection))
+            {
+                command.Parameters.AddWithValue("@username", user.Username);
+                // Add other parameters as needed
+
+                command.ExecuteNonQuery();
+            }
         }
 
-        public bool Delete(Guid id)
+        public override void Delete(User user)
         {
-            throw new NotImplementedException();
+            using (var command = new NpgsqlCommand("DELETE FROM Users WHERE Username = @Username", connection))
+            {
+                command.Parameters.AddWithValue("@Username", user.Username);
+
+                command.ExecuteNonQuery();
+            }
         }
 
-        public User? GetById(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public User? Add(User obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public User? Update(User obj)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

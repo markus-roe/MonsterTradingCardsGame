@@ -25,8 +25,7 @@ namespace MonsterTradingCardsGame.Server
                     // If controller is null, meaning it was not registered in the DI container or does not exist
                     /*throw new InvalidOperationException("Controller does not exist.");*/
 
-                    /// ERROR:
-                    // UserCredentials inside UserController class is no controller class
+                    ///  TODO: ERROR: UserCredentials inside UserController class is no controller class
 
                 }
 
@@ -45,7 +44,7 @@ namespace MonsterTradingCardsGame.Server
                     }
                     catch (ArgumentException)
                     {
-                        // Handle or log the exception for delegate creation failure
+                        // TODO: Handle or log the exception for delegate creation failure
                         // This might indicate a method signature mismatch
                     }
                 }

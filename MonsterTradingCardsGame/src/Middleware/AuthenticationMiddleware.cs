@@ -6,6 +6,12 @@ namespace MonsterTradingCardsGame.Middleware
     {
         public void Invoke(HttpServerEventArguments httpEventArguments)
         {
+            // Bypass token validation for specific login and registration requests
+            if ((httpEventArguments.Method == "POST" && httpEventArguments.Path.Equals("/users") || httpEventArguments.Path.Equals("/sessions")))
+            {
+                return;
+            }
+
             // Check if the Authorization header is present
             var authHeader = httpEventArguments.Headers
                 .FirstOrDefault(h => h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase));
@@ -20,7 +26,7 @@ namespace MonsterTradingCardsGame.Middleware
             // Extract the token from the Authorization header
             var token = authHeader.Value.Substring("Bearer ".Length).Trim();
 
-            // TODO: Implement your token validation logic here
+            // Implement your token validation logic here
             bool isAuthenticated = ValidateToken(token);
 
             if (!isAuthenticated)
@@ -28,13 +34,12 @@ namespace MonsterTradingCardsGame.Middleware
                 httpEventArguments.Reply(401, "Unauthorized");
                 return;
             }
-
         }
 
         private bool ValidateToken(string token)
         {
-            // TODO: Add token validation logic 
-            return true;
+            //TODO: Add token validation logic 
+            return true; // Placeholder for actual validation logic
         }
     }
 }

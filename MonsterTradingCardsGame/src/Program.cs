@@ -4,7 +4,6 @@ using MonsterTradingCardsGame.Controllers;
 using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Interfaces;
-using MonsterTradingCardsGame.Data;
 using MonsterTradingCardsGame.Middleware;
 
 namespace MonsterTradingCardsGame
@@ -22,9 +21,6 @@ namespace MonsterTradingCardsGame
 
             // Configure DI container
             var serviceProvider = new ServiceCollection()
-                .AddScoped<UserRepository>()
-                .AddTransient<IRepository<User>, UserRepository>()
-                .AddScoped<IUnitOfWork, UnitOfWork>()  // Register UnitOfWork
                 .AddTransient<UserController>() // Transient lifecycle
                 .AddSingleton<HttpServer>() // Singleton lifecycle
                 .BuildServiceProvider(); // Build service provider (DI container)
@@ -48,14 +44,12 @@ namespace MonsterTradingCardsGame
         /// <param name="e">Event arguments.</param>
         private static void _ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
         {
-            // Existing code to log the incoming message
             Console.WriteLine(httpEventArguments.PlainMessage);
 
             // Call the HandleIncomingRequests method to process specific requests
             var httpServer = sender as HttpServer;
             httpServer?.HandleIncomingRequests(httpEventArguments);
 
-            /*           e.Reply(200, "Understood!");*/
         }
 
     }

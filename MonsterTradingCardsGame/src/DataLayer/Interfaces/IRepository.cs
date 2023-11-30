@@ -1,16 +1,10 @@
-﻿using System;
-
-namespace MonsterTradingCardsGame.Interfaces
+﻿namespace MonsterTradingCardsGame.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        List<T>? GetAll();
-        T? GetById(Guid id);
-        T? Add(T obj);
-        T? Update(T obj);
-        bool Delete(T obj);
-        bool Delete(Guid id);
-
+        List<T> GetAll();
+        T? Get(string str);
+        void Save(T obj);
+        void Delete(T obj);
     }
-
 }
