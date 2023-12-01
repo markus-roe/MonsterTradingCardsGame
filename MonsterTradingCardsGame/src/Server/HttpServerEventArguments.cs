@@ -34,7 +34,7 @@ namespace MonsterTradingCardsGame.Server
         /// </summary>
         /// <param name="status">HTTP status code of the response.</param>
         /// <param name="payload">Optional payload to include in the response.</param>
-        public void Reply(int status, string? payload = null)
+        public virtual void Reply(int status, string? payload = null)
         {
             string responseHeader = BuildResponseHeader(status, payload);
             byte[] buffer = Encoding.ASCII.GetBytes(responseHeader);
@@ -47,7 +47,7 @@ namespace MonsterTradingCardsGame.Server
 
         // Private helper methods
 
-        private void CloseClientConnection()
+        protected virtual void CloseClientConnection()
         {
             _Client.Close();
             _Client.Dispose();
