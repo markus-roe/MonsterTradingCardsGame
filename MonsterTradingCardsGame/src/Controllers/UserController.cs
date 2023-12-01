@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using MonsterTradingCardsGame.Server;
-using MonsterTradingCardsGame.Repositories;
+using MonsterTradingCardsGame.Interfaces;
 
 namespace MonsterTradingCardsGame.Controllers
 {
@@ -12,11 +12,11 @@ namespace MonsterTradingCardsGame.Controllers
             public string? Password { get; set; }
         }
 
-        private readonly UserRepository userRepository;
+        private readonly IUserRepository userRepository;
 
-        public UserController()
+        public UserController(IUserRepository userRepository)
         {
-            userRepository = new UserRepository();
+            this.userRepository = userRepository;
         }
 
         [Route("GET", "/users")]

@@ -3,8 +3,10 @@
     public interface IRepository<T> where T : class
     {
         List<T> GetAll();
-        T? Get(string str);
-        void Save(T obj);
-        void Delete(T obj);
+        T GetById(int id);
+        void Add(T entity);
+        void Update(T entity);
+        void Delete(T entity);
     }
+
 }

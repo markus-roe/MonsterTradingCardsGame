@@ -4,7 +4,7 @@ using MonsterTradingCardsGame.Interfaces;
 
 namespace MonsterTradingCardsGame.Repositories
 {
-    public abstract class BaseRepository<T> : IRepository<T> where T : class, new()
+    public abstract class BaseRepository<T> : IRepository<T> where T : class
     {
         protected readonly NpgsqlConnection connection;
 
@@ -22,19 +22,26 @@ namespace MonsterTradingCardsGame.Repositories
             throw new NotImplementedException();
         }
 
-        public virtual T? Get(string str)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void Save(T entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual void Delete(T entity)
         {
             throw new NotImplementedException();
         }
+
+        public T GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(T entity)
+        {
+            throw new NotImplementedException();
+        }
+        public abstract void Save(T obj);
+
     }
 }

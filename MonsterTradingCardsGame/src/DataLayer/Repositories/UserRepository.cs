@@ -5,7 +5,7 @@ using MonsterTradingCardsGame.Interfaces;
 
 namespace MonsterTradingCardsGame.Repositories
 {
-    public class UserRepository : BaseRepository<User>, IRepository<User>
+    public class UserRepository : BaseRepository<User>, IUserRepository
     {
         public UserRepository() : base() { }
 
