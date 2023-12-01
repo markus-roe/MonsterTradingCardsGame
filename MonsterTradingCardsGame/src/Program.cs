@@ -2,6 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using MonsterTradingCardsGame.Controllers;
 using MonsterTradingCardsGame.Middleware;
+using MonsterTradingCardsGame.Interfaces;
+using MonsterTradingCardsGame.Repositories;
+using MonsterTradingCardsGame.Models;
 
 namespace MonsterTradingCardsGame
 {
@@ -40,6 +43,8 @@ namespace MonsterTradingCardsGame
         private static ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
+                .AddScoped<IUserRepository, UserRepository>() // User-specific repository
+                .AddScoped<IRepository<User>, UserRepository>() // General repository for User
                 .AddTransient<UserController>() // Transient lifecycle
                 .AddSingleton<HttpServer>() // Singleton lifecycle
                 .BuildServiceProvider(); // Build service provider (DI container)
