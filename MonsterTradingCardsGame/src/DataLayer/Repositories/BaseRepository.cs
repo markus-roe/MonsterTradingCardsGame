@@ -37,7 +37,7 @@ namespace MonsterTradingCardsGame.Repositories
             throw new NotImplementedException();
         }
 
-        public void Update(T entity)
+        public virtual void Update(T entity)
         {
             throw new NotImplementedException();
         }

@@ -1,65 +1,68 @@
-﻿using MonsterTradingCardsGame.Server;
-using Microsoft.Extensions.DependencyInjection;
-using MonsterTradingCardsGame.Controllers;
-using MonsterTradingCardsGame.Middleware;
-using MonsterTradingCardsGame.Interfaces;
-using MonsterTradingCardsGame.Repositories;
-using MonsterTradingCardsGame.Models;
+﻿    using MonsterTradingCardsGame.Server;
+    using Microsoft.Extensions.DependencyInjection;
+    using MonsterTradingCardsGame.Controllers;
+    using MonsterTradingCardsGame.Middleware;
+    using MonsterTradingCardsGame.Interfaces;
+    using MonsterTradingCardsGame.Repositories;
+    using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Services.Interfaces;
+using MonsterTradingCardsGame.Services;
 
-namespace MonsterTradingCardsGame
-{
-    internal class Program
+    namespace MonsterTradingCardsGame
     {
-
-        static void Main(string[] args)
+        internal class Program
         {
-            try
-            {
-                // Configure Dependency Injection container
-                var serviceProvider = ConfigureServices();
 
-                // Resolve HttpServer
-                var httpServer = serviceProvider.GetService<HttpServer>();
-                if (httpServer == null)
+            static void Main(string[] args)
+            {
+                try
                 {
-                    throw new InvalidOperationException("HttpServer could not be resolved.");
+                    // Configure Dependency Injection container
+                    var serviceProvider = ConfigureServices();
+
+                    // Resolve HttpServer
+                    var httpServer = serviceProvider.GetService<HttpServer>();
+                    if (httpServer == null)
+                    {
+                        throw new InvalidOperationException("HttpServer could not be resolved.");
+                    }
+
+                    httpServer.UseMiddleware(new AuthenticationMiddleware());
+                    httpServer.Incoming += ProcessMessage;
+                    httpServer.Run();
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unhandled Exception: {ex.Message}\n{ex.StackTrace}");
 
-                httpServer.UseMiddleware(new AuthenticationMiddleware());
-                httpServer.Incoming += ProcessMessage;
-                httpServer.Run();
+
+                    Console.WriteLine("An error occurred. The application will now close.");
+                }
             }
-            catch (Exception ex)
+
+            /// <summary>Configures services and returns the service provider for dependency injection.</summary>
+            /// <returns>Configured service provider.</returns>
+            private static ServiceProvider ConfigureServices()
             {
-                Console.WriteLine($"Unhandled Exception: {ex.Message}\n{ex.StackTrace}");
-
-
-                Console.WriteLine("An error occurred. The application will now close.");
+                return new ServiceCollection()
+                    .AddScoped<IAuthenticationService, AuthenticationService>()
+                    .AddScoped<IUserRepository, UserRepository>() // User-specific repository
+                    .AddScoped<IRepository<User>, UserRepository>() // General repository for User
+                    .AddTransient<UserController>() // Transient lifecycle
+                    .AddSingleton<HttpServer>() // Singleton lifecycle
+                    .BuildServiceProvider(); // Build service provider (DI container)
             }
-        }
 
-        /// <summary>Configures services and returns the service provider for dependency injection.</summary>
-        /// <returns>Configured service provider.</returns>
-        private static ServiceProvider ConfigureServices()
-        {
-            return new ServiceCollection()
-                .AddScoped<IUserRepository, UserRepository>() // User-specific repository
-                .AddScoped<IRepository<User>, UserRepository>() // General repository for User
-                .AddTransient<UserController>() // Transient lifecycle
-                .AddSingleton<HttpServer>() // Singleton lifecycle
-                .BuildServiceProvider(); // Build service provider (DI container)
-        }
+            /// <summary>Event handler for incoming server requests.</summary>
+            /// <param name="sender">Sender.</param>
+            /// <param name="httpEventArguments">Event arguments.</param>
+            private static void ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
+            {
+                Console.WriteLine(httpEventArguments.PlainMessage);
 
-        /// <summary>Event handler for incoming server requests.</summary>
-        /// <param name="sender">Sender.</param>
-        /// <param name="httpEventArguments">Event arguments.</param>
-        private static void ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
-        {
-            Console.WriteLine(httpEventArguments.PlainMessage);
-
-            // Call the HandleIncomingRequests method to process specific requests
-            var httpServer = sender as HttpServer;
-            httpServer?.HandleIncomingRequests(httpEventArguments);
+                // Call the HandleIncomingRequests method to process specific requests
+                var httpServer = sender as HttpServer;
+                httpServer?.HandleIncomingRequests(httpEventArguments);
+            }
         }
     }
-}

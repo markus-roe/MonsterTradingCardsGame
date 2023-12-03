@@ -15,7 +15,7 @@ namespace MonsterTradingCardsGame.Server
         public void AutoRegisterRoutes(IServiceProvider serviceProvider)
         {
             var controllerTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.Namespace == "MonsterTradingCardsGame.Controllers" && t.IsClass && !t.IsAbstract);
+                .Where(t => t.Namespace == "MonsterTradingCardsGame.Controllers" && t.IsClass && !t.IsAbstract && t.Name != "UserCredentials" && t.Name != "UserUpdateInfo");
 
             foreach (var controllerType in controllerTypes)
             {
@@ -23,7 +23,7 @@ namespace MonsterTradingCardsGame.Server
                 if (controller == null)
                 {
                     // If controller is null, meaning it was not registered in the DI container or does not exist
-                    /*throw new InvalidOperationException("Controller does not exist.");*/
+                    throw new InvalidOperationException("Controller does not exist.");
 
                     ///  TODO: ERROR: UserCredentials inside UserController class is no controller class
 

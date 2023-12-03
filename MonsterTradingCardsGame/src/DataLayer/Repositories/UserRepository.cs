@@ -12,7 +12,10 @@ namespace MonsterTradingCardsGame.Repositories
         protected override void Fill(User user, IDataRecord record)
         {
             user.Username = record.GetString(record.GetOrdinal("Username"));
-            // Populate other User properties from the record as needed
+            user.Password = record.GetString(record.GetOrdinal("password_hash"));
+            user.Name = record.IsDBNull(record.GetOrdinal("Name")) ? null : record["Name"].ToString();
+            user.Bio = record.IsDBNull(record.GetOrdinal("Bio")) ? null : record["Bio"].ToString();
+            user.Image = record.IsDBNull(record.GetOrdinal("Image")) ? null : record["Image"].ToString();
         }
 
         public override List<User> GetAll()
@@ -50,16 +53,49 @@ namespace MonsterTradingCardsGame.Repositories
             return user;
         }
 
-        public override void Save(User user)
+        public override void Update(User user)
         {
-            using (var command = new NpgsqlCommand("INSERT INTO Users (Username, ...) VALUES (@username, ...) ON CONFLICT (Id) DO UPDATE SET Username = @username, ...", connection))
+            using (var command = new NpgsqlCommand("UPDATE Users SET Name = @name, Bio = @bio, Image = @image WHERE Username = @username", connection))
             {
                 command.Parameters.AddWithValue("@username", user.Username);
-                // Add other parameters as needed
+                command.Parameters.AddWithValue("@name", user.Name);
+                command.Parameters.AddWithValue("@bio", user.Bio);
+                command.Parameters.AddWithValue("@image", user.Image);
 
                 command.ExecuteNonQuery();
             }
         }
+
+
+        public override void Save(User user)
+        {
+            using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash, Name, Bio, Image) VALUES (@username, @password, @name, @bio, @image)", connection))
+            {
+                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@password", user.Password);
+                command.Parameters.AddWithValue("@name", (object)user.Name ?? DBNull.Value);
+                command.Parameters.AddWithValue("@bio", (object)user.Bio ?? DBNull.Value);
+                command.Parameters.AddWithValue("@image", (object)user.Image ?? DBNull.Value);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private bool VerifyPassword(string providedPassword, string storedPassword)
+        {
+            // Implement your password verification logic here
+            // This typically involves hashing the provided password and comparing it with the stored hash
+            return providedPassword == storedPassword; // Simplified for example purposes
+        }
+
+        private string GenerateToken(User user)
+        {
+            // Implement your token generation logic here
+            // This could be a JWT token or any other format of your choice
+            return "generated-token"; // Placeholder
+        }
+
+
 
         public override void Delete(User user)
         {
