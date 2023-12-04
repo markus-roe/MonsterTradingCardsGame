@@ -6,7 +6,7 @@ using MonsterTradingCardsGame.Services.Interfaces;
 
 namespace MonsterTradingCardsGame.Controllers
 {
-    public class UserController : BaseController
+    public class UserController
     {
         private readonly IUserRepository userRepository;
         private readonly IAuthenticationService authService;
