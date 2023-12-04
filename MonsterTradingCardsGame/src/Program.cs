@@ -1,10 +1,10 @@
-﻿    using MonsterTradingCardsGame.Server;
-    using Microsoft.Extensions.DependencyInjection;
-    using MonsterTradingCardsGame.Controllers;
-    using MonsterTradingCardsGame.Middleware;
-    using MonsterTradingCardsGame.Interfaces;
-    using MonsterTradingCardsGame.Repositories;
-    using MonsterTradingCardsGame.Models;
+﻿using MonsterTradingCardsGame.Server;
+using Microsoft.Extensions.DependencyInjection;
+using MonsterTradingCardsGame.Controllers;
+using MonsterTradingCardsGame.Middleware;
+using MonsterTradingCardsGame.Interfaces;
+using MonsterTradingCardsGame.Repositories;
+using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Services;
 
@@ -37,7 +37,7 @@ using MonsterTradingCardsGame.Services;
                         throw new InvalidOperationException("AuthenticationMiddleware could not be resolved.");
                     }
 
-                    httpServer.Incoming += ProcessMessage;
+                httpServer.Incoming += ProcessMessage;
                     httpServer.Run();
                 }
                 catch (Exception ex)
@@ -55,6 +55,9 @@ using MonsterTradingCardsGame.Services;
             {
                 return new ServiceCollection()
                     .AddSingleton<IAuthenticationService, AuthenticationService>()
+                    .AddSingleton<IBattleService, BattleService>()
+                    .AddSingleton<LobbyService>()
+                    .AddTransient<BattleController>()
                     .AddScoped<IUserRepository, UserRepository>() // User-specific repository
                     .AddScoped<IRepository<User>, UserRepository>() // General repository for User
                     .AddTransient<UserController>() // Transient lifecycle
