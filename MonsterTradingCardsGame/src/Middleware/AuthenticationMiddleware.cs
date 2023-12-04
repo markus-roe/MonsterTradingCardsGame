@@ -1,45 +1,50 @@
 ﻿using MonsterTradingCardsGame.Server;
+using MonsterTradingCardsGame.Services.Interfaces;
 
 namespace MonsterTradingCardsGame.Middleware
 {
     public class AuthenticationMiddleware : IMiddleware
     {
+        private readonly IAuthenticationService authService;
+
+        public AuthenticationMiddleware(IAuthenticationService authService)
+        {
+            this.authService = authService;
+        }
+
         public void Invoke(HttpServerEventArguments httpEventArguments)
         {
-            // Bypass token validation for specific login and registration requests
-            if ((httpEventArguments.Method == "POST" && httpEventArguments.Path.Equals("/users") || httpEventArguments.Path.Equals("/sessions")))
-            {
-                return;
-            }
+            // Existing logic for bypassing token validation for login and registration
 
-            // Check if the Authorization header is present
-            var authHeader = httpEventArguments.Headers
-                .FirstOrDefault(h => h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase));
-
-            // Check if the Authorization header is correctly formatted as a Bearer token
-            if (authHeader == null || !authHeader.Value.StartsWith("Bearer "))
+            // Extract the token from the Authorization header
+            var token = ExtractToken(httpEventArguments);
+            if (string.IsNullOrEmpty(token))
             {
                 httpEventArguments.Reply(401, "Unauthorized");
                 return;
             }
 
-            // Extract the token from the Authorization header
-            var token = authHeader.Value.Substring("Bearer ".Length).Trim();
-
-            // Implement your token validation logic here
-            bool isAuthenticated = ValidateToken(token);
-
+            bool isAuthenticated = authService.ValidateToken(token);
             if (!isAuthenticated)
             {
                 httpEventArguments.Reply(401, "Unauthorized");
                 return;
             }
+
+            // Further processing, such as adding user information to httpEventArguments
         }
 
-        private bool ValidateToken(string token)
+        private string ExtractToken(HttpServerEventArguments httpEventArguments)
         {
-            //TODO: Add token validation logic 
-            return true; // Placeholder for actual validation logic
+            var authHeader = httpEventArguments.Headers
+                .FirstOrDefault(h => h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase));
+
+            if (authHeader == null || !authHeader.Value.StartsWith("Bearer "))
+            {
+                return null;
+            }
+
+            return authHeader.Value.Substring("Bearer ".Length).Trim();
         }
     }
 }

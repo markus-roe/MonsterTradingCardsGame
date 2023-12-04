@@ -27,7 +27,16 @@ using MonsterTradingCardsGame.Services;
                         throw new InvalidOperationException("HttpServer could not be resolved.");
                     }
 
-                    httpServer.UseMiddleware(new AuthenticationMiddleware());
+                    var authMiddleware = serviceProvider.GetService<AuthenticationMiddleware>();
+                    if (authMiddleware != null)
+                    {
+                        httpServer.UseMiddleware(authMiddleware);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("AuthenticationMiddleware could not be resolved.");
+                    }
+
                     httpServer.Incoming += ProcessMessage;
                     httpServer.Run();
                 }
@@ -45,11 +54,12 @@ using MonsterTradingCardsGame.Services;
             private static ServiceProvider ConfigureServices()
             {
                 return new ServiceCollection()
-                    .AddScoped<IAuthenticationService, AuthenticationService>()
+                    .AddSingleton<IAuthenticationService, AuthenticationService>()
                     .AddScoped<IUserRepository, UserRepository>() // User-specific repository
                     .AddScoped<IRepository<User>, UserRepository>() // General repository for User
                     .AddTransient<UserController>() // Transient lifecycle
                     .AddSingleton<HttpServer>() // Singleton lifecycle
+                    .AddSingleton<AuthenticationMiddleware>() 
                     .BuildServiceProvider(); // Build service provider (DI container)
             }
 

@@ -24,6 +24,25 @@ namespace MonsterTradingCardsGame.Services
             return false;
         }
 
+        public User GetUserFromToken(string token)
+        {
+            return userRepository.GetUserByUsername(token.Split("-")[0]);
+        }
+
+
+
+        public bool ValidateToken(string token)
+        {
+
+            User user = userRepository.GetUserByUsername(token.Split("-")[0]);
+            if (user == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public string GenerateToken(User user)
         {
             return $"{user.Username}-mtcgToken";
