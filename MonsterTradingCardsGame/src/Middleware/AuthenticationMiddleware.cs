@@ -1,4 +1,5 @@
-﻿using MonsterTradingCardsGame.Server;
+﻿using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Services.Interfaces;
 
 namespace MonsterTradingCardsGame.Middleware
@@ -31,7 +32,8 @@ namespace MonsterTradingCardsGame.Middleware
                 return;
             }
 
-            // Further processing, such as adding user information to httpEventArguments
+            User user = authService.GetUserFromToken(token);
+            httpEventArguments.User = user;
         }
 
         private string ExtractToken(HttpServerEventArguments httpEventArguments)

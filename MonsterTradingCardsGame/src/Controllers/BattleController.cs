@@ -17,27 +17,8 @@ namespace MonsterTradingCardsGame.Controllers
         [Route("POST", "/battles")]
         public async void StartBattle(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
-            // Extracting token from the 'Authorization' header
-            if (!httpEventArguments.Headers.Any(h => h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase)))
-            {
-                httpEventArguments.Reply(401, "Unauthorized: No Authorization header.");
-                return;
-            }
 
-            var authHeader = httpEventArguments.Headers.First(h => h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase)).Value;
-            if (!authHeader.StartsWith("Bearer "))
-            {
-                httpEventArguments.Reply(401, "Unauthorized: Invalid Authorization header format.");
-                return;
-            }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-            var user = authenticationService.GetUserFromToken(token);
-            if (user == null)
-            {
-                httpEventArguments.Reply(401, "Unauthorized: Invalid token.");
-                return;
-            }
+            var user = httpEventArguments.User;
 
             string battleResult = await lobbyService.EnterLobbyAsync(user);
             httpEventArguments.Reply(200, battleResult);

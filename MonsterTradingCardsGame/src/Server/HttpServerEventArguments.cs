@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Text;
+using MonsterTradingCardsGame.Models;
 
 namespace MonsterTradingCardsGame.Server
 {
@@ -28,6 +29,7 @@ namespace MonsterTradingCardsGame.Server
         public string Payload { get; private set; } = string.Empty;
         public string PlainMessage { get; private set; }
         public bool ResponseSent { get; private set; } = false;
+        public User User { get; set; }
 
         /// <summary>
         /// Sends a reply to the client.
