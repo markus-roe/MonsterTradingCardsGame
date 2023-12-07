@@ -22,8 +22,7 @@ namespace MonsterTradingCardsGame.Server
                 var controller = serviceProvider.GetService(controllerType);
                 if (controller == null)
                 {
-                    // If controller is null, meaning it was not registered in the DI container or does not exist
-                    /*throw new InvalidOperationException("Controller does not exist.");*/
+                    continue;
 
                     ///  TODO: ERROR: UserCredentials inside UserController class is no controller class
 

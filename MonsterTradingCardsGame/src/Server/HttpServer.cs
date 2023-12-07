@@ -89,23 +89,87 @@ namespace MonsterTradingCardsGame.Server
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>Runs the HTTP server.</summary>
+ /*         public void Run()
+          {
+              if (Active) return;
+
+              Active = true;
+              _Listener = new(IPAddress.Parse("127.0.0.1"), 10001);
+              _Listener.Start();
+              Console.WriteLine("Listening on 127.0.0.1:10001");
+
+
+              byte[] buf = new byte[256];
+
+              while (Active)
+              {
+                  TcpClient client = _Listener.AcceptTcpClient();
+
+                  string data = string.Empty;
+                  while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
+                  {
+                      int n = client.GetStream().Read(buf, 0, buf.Length);
+                      data += Encoding.ASCII.GetString(buf, 0, n);
+                  }
+
+                  Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
+              }
+
+              _Listener.Stop();
+          }*/
+
         public void Run()
         {
             if (Active) return;
 
             Active = true;
-            _Listener = new(IPAddress.Parse("127.0.0.1"), 10001);
+            _Listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 10001);
             _Listener.Start();
-            Console.WriteLine("Running!");
+            Console.WriteLine("Server is running on 127.0.0.1:10001");
 
-
-            byte[] buf = new byte[256];
-
-            while (Active)
+            Task.Run(async () =>
             {
-                TcpClient client = _Listener.AcceptTcpClient();
+                try
+                {
+                    while (Active)
+                    {
+                        TcpClient client = await _Listener.AcceptTcpClientAsync();
+                        Console.WriteLine("Accepted new client.");
+                        await Task.Run(() =>
+                            {
+                                byte[] buf = new byte[256];
+                            string data = string.Empty;
 
+                            while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
+                            {
+                                int n = client.GetStream().Read(buf, 0, buf.Length);
+                                    data += Encoding.ASCII.GetString(buf, 0, n);
+                                }
+
+                            Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
+
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in server main loop: {ex.Message}");
+                    Active = false;
+                }
+            });
+
+
+            Console.ReadLine(); // Keep the main thread active
+            _Listener.Stop();
+        }
+
+        private void HandleClient(TcpClient client)
+        {
+            try
+            {
+                byte[] buf = new byte[256];
                 string data = string.Empty;
+
                 while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
                 {
                     int n = client.GetStream().Read(buf, 0, buf.Length);
@@ -114,9 +178,16 @@ namespace MonsterTradingCardsGame.Server
 
                 Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
             }
-
-            _Listener.Stop();
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error handling client: {ex.Message}");
+            }
+            finally
+            {
+                client.Close();
+            }
         }
+
 
 
         /// <summary>Stops the HTTP server.</summary>
