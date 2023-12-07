@@ -4,22 +4,28 @@ using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using System.Text.Json;
 using NUnit.Framework;
+using MonsterTradingCardsGame.Services.Interfaces;
+using MonsterTradingCardsGame.Server;
+using System;
+using System.Collections.Generic;
 
 namespace MonsterTradingCardsGame.Tests.Controllers
 {
     [TestFixture]
     public class UserControllerTests
     {
-        private Mock<IUserRepository> mockUserRepository;
+        private Mock<IUserRepository> userRepositoryMock;
+        private Mock<IAuthenticationService> authServiceMock;
         private UserController userController;
-        private MockHttpServerEventArguments httpEventArguments;
+        private Mock<HttpServerEventArguments> httpEventArgumentsMock;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            mockUserRepository = new Mock<IUserRepository>();
-            userController = new UserController(mockUserRepository.Object);
-            httpEventArguments = new MockHttpServerEventArguments();
+            userRepositoryMock = new Mock<IUserRepository>();
+            authServiceMock = new Mock<IAuthenticationService>();
+            userController = new UserController(userRepositoryMock.Object, authServiceMock.Object);
+            httpEventArgumentsMock = new Mock<HttpServerEventArguments>(null, string.Empty);
         }
 
         [Test]
@@ -27,14 +33,20 @@ namespace MonsterTradingCardsGame.Tests.Controllers
         {
             // Arrange
             var mockUsers = new List<User> { new User { Username = "TestUser1" }, new User { Username = "TestUser2" } };
-            mockUserRepository.Setup(repo => repo.GetAll()).Returns(mockUsers);
+            userRepositoryMock.Setup(repo => repo.GetAll()).Returns(mockUsers);
+
+            var httpEventArguments = new HttpServerEventArguments(null, string.Empty)
+            {
+                Payload = JsonSerializer.Serialize(mockUsers) // This should now work
+            };
 
             // Act
             userController.GetAll(httpEventArguments, new Dictionary<string, string>());
 
             // Assert
-            AssertResponseContent(httpEventArguments.ResponseContent, 200, mockUsers.Count);
+            AssertResponseContent(httpEventArguments, 200, mockUsers.Count);
         }
+
 
         [TestCase("ExistingUser", 200)]
         [TestCase("NonExistingUser", 404)]
@@ -42,34 +54,44 @@ namespace MonsterTradingCardsGame.Tests.Controllers
         {
             // Arrange
             var expectedUser = new User { Username = "ExistingUser" };
-            mockUserRepository.Setup(repo => repo.GetUserByUsername("ExistingUser")).Returns(expectedUser);
-            mockUserRepository.Setup(repo => repo.GetUserByUsername("NonExistingUser")).Returns((User)null);
+            userRepositoryMock.Setup(repo => repo.GetUserByUsername("ExistingUser")).Returns(expectedUser);
+            userRepositoryMock.Setup(repo => repo.GetUserByUsername("NonExistingUser")).Returns((User)null);
 
             // Act
-            userController.GetUserByUsername(httpEventArguments, new Dictionary<string, string> { { "username", username } });
+            userController.GetUserByUsername(httpEventArgumentsMock.Object, new Dictionary<string, string> { { "username", username } });
 
             // Assert
-            Assert.That(httpEventArguments.ResponseStatusCode, Is.EqualTo(expectedStatusCode));
+            Assert.That(httpEventArgumentsMock.Object.ResponseStatusCode, Is.EqualTo(expectedStatusCode));
         }
 
         [Test]
         public void GetUserByUsername_RepositoryThrowsException_ReturnsServerError()
         {
             // Arrange
-            mockUserRepository.Setup(repo => repo.GetUserByUsername(It.IsAny<string>())).Throws(new Exception());
+            userRepositoryMock.Setup(repo => repo.GetUserByUsername(It.IsAny<string>())).Throws(new Exception());
 
             // Act
-            userController.GetUserByUsername(httpEventArguments, new Dictionary<string, string> { { "username", "AnyUser" } });
+            userController.GetUserByUsername(httpEventArgumentsMock.Object, new Dictionary<string, string> { { "username", "AnyUser" } });
 
             // Assert
-            Assert.That(httpEventArguments.ResponseStatusCode, Is.EqualTo(500));
+            Assert.That(httpEventArgumentsMock.Object.ResponseStatusCode, Is.EqualTo(500));
         }
 
-        private void AssertResponseContent(string responseContent, int expectedStatusCode, int expectedCount)
+        private void AssertResponseContent(HttpServerEventArguments httpEventArguments, int expectedStatusCode, int expectedCount)
         {
             Assert.That(httpEventArguments.ResponseStatusCode, Is.EqualTo(expectedStatusCode));
-            var response = JsonSerializer.Deserialize<List<User>>(responseContent);
-            Assert.That(response.Count, Is.EqualTo(expectedCount));
+
+            if (!string.IsNullOrWhiteSpace(httpEventArguments.Payload))
+            {
+                var response = JsonSerializer.Deserialize<List<User>>(httpEventArguments.Payload);
+                Assert.That(response.Count, Is.EqualTo(expectedCount));
+            }
+            else
+            {
+                Assert.Fail("Response content is empty or invalid.");
+            }
         }
+
+
     }
 }
