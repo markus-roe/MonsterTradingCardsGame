@@ -114,12 +114,28 @@ namespace MonsterTradingCardsGame.Controllers
                 return;
             }
 
+            if (string.IsNullOrEmpty(httpEventArguments.Payload))
+            {
+                httpEventArguments.Reply(400, "Bad Request: Request body is missing or empty.");
+                return;
+            }
+
             try
             {
+
                 var userInfo = JsonSerializer.Deserialize<UserUpdateInfo>(httpEventArguments.Payload);
                 if (userInfo == null)
                 {
                     httpEventArguments.Reply(400, "Invalid user data.");
+                    return;
+                }
+
+                // Check if Name, Bio, and Image exist
+                if (string.IsNullOrEmpty(userInfo.Name) ||
+                    string.IsNullOrEmpty(userInfo.Bio) ||
+                    string.IsNullOrEmpty(userInfo.Image))
+                {
+                    httpEventArguments.Reply(400, "Invalid user data: Name, Bio, and Image are required.");
                     return;
                 }
 
