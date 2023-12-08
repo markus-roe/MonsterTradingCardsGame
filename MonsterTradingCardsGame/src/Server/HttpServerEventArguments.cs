@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Text;
 using MonsterTradingCardsGame.Models;
@@ -19,12 +20,14 @@ namespace MonsterTradingCardsGame.Server
             _Client = client;
             PlainMessage = plainMessage;
             Payload = string.Empty;
+            QueryParameters = new Dictionary<string, string>();
             ParseHttpRequest(plainMessage);
         }
 
         // Public properties
         public string Method { get; private set; } = string.Empty;
         public string Path { get; private set; } = string.Empty;
+        public Dictionary<string, string> QueryParameters { get; private set; }
         public List<HttpHeader> Headers { get; private set; } = new List<HttpHeader>();
         public string Payload { get; private set; } = string.Empty;
         public string PlainMessage { get; private set; }
@@ -103,11 +106,31 @@ namespace MonsterTradingCardsGame.Server
             if (parts.Length >= 2)
             {
                 Method = parts[0];
-                Path = parts[1];
+                var fullPath = parts[1].Split('?');
+                Path = fullPath[0];
+
+                if (fullPath.Length > 1)
+                {
+                    ParseQueryString(fullPath[1]);
+                }
             }
             else
             {
                 // TODO: Handle invalid request line
+            }
+        }
+
+        private void ParseQueryString(string queryString)
+        {
+            var queries = queryString.Split('&');
+            foreach (var query in queries)
+            {
+                var pair = query.Split('=');
+                if (pair.Length == 2)
+                {
+                    QueryParameters[pair[0]] = pair[1];
+                }
+                // TODO: Handle cases where the query string is not valiid
             }
         }
 
