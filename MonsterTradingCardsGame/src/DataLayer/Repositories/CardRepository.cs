@@ -1,10 +1,9 @@
 ﻿using System.Data;
 using Npgsql;
-using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 
-namespace MonsterTradingCardsGame.Interfaces
+namespace MonsterTradingCardsGame.Repositories
 {
     public class CardRepository : BaseRepository<Card>, ICardRepository
     {
@@ -38,6 +37,25 @@ namespace MonsterTradingCardsGame.Interfaces
         {
             var cards = new List<Card>();
             using (var command = new NpgsqlCommand("SELECT * FROM Cards WHERE username = @username", connection))
+            {
+                command.Parameters.AddWithValue("@username", username);
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var card = new Card();
+                        Fill(card, reader);
+                        cards.Add(card);
+                    }
+                }
+            }
+            return cards;
+        }
+
+        public List<Card> GetDeckByUsername(string username)
+        {
+            var cards = new List<Card>();
+            using (var command = new NpgsqlCommand("SELECT * FROM Cards WHERE username = @username AND inDeck = true", connection))
             {
                 command.Parameters.AddWithValue("@username", username);
                 using (var reader = command.ExecuteReader())

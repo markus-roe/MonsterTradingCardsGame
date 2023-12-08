@@ -7,7 +7,12 @@ namespace MonsterTradingCardsGame.Repositories
 {
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
-        public UserRepository() : base() { }
+        private readonly ICardRepository _cardRepository;
+
+        public UserRepository(ICardRepository cardRepository) : base()
+        {
+            _cardRepository = cardRepository;
+        }
 
         protected override void Fill(User user, IDataRecord record)
         {
@@ -47,10 +52,12 @@ namespace MonsterTradingCardsGame.Repositories
                     {
                         user = new User();
                         Fill(user, reader);
+                        user.Stack = _cardRepository.GetCardsByUsername(username);
+                        /*user.Deck = _cardRepository.GetDeckByUsername(username);*/
                     }
                 }
+                return user;
             }
-            return user;
         }
 
         public override void Update(User user)
@@ -80,22 +87,6 @@ namespace MonsterTradingCardsGame.Repositories
                 command.ExecuteNonQuery();
             }
         }
-
-        private bool VerifyPassword(string providedPassword, string storedPassword)
-        {
-            // Implement your password verification logic here
-            // This typically involves hashing the provided password and comparing it with the stored hash
-            return providedPassword == storedPassword; // Simplified for example purposes
-        }
-
-        private string GenerateToken(User user)
-        {
-            // Implement your token generation logic here
-            // This could be a JWT token or any other format of your choice
-            return "generated-token"; // Placeholder
-        }
-
-
 
         public override void Delete(User user)
         {

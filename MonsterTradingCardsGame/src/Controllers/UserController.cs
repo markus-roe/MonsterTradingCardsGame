@@ -8,12 +8,12 @@ namespace MonsterTradingCardsGame.Controllers
 {
     public class UserController
     {
-        private readonly IUserRepository userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IAuthenticationService authService;
 
         public UserController(IUserRepository userRepository, IAuthenticationService authService)
         {
-            this.userRepository = userRepository;
+            this._userRepository = userRepository;
             this.authService = authService;
         }
         public class UserCredentials
@@ -34,7 +34,7 @@ namespace MonsterTradingCardsGame.Controllers
         {
             try
             {
-                var users = userRepository.GetAll();
+                var users = _userRepository.GetAll();
                 var response = JsonSerializer.Serialize(users);
                 httpEventArguments.Reply(200, response);
             }
@@ -55,7 +55,7 @@ namespace MonsterTradingCardsGame.Controllers
 
             try
             {
-                var user = userRepository.GetUserByUsername(username); 
+                var user = _userRepository.GetUserByUsername(username); 
                 if (user == null)
                 {
                     httpEventArguments.Reply(404, "User not found.");
@@ -84,7 +84,7 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                if (userRepository.GetUserByUsername(userCredentials.Username) != null)
+                if (_userRepository.GetUserByUsername(userCredentials.Username) != null)
                 {
                     httpEventArguments.Reply(409, "Username already exists.");
                     return;
@@ -96,7 +96,7 @@ namespace MonsterTradingCardsGame.Controllers
                     Password = userCredentials.Password,
                 };
 
-                userRepository.Save(newUser);
+                _userRepository.Save(newUser);
                 httpEventArguments.Reply(201, "User registered successfully.");
             }
             catch (Exception ex)
@@ -139,7 +139,7 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                var existingUser = userRepository.GetUserByUsername(username);
+                var existingUser = _userRepository.GetUserByUsername(username);
                 if (existingUser == null)
                 {
                     httpEventArguments.Reply(404, "User not found.");
@@ -151,7 +151,7 @@ namespace MonsterTradingCardsGame.Controllers
                 existingUser.Bio = userInfo.Bio;
                 existingUser.Image = userInfo.Image;
 
-                userRepository.Update(existingUser);
+                _userRepository.Update(existingUser);
                 httpEventArguments.Reply(200, "User updated successfully.");
             }
             catch (Exception ex)
@@ -175,7 +175,7 @@ namespace MonsterTradingCardsGame.Controllers
 
                 if (authService.VerifyCredentials(userCredentials.Username, userCredentials.Password))
                 {
-                    var user = userRepository.GetUserByUsername(userCredentials.Username);
+                    var user = _userRepository.GetUserByUsername(userCredentials.Username);
                     var token = authService.GenerateToken(user);
                     httpEventArguments.Reply(200, JsonSerializer.Serialize(new { token = token }));
                 }
@@ -190,6 +190,14 @@ namespace MonsterTradingCardsGame.Controllers
             }
         }
 
+        [Route("GET", "/cards")]
+        public void GetCardsByUser(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        {
+            User user = httpEventArguments.User;
+
+            var response = JsonSerializer.Serialize(user.Stack);
+            httpEventArguments.Reply(200, response);
+        }
 
     }
 }
