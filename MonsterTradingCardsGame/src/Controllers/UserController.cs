@@ -199,5 +199,43 @@ namespace MonsterTradingCardsGame.Controllers
             httpEventArguments.Reply(200, response);
         }
 
+        [Route("GET", "/deck")]
+        public void GetDeck(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                User user = httpEventArguments.User;
+                var deck = user.Deck;
+
+                if (deck.Count == 0)
+                {
+                    httpEventArguments.Reply(204, "The request was fine, but the deck doesn't have any cards");
+                    return;
+                }
+
+                // Extract the format parameter from the query parameters
+                httpEventArguments.QueryParameters.TryGetValue("format", out var format);
+                format = format?.ToLower() ?? "json";
+
+                string response;
+                if (format == "plain")
+                {
+                    response = string.Join("\n", deck.Select(card => card.ToString()));
+                }
+                else
+                {
+                    response = JsonSerializer.Serialize(deck);
+                }
+
+                httpEventArguments.Reply(200, response);
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

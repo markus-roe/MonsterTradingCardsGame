@@ -12,7 +12,7 @@ namespace MonsterTradingCardsGame.Repositories
         protected override void Fill(Card card, IDataRecord record)
         {
             // Fill card details from the record
-            card.Id = record.GetInt32(record.GetOrdinal("Id"));
+            card.Uuid = record.GetString(record.GetOrdinal("uuid"));
             card.Name = record.GetString(record.GetOrdinal("Name"));
             card.Damage = record.GetDouble(record.GetOrdinal("Damage"));
         }
@@ -54,8 +54,11 @@ namespace MonsterTradingCardsGame.Repositories
 
         public List<Card> GetDeckByUsername(string username)
         {
+            try
+            {
+
             var cards = new List<Card>();
-            using (var command = new NpgsqlCommand("SELECT * FROM Cards WHERE username = @username AND inDeck = true", connection))
+            using (var command = new NpgsqlCommand("SELECT * FROM Cards WHERE username = @username AND indeck = true", connection))
             {
                 command.Parameters.AddWithValue("@username", username);
                 using (var reader = command.ExecuteReader())
@@ -68,7 +71,12 @@ namespace MonsterTradingCardsGame.Repositories
                     }
                 }
             }
-            return cards;
+                return cards;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public override void Save(Card card)

@@ -6,6 +6,8 @@ namespace MonsterTradingCardsGame.Interfaces
     {
         List<Card> GetCardsByUsername(string username);
 
+        List<Card> GetDeckByUsername(string username);
+
         Card GetCardById(int cardId);
 
         public void Save(Card card);

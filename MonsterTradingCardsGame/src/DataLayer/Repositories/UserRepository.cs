@@ -53,7 +53,7 @@ namespace MonsterTradingCardsGame.Repositories
                         user = new User();
                         Fill(user, reader);
                         user.Stack = _cardRepository.GetCardsByUsername(username);
-                        /*user.Deck = _cardRepository.GetDeckByUsername(username);*/
+                        user.Deck = _cardRepository.GetDeckByUsername(username);
                     }
                 }
                 return user;

@@ -6,7 +6,7 @@
 
     public class Card
     {
-        public int Id { get; set; }
+        public string Uuid { get; set; }
         public string Name { get; set; }
         public CardType Type { get; set; }
         public ElementType Element { get; set; }
@@ -15,12 +15,10 @@
         // Constructors
         public Card() {}
 
-        public Card(string name, CardType type, ElementType element, double damage)
+        public override string ToString()
         {
-            this.Name = name;
-            this.Type = type;
-            this.Element = element;
-            this.Damage = damage;
+            return $"{Name} - Type: {Type}, Element: {Element}, Damage: {Damage}";
         }
+
     }
 }
