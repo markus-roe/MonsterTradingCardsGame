@@ -6,14 +6,14 @@
 
     public class Card
     {
-        public string Uuid { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public CardType Type { get; set; }
         public ElementType Element { get; set; }
         public double Damage { get; set; }
 
         // Constructors
-        public Card() {}
+        public Card() { }
 
         public override string ToString()
         {

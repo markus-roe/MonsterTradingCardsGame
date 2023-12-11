@@ -3,6 +3,7 @@ namespace MonsterTradingCardsGame.Models
 {
     public class User
     {
+        public int Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string? Name { get; set; }
@@ -13,15 +14,6 @@ namespace MonsterTradingCardsGame.Models
         public List<Card> Stack { get; set; }
         public List<Card> Deck { get; set; }
 
-        public User()
-        {
-            this.Username = "defaultUserName";
-            this.Password = "defaultPassword";
-            this.Coins = 20;
-            this.Elo = 100;
-            this.Stack = new List<Card>();
-            this.Deck = new List<Card>();
-        }
 
     }
 

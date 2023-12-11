@@ -16,6 +16,7 @@ namespace MonsterTradingCardsGame.Repositories
 
         protected override void Fill(User user, IDataRecord record)
         {
+            user.Id = record.GetInt32(record.GetOrdinal("id"));
             user.Username = record.GetString(record.GetOrdinal("Username"));
             user.Password = record.GetString(record.GetOrdinal("password_hash"));
             user.Name = record.IsDBNull(record.GetOrdinal("Name")) ? null : record["Name"].ToString();
@@ -26,15 +27,23 @@ namespace MonsterTradingCardsGame.Repositories
         public override List<User> GetAll()
         {
             var users = new List<User>();
-            using (var command = new NpgsqlCommand("SELECT * FROM Users", connection))
-            using (var reader = command.ExecuteReader())
+            try
             {
-                while (reader.Read())
+                using (var command = new NpgsqlCommand("SELECT * FROM Users", connection))
+                using (var reader = command.ExecuteReader())
                 {
-                    var user = new User();
-                    Fill(user, reader);
-                    users.Add(user);
+                    while (reader.Read())
+                    {
+                        var user = new User();
+                        Fill(user, reader);
+                        users.Add(user);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception here, e.g. log the error or throw a custom exception
+                Console.WriteLine($"An error occurred while retrieving users: {ex.Message}");
             }
             return users;
         }
@@ -42,49 +51,105 @@ namespace MonsterTradingCardsGame.Repositories
         public User? GetUserByUsername(string username)
         {
             User? user = null;
-            using (var command = new NpgsqlCommand("SELECT * FROM Users WHERE Username = @username", connection))
+            try
             {
-                command.Parameters.AddWithValue("@username", username);
-
-                using (var reader = command.ExecuteReader())
+                using (var command = new NpgsqlCommand("SELECT * FROM Users WHERE Username = @username", connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@username", username);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        user = new User();
-                        Fill(user, reader);
-                        user.Stack = _cardRepository.GetCardsByUsername(username);
-                        user.Deck = _cardRepository.GetDeckByUsername(username);
+                        if (reader.Read())
+                        {
+                            user = new User();
+                            Fill(user, reader);
+                            user.Stack = _cardRepository.GetCardsByUser(user);
+                            user.Deck = _cardRepository.GetDeckByUser(user);
+                        }
+                    }
+                    return user;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception here, e.g. log the error or throw a custom exception
+                Console.WriteLine($"An error occurred while retrieving user by username: {ex.Message}\n {ex.StackTrace}");
+                return null;
+            }
+        }
+
+
+
+        public bool SetCardDeck(User user, List<Card> cards)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("DELETE FROM user_cards WHERE userid = @userid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.ExecuteNonQuery();
+                }
+
+                foreach (Card card in cards)
+                {
+                    using (var command = new NpgsqlCommand("INSERT INTO user_cards (userid, cardid) VALUES (@userid, @cardid)", connection))
+                    {
+                        command.Parameters.AddWithValue("@userid", user.Id);
+                        command.Parameters.AddWithValue("@cardid", card.Id);
+                        command.ExecuteNonQuery();
                     }
                 }
-                return user;
+                user.Deck = cards.ToList();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in SetCardDeck: " + ex.Message);
+                return false;
             }
         }
 
         public override void Update(User user)
         {
-            using (var command = new NpgsqlCommand("UPDATE Users SET Name = @name, Bio = @bio, Image = @image WHERE Username = @username", connection))
+            try
             {
-                command.Parameters.AddWithValue("@username", user.Username);
-                command.Parameters.AddWithValue("@name", user.Name);
-                command.Parameters.AddWithValue("@bio", user.Bio);
-                command.Parameters.AddWithValue("@image", user.Image);
+                using (var command = new NpgsqlCommand("UPDATE Users SET Name = @name, Bio = @bio, Image = @image WHERE Username = @username", connection))
+                {
+                    command.Parameters.AddWithValue("@username", user.Username);
+                    command.Parameters.AddWithValue("@name", user.Name);
+                    command.Parameters.AddWithValue("@bio", user.Bio);
+                    command.Parameters.AddWithValue("@image", user.Image);
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception here, e.g. log the error or throw a custom exception
+                Console.WriteLine($"An error occurred while updating user: {ex.Message}");
             }
         }
 
 
         public override void Save(User user)
         {
-            using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash, Name, Bio, Image) VALUES (@username, @password, @name, @bio, @image)", connection))
+            try
             {
-                command.Parameters.AddWithValue("@username", user.Username);
-                command.Parameters.AddWithValue("@password", user.Password);
-                command.Parameters.AddWithValue("@name", (object)user.Name ?? DBNull.Value);
-                command.Parameters.AddWithValue("@bio", (object)user.Bio ?? DBNull.Value);
-                command.Parameters.AddWithValue("@image", (object)user.Image ?? DBNull.Value);
+                using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash, Name, Bio, Image) VALUES (@username, @password, @name, @bio, @image)", connection))
+                {
+                    command.Parameters.AddWithValue("@username", user.Username);
+                    command.Parameters.AddWithValue("@password", user.Password);
+                    command.Parameters.AddWithValue("@name", (object)user.Name ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@bio", (object)user.Bio ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@image", (object)user.Image ?? DBNull.Value);
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception here, e.g. log the error or throw a custom exception
+                Console.WriteLine($"An error occurred while saving user: {ex.Message}");
             }
         }
 

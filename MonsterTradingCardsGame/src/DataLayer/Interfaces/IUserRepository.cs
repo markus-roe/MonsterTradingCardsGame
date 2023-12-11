@@ -1,4 +1,4 @@
-using MonsterTradingCardsGame.Models;
+﻿using MonsterTradingCardsGame.Models;
 
 namespace MonsterTradingCardsGame.Interfaces
 {

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
@@ -24,9 +24,9 @@ namespace MonsterTradingCardsGame.Controllers
 
         public class UserUpdateInfo
         {
-            public string Name { get; set; }
-            public string Bio { get; set; }
-            public string Image { get; set; }
+            public string? Name { get; set; }
+            public string? Bio { get; set; }
+            public string? Image { get; set; }
         }
 
         [Route("GET", "/users")]
@@ -55,7 +55,7 @@ namespace MonsterTradingCardsGame.Controllers
 
             try
             {
-                var user = _userRepository.GetUserByUsername(username); 
+                var user = _userRepository.GetUserByUsername(username);
                 if (user == null)
                 {
                     httpEventArguments.Reply(404, "User not found.");
