@@ -15,7 +15,11 @@ namespace MonsterTradingCardsGame.Middleware
 
         public void Invoke(HttpServerEventArguments httpEventArguments)
         {
-            // Existing logic for bypassing token validation for login and registration
+            // Bypass token validation for specific login and registration requests
+            if ((httpEventArguments.Method == "POST" && httpEventArguments.Path.Equals("/users") || httpEventArguments.Path.Equals("/sessions")))
+            {
+                return;
+            }
 
             // Extract the token from the Authorization header
             var token = ExtractToken(httpEventArguments);
