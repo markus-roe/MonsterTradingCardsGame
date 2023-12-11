@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Npgsql;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
@@ -12,28 +12,77 @@ namespace MonsterTradingCardsGame.Repositories
         protected override void Fill(Card card, IDataRecord record)
         {
             // Fill card details from the record
-            card.Uuid = record.GetString(record.GetOrdinal("uuid"));
+            card.Id = record.GetString(record.GetOrdinal("Id"));
             card.Name = record.GetString(record.GetOrdinal("Name"));
             card.Damage = record.GetDouble(record.GetOrdinal("Damage"));
+            card.Element = (ElementType)Enum.Parse(typeof(ElementType), record.GetString(record.GetOrdinal("Element")));
+            card.Type = (CardType)Enum.Parse(typeof(CardType), record.GetString(record.GetOrdinal("Type")));
         }
 
-        public override List<Card> GetAll()
+        public CardType GetCardTypeFromName(string cardName)
         {
-            var cards = new List<Card>();
-            using (var command = new NpgsqlCommand("SELECT * FROM Cards", connection))
-            using (var reader = command.ExecuteReader())
+            if (cardName.Contains("Spell"))
             {
-                while (reader.Read())
-                {
-                    var card = new Card();
-                    Fill(card, reader);
-                    cards.Add(card);
-                }
+                return CardType.Spell;
             }
-            return cards;
+            else
+            {
+                return CardType.Monster;
+            }
+        }
+        public ElementType GetCardElementFromName(string cardName)
+        {
+            if (cardName.Contains("Fire"))
+            {
+                return ElementType.Fire;
+            }
+            else if (cardName.Contains("Water"))
+            {
+                return ElementType.Water;
+            }
+            else
+            {
+                return ElementType.Normal;
+            }
         }
 
-        public List<Card> GetCardsByUsername(string username)
+        // public List<Card> BuyPackage()
+        // {
+
+        // }
+
+        public bool SavePackage(User user, List<Card> cards)
+        {
+            try
+            {
+                int packageId;
+                using (var command = new NpgsqlCommand("INSERT INTO packages(packagename, packagecost) VALUES ('defaultPackage', 5) RETURNING id", connection))
+                {
+                    packageId = (int)command.ExecuteScalar();
+                }
+
+                foreach (var card in cards)
+                {
+                    using (var command = new NpgsqlCommand("INSERT INTO package_cards(packageid, cardid) VALUES (@packageId, @cardId)", connection))
+                    {
+                        command.Parameters.AddWithValue("@packageId", packageId);
+                        command.Parameters.AddWithValue("@cardId", card.Id);
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in SavePackage: " + ex.Message);
+                return false;
+            }
+        }
+
+        //edit method:
+        // cards from user is now in separate table user_cards: userid (int), cardid (string)
+
+
         {
             var cards = new List<Card>();
             using (var command = new NpgsqlCommand("SELECT * FROM Cards WHERE username = @username", connection))
