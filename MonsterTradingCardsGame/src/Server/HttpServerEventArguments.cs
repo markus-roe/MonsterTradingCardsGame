@@ -32,6 +32,7 @@ namespace MonsterTradingCardsGame.Server
         public string Payload { get; private set; } = string.Empty;
         public string PlainMessage { get; private set; }
         public bool ResponseSent { get; private set; } = false;
+        public int ResponseStatusCode { get; set; }
         public User User { get; set; }
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace MonsterTradingCardsGame.Server
         /// <param name="payload">Optional payload to include in the response.</param>
         public virtual void Reply(int status, string? payload = null)
         {
+            this.ResponseStatusCode = status;
             string responseHeader = BuildResponseHeader(status, payload);
             byte[] buffer = Encoding.ASCII.GetBytes(responseHeader);
 

@@ -43,11 +43,6 @@ namespace MonsterTradingCardsGame.Services
             return true;
         }
 
-        public string getUsernameFromHeader(string token)
-        {
-            return token.Split("-")[0];
-        }
-
         public string GenerateToken(User user)
         {
             return $"{user.Username}-mtcgToken";

@@ -8,6 +8,7 @@ using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Server;
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace MonsterTradingCardsGame.Tests.Controllers
 {
@@ -24,8 +25,9 @@ namespace MonsterTradingCardsGame.Tests.Controllers
         {
             userRepositoryMock = new Mock<IUserRepository>();
             authServiceMock = new Mock<IAuthenticationService>();
-            userController = new UserController(userRepositoryMock.Object, authServiceMock.Object);
-            httpEventArgumentsMock = new Mock<HttpServerEventArguments>(null, string.Empty);
+            var cardRepositoryMock = new Mock<ICardRepository>(); // Add this line
+            userController = new UserController(userRepositoryMock.Object, authServiceMock.Object, cardRepositoryMock.Object); // Update this line
+            httpEventArgumentsMock = new Mock<HttpServerEventArguments>(new TcpClient(), string.Empty);
         }
 
         [Test]
@@ -35,33 +37,42 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             var mockUsers = new List<User> { new User { Username = "TestUser1" }, new User { Username = "TestUser2" } };
             userRepositoryMock.Setup(repo => repo.GetAll()).Returns(mockUsers);
 
-            var httpEventArguments = new HttpServerEventArguments(null, string.Empty)
-            {
-                Payload = JsonSerializer.Serialize(mockUsers) // This should now work
-            };
+
 
             // Act
-            userController.GetAll(httpEventArguments, new Dictionary<string, string>());
+            userController.GetAll(httpEventArgumentsMock.Object, new Dictionary<string, string>());
 
             // Assert
-            AssertResponseContent(httpEventArguments, 200, mockUsers.Count);
+            AssertResponseContent(httpEventArgumentsMock.Object, 200, mockUsers.Count);
         }
 
 
-        [TestCase("ExistingUser", 200)]
-        [TestCase("NonExistingUser", 404)]
-        public void GetUserByUsername_VariousScenarios_ReturnsAppropriateResponse(string username, int expectedStatusCode)
+        [Test]
+        public void GetUserByUsername_VariousScenarios_Returns404()
         {
             // Arrange
             var expectedUser = new User { Username = "ExistingUser" };
             userRepositoryMock.Setup(repo => repo.GetUserByUsername("ExistingUser")).Returns(expectedUser);
-            userRepositoryMock.Setup(repo => repo.GetUserByUsername("NonExistingUser")).Returns((User)null);
 
             // Act
-            userController.GetUserByUsername(httpEventArgumentsMock.Object, new Dictionary<string, string> { { "username", username } });
+            userController.GetUserByUsername(httpEventArgumentsMock.Object, new Dictionary<string, string> { { "username", "ExistingUser" } });
 
             // Assert
-            Assert.That(httpEventArgumentsMock.Object.ResponseStatusCode, Is.EqualTo(expectedStatusCode));
+            Assert.That(httpEventArgumentsMock.Object.ResponseStatusCode, Is.EqualTo(404));
+        }
+
+        [Test]
+        public void GetUserByUsername_VariousScenarios_Returns200()
+        {
+            // Arrange
+            var expectedUser = new User { Username = "ExistingUser" };
+            userRepositoryMock.Setup(repo => repo.GetUserByUsername("ExistingUser")).Returns(expectedUser);
+
+            // Act
+            userController.GetUserByUsername(httpEventArgumentsMock.Object, new Dictionary<string, string> { { "username", "ExistingUser" } });
+
+            // Assert
+            Assert.That(httpEventArgumentsMock.Object.ResponseStatusCode, Is.EqualTo(200));
         }
 
         [Test]

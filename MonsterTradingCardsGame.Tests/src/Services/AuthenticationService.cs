@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Services;
@@ -37,6 +36,7 @@ namespace MonsterTradingCardsGame.Tests.Services
         public void VerifyCredentials_WithInvalidCredentials_ReturnsFalse()
         {
             // Arrange
+            var user = new User { Username = "testUser", Password = "testPassword" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testUser")).Returns((User)null);
 
             // Act
@@ -73,6 +73,46 @@ namespace MonsterTradingCardsGame.Tests.Services
             Assert.IsFalse(result);
         }
 
-        // Additional tests for GetUserFromToken and GenerateToken can be added here
+        // write tests for the other methods of AuthenticationService here 
+        [Test]
+        public void GetUserFromToken_WithValidToken_ReturnsUser()
+        {
+            // Arrange
+            var user = new User { Username = "testUser" };
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testUser")).Returns(user);
+
+            // Act
+            var result = _authenticationService.GetUserFromToken("testUser-mtcgToken");
+
+            // Assert
+            Assert.AreEqual(user, result);
+        }
+
+        [Test]
+        public void GetUserFromToken_WithInvalidToken_ReturnsNull()
+        {
+            // Arrange
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("invalidUser")).Returns((User)null);
+
+            // Act
+            var result = _authenticationService.GetUserFromToken("invalidUser-mtcgToken");
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void GenerateToken_ReturnsCorrectToken() //user is always valid, because gets checked before
+        {
+            // Arrange
+            var user = new User { Username = "testUser" };
+
+            // Act
+            var result = _authenticationService.GenerateToken(user);
+
+            // Assert
+            Assert.AreEqual("testUser-mtcgToken", result);
+        }
+
     }
 }
