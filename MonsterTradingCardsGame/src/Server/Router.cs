@@ -15,7 +15,7 @@ namespace MonsterTradingCardsGame.Server
         public void AutoRegisterRoutes(IServiceProvider serviceProvider)
         {
             var controllerTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.Namespace == "MonsterTradingCardsGame.Controllers" && t.IsClass && !t.IsAbstract && t.Name != "UserCredentials" && t.Name != "UserUpdateInfo");
+                .Where(t => t.Namespace == "MonsterTradingCardsGame.Controllers" && t.IsClass && !t.IsAbstract && t.Name != "UserCredentials" && t.Name != "UserProfileInfo");
 
             foreach (var controllerType in controllerTypes)
             {
