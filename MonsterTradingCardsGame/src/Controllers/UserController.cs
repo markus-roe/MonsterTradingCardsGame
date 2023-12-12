@@ -25,7 +25,7 @@ namespace MonsterTradingCardsGame.Controllers
             public string? Password { get; set; }
         }
 
-        public class UserUpdateInfo
+        public class UserProfileInfo
         {
             public string? Name { get; set; }
             public string? Bio { get; set; }
@@ -47,6 +47,13 @@ namespace MonsterTradingCardsGame.Controllers
             }
         }
 
+        public class UserProfileResponse
+        {
+            public string? Name { get; set; }
+            public string? Bio { get; set; }
+            public string? Image { get; set; }
+        }
+
         [Route("GET", "/users/:username")]
         public void GetUserByUsername(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
@@ -56,6 +63,8 @@ namespace MonsterTradingCardsGame.Controllers
                 return;
             }
 
+            User user = httpEventArguments.User;
+
             try
             {
                 if (username != httpEventArguments.User.Username || httpEventArguments.User.Username == "admin")
@@ -64,15 +73,15 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                var user = _userRepository.GetUserByUsername(username);
-                if (user == null)
+                var userProfile = new UserProfileResponse
                 {
-                    httpEventArguments.Reply(404, "User not found.");
-                    return;
-                }
+                    Name = user.Name,
+                    Bio = user.Bio,
+                    Image = user.Image
+                };
 
-                var jsonResponse = JsonSerializer.Serialize(user);
-                httpEventArguments.Reply(200, jsonResponse);
+                var response = JsonSerializer.Serialize(userProfile);
+                httpEventArguments.Reply(200, response);
             }
             catch (Exception ex)
             {
@@ -140,7 +149,7 @@ namespace MonsterTradingCardsGame.Controllers
             try
             {
 
-                var userInfo = JsonSerializer.Deserialize<UserUpdateInfo>(httpEventArguments.Payload);
+                var userInfo = JsonSerializer.Deserialize<UserProfileInfo>(httpEventArguments.Payload);
                 if (userInfo == null)
                 {
                     httpEventArguments.Reply(400, "Invalid user data.");
