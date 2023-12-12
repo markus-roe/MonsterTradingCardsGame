@@ -19,6 +19,8 @@ namespace MonsterTradingCardsGame.Repositories
             user.Id = record.GetInt32(record.GetOrdinal("id"));
             user.Username = record.GetString(record.GetOrdinal("Username"));
             user.Password = record.GetString(record.GetOrdinal("password_hash"));
+            user.Coins = record.GetInt32(record.GetOrdinal("Coins"));
+            user.Elo = record.GetInt32(record.GetOrdinal("Elo"));
             user.Name = record.IsDBNull(record.GetOrdinal("Name")) ? null : record["Name"].ToString();
             user.Bio = record.IsDBNull(record.GetOrdinal("Bio")) ? null : record["Bio"].ToString();
             user.Image = record.IsDBNull(record.GetOrdinal("Image")) ? null : record["Image"].ToString();
@@ -113,12 +115,14 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("UPDATE Users SET Name = @name, Bio = @bio, Image = @image WHERE Username = @username", connection))
+                using (var command = new NpgsqlCommand("UPDATE Users SET Name = @name, Bio = @bio, Image = @image, Elo = @elo, Coins = @coins WHERE Username = @username", connection))
                 {
                     command.Parameters.AddWithValue("@username", user.Username);
-                    command.Parameters.AddWithValue("@name", user.Name);
+                    command.Parameters.AddWithValue("@name", user.Name ?? string.Empty);
                     command.Parameters.AddWithValue("@bio", user.Bio);
                     command.Parameters.AddWithValue("@image", user.Image);
+                    command.Parameters.AddWithValue("@elo", user.Elo);
+                    command.Parameters.AddWithValue("@coins", user.Coins);
 
                     command.ExecuteNonQuery();
                 }
@@ -135,13 +139,10 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash, Name, Bio, Image) VALUES (@username, @password, @name, @bio, @image)", connection))
+                using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash) VALUES (@username, @password)", connection))
                 {
                     command.Parameters.AddWithValue("@username", user.Username);
                     command.Parameters.AddWithValue("@password", user.Password);
-                    command.Parameters.AddWithValue("@name", (object)user.Name ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@bio", (object)user.Bio ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@image", (object)user.Image ?? DBNull.Value);
 
                     command.ExecuteNonQuery();
                 }

@@ -10,11 +10,14 @@ namespace MonsterTradingCardsGame.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IAuthenticationService authService;
+        private readonly ICardRepository _cardRepository;
 
-        public UserController(IUserRepository userRepository, IAuthenticationService authService)
+        public UserController(IUserRepository userRepository, IAuthenticationService authService, ICardRepository cardRepository)
         {
             this._userRepository = userRepository;
+
             this.authService = authService;
+            this._cardRepository = cardRepository;
         }
         public class UserCredentials
         {
@@ -55,6 +58,12 @@ namespace MonsterTradingCardsGame.Controllers
 
             try
             {
+                if (username != httpEventArguments.User.Username || httpEventArguments.User.Username == "admin")
+                {
+                    httpEventArguments.Reply(403, "Forbidden: You are not allowed to access this resource.");
+                    return;
+                }
+
                 var user = _userRepository.GetUserByUsername(username);
                 if (user == null)
                 {
@@ -108,9 +117,17 @@ namespace MonsterTradingCardsGame.Controllers
         [Route("PUT", "/users/:username")]
         public void UpdateUser(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
+
+
             if (!parameters.TryGetValue("username", out var username))
             {
                 httpEventArguments.Reply(400, "Bad Request: Username parameter is missing.");
+                return;
+            }
+
+            if (username != httpEventArguments.User.Username || httpEventArguments.User.Username == "admin")
+            {
+                httpEventArguments.Reply(403, "Forbidden: You are not allowed to access this resource.");
                 return;
             }
 
@@ -271,6 +288,40 @@ namespace MonsterTradingCardsGame.Controllers
                 _userRepository.SetCardDeck(user, cards.ToList());
 
                 httpEventArguments.Reply(200, "The deck has been successfully configured.");
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [Route("POST", "transactions/packages")]
+        public void buyPackage(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                User user = httpEventArguments.User;
+
+
+                List<Card> package = _cardRepository.GetCardPackage();
+
+                if (package.Count == 0)
+                {
+                    httpEventArguments.Reply(404, "No card package available for buying");
+                    return;
+                }
+
+                if (user.Coins < 5)
+                {
+                    httpEventArguments.Reply(403, "Not enough money for buying a card package");
+                    return;
+                }
+
+                _cardRepository.SavePackageToUser(user, package);
+                user.Coins -= 5;
+                _userRepository.Update(user);
+
+                httpEventArguments.Reply(200, "Package and cards successfully bought");
             }
             catch (Exception ex)
             {

@@ -53,12 +53,8 @@ namespace MonsterTradingCardsGame.Controllers
           }
         }
 
-        foreach (Card card in package)
-        {
-          _cardRepository.Save(card);
-        }
 
-        if (_cardRepository.SavePackage(user, package) == false)
+        if (_cardRepository.SavePackage(package) == false)
         {
           httpEventArguments.Reply(500, "Internal server error: Could not save package");
           return;

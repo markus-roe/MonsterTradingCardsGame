@@ -14,7 +14,6 @@ namespace MonsterTradingCardsGame.Models
         public List<Card> Stack { get; set; }
         public List<Card> Deck { get; set; }
 
-
     }
 
 }

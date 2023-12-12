@@ -46,42 +46,6 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        // public List<Card> BuyPackage()
-        // {
-
-        // }
-
-        public bool SavePackage(User user, List<Card> cards)
-        {
-            try
-            {
-                int packageId;
-                using (var command = new NpgsqlCommand("INSERT INTO packages(packagename, packagecost) VALUES ('defaultPackage', 5) RETURNING id", connection))
-                {
-                    packageId = (int)command.ExecuteScalar();
-                }
-
-                foreach (var card in cards)
-                {
-                    using (var command = new NpgsqlCommand("INSERT INTO package_cards(packageid, cardid) VALUES (@packageId, @cardId)", connection))
-                    {
-                        command.Parameters.AddWithValue("@packageId", packageId);
-                        command.Parameters.AddWithValue("@cardId", card.Id);
-                        command.ExecuteNonQuery();
-                    }
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error in SavePackage: " + ex.Message);
-                return false;
-            }
-        }
-
-        //edit method:
-        // cards from user is now in separate table user_cards: userid (int), cardid (string)
-
 
         public List<Card> GetCardsByUser(User user)
         {
@@ -137,6 +101,92 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        public bool DeletePackage(int packageId)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("DELETE FROM package_cards WHERE packageid = @packageId", connection))
+                {
+                    command.Parameters.AddWithValue("@packageId", packageId);
+                    command.ExecuteNonQuery();
+                }
+                using (var command = new NpgsqlCommand("DELETE FROM packages WHERE id = @packageId", connection))
+                {
+                    command.Parameters.AddWithValue("@packageId", packageId);
+                    command.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in DeletePackage: " + ex.Message);
+                return false;
+            }
+        }
+
+
+
+        public List<Card> GetCardPackage()
+        {
+            try
+            {
+
+                //get random package from packages table
+                //get all cards from package_cards table with packageid = packageid from packages table
+                //return list of cards
+
+                //get package count for random limit
+                List<int> packageIds = new List<int>();
+                using (var command = new NpgsqlCommand("SELECT id FROM packages", connection))
+                {
+                    var result = command.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        packageIds.Add((int)result);
+                    }
+                }
+
+                if (packageIds.Count == 0)
+                {
+                    return new List<Card>();
+                }
+
+                //get random package from vector
+                int randomPackageId = packageIds[new Random().Next(0, packageIds.Count)];
+
+                //get cards from package
+                var cards = new List<Card>();
+                using (var command = new NpgsqlCommand("SELECT c.name, c.damage, c.element, c.type, c.id FROM package_cards pc JOIN cards c ON pc.cardid = c.id WHERE packageid = @packageid", connection))
+                {
+                    command.Parameters.AddWithValue("@packageid", randomPackageId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var card = new Card();
+                            Fill(card, reader);
+                            cards.Add(card);
+                        }
+                    }
+                }
+
+                DeletePackage(randomPackageId);
+
+                /*
+                give me the sql to add a cascate on delete to the package_cards and cards table
+                */
+                // "sql" = "ALTER TABLE package_cards ADD CONSTRAINT fk_packageid FOREIGN KEY (packageid) REFERENCES packages(id) ON DELETE CASCADE; ALTER TABLE cards ADD CONSTRAINT fk_cardid FOREIGN KEY (id) REFERENCES package_cards(cardid) ON DELETE CASCADE;"
+
+                return cards;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetCardPackage: " + ex.Message);
+                return new List<Card>();
+            }
+        }
+
+
         public bool SetCardDeck(User user, List<Card> cards)
         {
             try
@@ -160,6 +210,49 @@ namespace MonsterTradingCardsGame.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine("Error in SetCardDeck: " + ex.Message);
+                return false;
+            }
+        }
+
+        public bool SavePackage(List<Card> cards)
+        {
+            try
+            {
+                int packageId;
+                using (var command = new NpgsqlCommand("INSERT INTO packages(packagename, packagecost) VALUES ('defaultPackage', 5) RETURNING id", connection))
+                {
+                    packageId = (int)command.ExecuteScalar();
+                }
+
+                //save cards to cards tableq
+                foreach (var card in cards)
+                {
+                    using (var command = new NpgsqlCommand("INSERT INTO cards(name, damage, element, type, id) VALUES (@name, @damage, @element, @type, @id)", connection))
+                    {
+                        command.Parameters.AddWithValue("@name", card.Name);
+                        command.Parameters.AddWithValue("@damage", card.Damage);
+                        command.Parameters.AddWithValue("@element", card.Element.ToString());
+                        command.Parameters.AddWithValue("@type", card.Type.ToString());
+                        command.Parameters.AddWithValue("@id", card.Id);
+
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                foreach (var card in cards)
+                {
+                    using (var command = new NpgsqlCommand("INSERT INTO package_cards(packageid, cardid) VALUES (@packageId, @cardId)", connection))
+                    {
+                        command.Parameters.AddWithValue("@packageId", packageId);
+                        command.Parameters.AddWithValue("@cardId", card.Id);
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in SavePackage: " + ex.Message);
                 return false;
             }
         }
@@ -210,5 +303,27 @@ namespace MonsterTradingCardsGame.Repositories
                 return null;
             }
         }
+
+        public void SavePackageToUser(User user, List<Card> package)
+        {
+            try
+            {
+                foreach (var card in package)
+                {
+                    using (var command = new NpgsqlCommand("INSERT INTO user_cards(userid, cardid, indeck) VALUES (@userid, @cardid, false)", connection))
+                    {
+                        command.Parameters.AddWithValue("@userid", user.Id);
+                        command.Parameters.AddWithValue("@cardid", card.Id);
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in SavePackageToUser: " + ex.Message);
+            }
+        }
+
+
     }
 }
