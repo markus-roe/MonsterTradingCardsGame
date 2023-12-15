@@ -23,14 +23,14 @@ namespace MonsterTradingCardsGame.Server
         }
 
         // Get a registered route action
-        public Action<HttpServerEventArguments, Dictionary<string, string>>? GetRoute(string method, string path)
+        public Action<HttpServerEventArguments, Dictionary<string, string>>? GetRouteAction(string method, string path)
         {
             foreach (var route in _routes)
             {
                 var parameters = new Dictionary<string, string>();
-                if (IsRouteMatch(route.Key, method, path, out parameters))
+                if (IsRouteMatch(route.Key, method, path, ref parameters))
                 {
-                    Action<HttpServerEventArguments, Dictionary<string, string>> action = RouteAction;
+                    Action<HttpServerEventArguments, Dictionary<string, string>> action = (e, _) => route.Value(e, parameters);
                     return action;
                 }
             }
@@ -84,9 +84,8 @@ namespace MonsterTradingCardsGame.Server
                 .Select(attr => (Method: method, Attribute: attr)));
         }
 
-        private bool IsRouteMatch(string pattern, string method, string path, out Dictionary<string, string> parameters)
+        private bool IsRouteMatch(string pattern, string method, string path, ref Dictionary<string, string> parameters)
         {
-            parameters = new Dictionary<string, string>();
             var patternParts = pattern.Split(' ');
             if (method != patternParts[0])
                 return false;

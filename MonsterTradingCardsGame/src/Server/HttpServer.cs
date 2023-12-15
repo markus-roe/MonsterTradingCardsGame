@@ -13,7 +13,7 @@ namespace MonsterTradingCardsGame.Server
         private TcpListener? _Listener;
         private readonly IServiceProvider _serviceProvider;
         private readonly List<IMiddleware> _middlewares = new List<IMiddleware>();
-        private readonly Router _routeHandler = new Router();
+        private readonly Router _router = new Router();
 
         /// <summary>Occurs when a HTTP message has been received.</summary>
         public event IncomingEventHandler? Incoming;
@@ -21,7 +21,7 @@ namespace MonsterTradingCardsGame.Server
         public HttpServer(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-           _routeHandler.AutoRegisterRoutes(serviceProvider);
+            _router.AutoRegisterRoutes(serviceProvider);
 
         }
 
@@ -49,11 +49,11 @@ namespace MonsterTradingCardsGame.Server
                     }
                 }
 
-                var routeHandler = _routeHandler.GetRoute(httpEventArguments.Method, httpEventArguments.Path);
-                if (routeHandler != null)
+                var routeAction = _router.GetRouteAction(httpEventArguments.Method, httpEventArguments.Path);
+                if (routeAction != null)
                 {
                     var parameters = new Dictionary<string, string>();
-                    routeHandler(httpEventArguments, parameters);
+                    routeAction(httpEventArguments, parameters);
 
                 }
                 else
@@ -138,17 +138,17 @@ namespace MonsterTradingCardsGame.Server
                         await Task.Run(() =>
                             {
                                 byte[] buf = new byte[256];
-                            string data = string.Empty;
+                                string data = string.Empty;
 
-                            while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
-                            {
-                                int n = client.GetStream().Read(buf, 0, buf.Length);
+                                while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
+                                {
+                                    int n = client.GetStream().Read(buf, 0, buf.Length);
                                     data += Encoding.ASCII.GetString(buf, 0, n);
                                 }
 
-                            Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
+                                Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
 
-                        });
+                            });
                     }
                 }
                 catch (Exception ex)
@@ -162,32 +162,6 @@ namespace MonsterTradingCardsGame.Server
             Console.ReadLine(); // Keep the main thread active
             _Listener.Stop();
         }
-
-        private void HandleClient(TcpClient client)
-        {
-            try
-            {
-                byte[] buf = new byte[256];
-                string data = string.Empty;
-
-                while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
-                {
-                    int n = client.GetStream().Read(buf, 0, buf.Length);
-                    data += Encoding.ASCII.GetString(buf, 0, n);
-                }
-
-                Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error handling client: {ex.Message}");
-            }
-            finally
-            {
-                client.Close();
-            }
-        }
-
 
 
         /// <summary>Stops the HTTP server.</summary>

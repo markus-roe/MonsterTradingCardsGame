@@ -33,7 +33,7 @@ namespace MonsterTradingCardsGame.Server
         public string PlainMessage { get; private set; }
         public bool ResponseSent { get; private set; } = false;
         public int ResponseStatusCode { get; set; }
-        public User User { get; set; }
+        public User? User { get; set; }
 
         /// <summary>
         /// Sends a reply to the client.
