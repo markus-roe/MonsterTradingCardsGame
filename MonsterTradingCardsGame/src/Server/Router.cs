@@ -1,5 +1,4 @@
-﻿
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace MonsterTradingCardsGame.Server
 {
@@ -7,56 +6,31 @@ namespace MonsterTradingCardsGame.Server
     {
         private readonly Dictionary<string, Action<HttpServerEventArguments, Dictionary<string, string>>> _routes = new();
 
+        // Add a route to the router
         public void AddRoute(string method, string path, Action<HttpServerEventArguments, Dictionary<string, string>> action)
         {
             _routes[$"{method} {path}"] = action;
         }
 
+        // Automatically register routes from controllers
         public void AutoRegisterRoutes(IServiceProvider serviceProvider)
         {
-            var controllerTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.Namespace == "MonsterTradingCardsGame.Controllers" && t.IsClass && !t.IsAbstract && t.Name != "UserCredentials" && t.Name != "UserProfileInfo");
-
+            var controllerTypes = GetControllerTypes();
             foreach (var controllerType in controllerTypes)
             {
-                var controller = serviceProvider.GetService(controllerType);
-                if (controller == null)
-                {
-                    continue;
-
-                    ///  TODO: ERROR: UserCredentials inside UserController class is no controller class
-
-                }
-
-                var routeMethods = controllerType.GetMethods()
-                    .SelectMany(method => method.GetCustomAttributes<RouteAttribute>(inherit: false)
-                    .Select(attr => new { Method = method, Attribute = attr }));
-
-                foreach (var routeMethod in routeMethods)
-                {
-                    try
-                    {
-                        var action = (Action<HttpServerEventArguments, Dictionary<string, string>>)Delegate.CreateDelegate(
-                            typeof(Action<HttpServerEventArguments, Dictionary<string, string>>), controller, routeMethod.Method);
-
-                        AddRoute(routeMethod.Attribute.Method, routeMethod.Attribute.Path, action);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // TODO: Handle or log the exception for delegate creation failure
-                        // This might indicate a method signature mismatch
-                    }
-                }
+                RegisterControllerRoutes(serviceProvider, controllerType);
             }
         }
+
+        // Get a registered route action
         public Action<HttpServerEventArguments, Dictionary<string, string>>? GetRoute(string method, string path)
         {
             foreach (var route in _routes)
             {
                 var parameters = new Dictionary<string, string>();
-                if (IsRouteMatch(route.Key, method, path, parameters))
+                if (IsRouteMatch(route.Key, method, path, out parameters))
                 {
-                    Action<HttpServerEventArguments, Dictionary<string, string>> action = (e, _) => route.Value(e, parameters);
+                    Action<HttpServerEventArguments, Dictionary<string, string>> action = RouteAction;
                     return action;
                 }
             }
@@ -64,16 +38,64 @@ namespace MonsterTradingCardsGame.Server
             return null;
         }
 
-
-        private bool IsRouteMatch(string pattern, string method, string path, Dictionary<string, string> parameters)
+        private void RouteAction(HttpServerEventArguments e, Dictionary<string, string> parameters)
         {
-            var patternParts = pattern.Split(' ');
-            var methodPattern = patternParts[0];
-            var pathPattern = patternParts[1];
+            _routes[e.Method + " " + e.Path](e, parameters);
+        }
 
-            if (method != methodPattern)
+        // Helper methods
+        private IEnumerable<Type> GetControllerTypes()
+        {
+            return Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => IsControllerType(t));
+        }
+
+        private bool IsControllerType(Type type)
+        {
+            return type.Namespace == "MonsterTradingCardsGame.Controllers" && type.IsClass && !type.IsAbstract && type.Name != "UserCredentials" && type.Name != "UserProfileInfo";
+        }
+
+        private void RegisterControllerRoutes(IServiceProvider serviceProvider, Type controllerType)
+        {
+            var controller = serviceProvider.GetService(controllerType);
+            if (controller == null)
+                return;
+
+            var routeMethods = GetRouteMethods(controllerType);
+            foreach (var (method, attribute) in routeMethods)
+            {
+                try
+                {
+                    var action = (Action<HttpServerEventArguments, Dictionary<string, string>>)Delegate.CreateDelegate(
+                        typeof(Action<HttpServerEventArguments, Dictionary<string, string>>), controller, method);
+                    AddRoute(attribute.Method, attribute.Path, action);
+                }
+                catch (Exception)
+                {
+                    // handle exceptions
+                }
+            }
+        }
+
+        private IEnumerable<(MethodInfo Method, RouteAttribute Attribute)> GetRouteMethods(Type controllerType)
+        {
+            return controllerType.GetMethods()
+                .SelectMany(method => method.GetCustomAttributes<RouteAttribute>(inherit: false)
+                .Select(attr => (Method: method, Attribute: attr)));
+        }
+
+        private bool IsRouteMatch(string pattern, string method, string path, out Dictionary<string, string> parameters)
+        {
+            parameters = new Dictionary<string, string>();
+            var patternParts = pattern.Split(' ');
+            if (method != patternParts[0])
                 return false;
 
+            return IsPathMatch(path, patternParts[1], parameters);
+        }
+
+        private bool IsPathMatch(string path, string pathPattern, Dictionary<string, string> parameters)
+        {
             var pathSegments = path.Trim('/').Split('/');
             var patternSegments = pathPattern.Trim('/').Split('/');
 
@@ -84,9 +106,7 @@ namespace MonsterTradingCardsGame.Server
             {
                 if (patternSegments[i].StartsWith(":"))
                 {
-                    var paramName = patternSegments[i].Substring(1);
-
-                    parameters[paramName] = pathSegments[i];
+                    parameters[patternSegments[i].Substring(1)] = pathSegments[i];
                 }
                 else if (patternSegments[i] != pathSegments[i])
                 {
@@ -96,6 +116,5 @@ namespace MonsterTradingCardsGame.Server
 
             return true;
         }
-
     }
 }
