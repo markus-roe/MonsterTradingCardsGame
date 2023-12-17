@@ -6,6 +6,14 @@ using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Repositories
 {
+
+    public class UserStats
+    {
+        public required string Name { get; set; }
+        public required string Elo { get; set; }
+        public required string Wins { get; set; }
+        public required string Losses { get; set; }
+    }
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
         private readonly ICardRepository _cardRepository;
@@ -141,11 +149,12 @@ namespace MonsterTradingCardsGame.Repositories
         }
 
 
-        public string? GetScoreboard()
+
+        public List<UserStats>? GetScoreboard()
         {
             try
             {
-                var statsList = new List<object>();
+                var statsList = new List<UserStats>();
 
                 using (var command = new NpgsqlCommand("SELECT * FROM user_statsview ORDER BY elo DESC", connection))
                 {
@@ -153,7 +162,7 @@ namespace MonsterTradingCardsGame.Repositories
                     {
                         while (reader.Read())
                         {
-                            var stats = new
+                            var stats = new UserStats
                             {
                                 Name = reader["name"].ToString(),
                                 Elo = reader["elo"].ToString(),
@@ -166,7 +175,7 @@ namespace MonsterTradingCardsGame.Repositories
                     }
                 }
 
-                return JsonSerializer.Serialize(statsList);
+                return statsList;
             }
             catch (Exception ex)
             {
@@ -208,12 +217,23 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash) VALUES (@username, @password)", connection))
+                using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash) VALUES (@username, @password) RETURNING Id", connection))
                 {
                     command.Parameters.AddWithValue("@username", user.Username);
                     command.Parameters.AddWithValue("@password", user.Password);
 
-                    command.ExecuteNonQuery();
+                    object result = command.ExecuteScalar();
+                    int? userId = result as int?;
+
+                    if (userId.HasValue)
+                    {
+                        using (var statsCommand = new NpgsqlCommand("INSERT INTO UserStats (userid, wins, losses) VALUES (@userid, 0, 0)", connection))
+                        {
+                            statsCommand.Parameters.AddWithValue("@userid", userId.Value);
+
+                            statsCommand.ExecuteNonQuery();
+                        }
+                    }
                 }
                 return true;
             }
@@ -227,9 +247,9 @@ namespace MonsterTradingCardsGame.Repositories
 
         public override void Delete(User user)
         {
-            using (var command = new NpgsqlCommand("DELETE FROM Users WHERE Username = @Username", connection))
+            using (var command = new NpgsqlCommand("DELETE FROM Users WHERE id = @Id", connection))
             {
-                command.Parameters.AddWithValue("@Username", user.Username);
+                command.Parameters.AddWithValue("@Username", user.Id);
 
                 command.ExecuteNonQuery();
             }

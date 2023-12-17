@@ -52,7 +52,7 @@ namespace MonsterTradingCardsGame.Server
 
         private bool IsControllerType(Type type)
         {
-            return type.Namespace == "MonsterTradingCardsGame.Controllers" && type.IsClass && !type.IsAbstract && type.Name != "UserCredentials" && type.Name != "UserProfileInfo";
+            return type.Namespace == "MonsterTradingCardsGame.Controllers" && type.IsClass && !type.IsAbstract && type.Name != "UserCredentials" && type.Name != "UserProfileInfo" && type.Name != "UserStats";
         }
 
         private void RegisterControllerRoutes(IServiceProvider serviceProvider, Type controllerType)

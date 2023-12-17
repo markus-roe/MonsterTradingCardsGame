@@ -2,6 +2,7 @@
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Services.Interfaces;
 
 namespace MonsterTradingCardsGame.Controllers
@@ -367,7 +368,7 @@ namespace MonsterTradingCardsGame.Controllers
         {
             try
             {
-                var scoreboard = _userRepository.GetScoreboard();
+                List<UserStats> scoreboard = _userRepository.GetScoreboard();
 
                 if (scoreboard == null)
                 {

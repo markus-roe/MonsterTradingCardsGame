@@ -1,4 +1,5 @@
 ﻿using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Repositories;
 
 namespace MonsterTradingCardsGame.Interfaces
 {
@@ -7,7 +8,7 @@ namespace MonsterTradingCardsGame.Interfaces
         User GetUserByUsername(string username);
         bool SetCardDeck(User user, List<Card> cards);
         public string? GetStatsByUser(User user);
-        public string? GetScoreboard();
+        public List<UserStats> GetScoreboard();
         bool Save(User user);
 
     }
