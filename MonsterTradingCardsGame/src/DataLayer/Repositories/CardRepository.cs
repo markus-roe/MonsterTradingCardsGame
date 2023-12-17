@@ -253,7 +253,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public override void Save(Card card)
+        public override bool Save(Card card)
         {
             try
             {
@@ -267,10 +267,12 @@ namespace MonsterTradingCardsGame.Repositories
 
                     command.ExecuteNonQuery();
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in Card Save: " + ex.Message);
+                return false;
             }
         }
 

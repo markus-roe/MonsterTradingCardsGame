@@ -6,7 +6,7 @@ namespace MonsterTradingCardsGame.Interfaces
     {
         User GetUserByUsername(string username);
         bool SetCardDeck(User user, List<Card> cards);
-        void Save(User user);
+        bool Save(User user);
 
     }
 }

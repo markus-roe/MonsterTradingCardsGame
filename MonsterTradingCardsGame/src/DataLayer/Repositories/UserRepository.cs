@@ -86,17 +86,19 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
+                int totalRowsUpdated = 0;
                 foreach (Card card in cards)
                 {
                     using (var command = new NpgsqlCommand("UPDATE user_cards SET indeck = 'true' WHERE userid = @userid AND cardid = @cardid", connection))
                     {
                         command.Parameters.AddWithValue("@userid", user.Id);
                         command.Parameters.AddWithValue("@cardid", card.Id);
-                        command.ExecuteNonQuery();
+                        int rowsUpdated = command.ExecuteNonQuery();
+                        totalRowsUpdated += rowsUpdated;
                     }
                 }
-                user.Deck = cards.ToList();
-                return true;
+
+                return totalRowsUpdated == cards.Count;
             }
             catch (Exception ex)
             {
@@ -105,7 +107,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public override void Update(User user)
+        public override bool Update(User user)
         {
             try
             {
@@ -118,18 +120,21 @@ namespace MonsterTradingCardsGame.Repositories
                     command.Parameters.AddWithValue("@elo", user.Elo);
                     command.Parameters.AddWithValue("@coins", user.Coins);
 
-                    command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    bool rowUpdated = rowsAffected > 0;
+                    return rowUpdated;
                 }
             }
             catch (Exception ex)
             {
                 // Handle the exception here, e.g. log the error or throw a custom exception
                 Console.WriteLine($"An error occurred while updating user: {ex.Message}");
+                return false;
             }
         }
 
 
-        public override void Save(User user)
+        public override bool Save(User user)
         {
             try
             {
@@ -140,11 +145,13 @@ namespace MonsterTradingCardsGame.Repositories
 
                     command.ExecuteNonQuery();
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 // Handle the exception here, e.g. log the error or throw a custom exception
                 Console.WriteLine($"An error occurred while saving user: {ex.Message}");
+                return false;
             }
         }
 

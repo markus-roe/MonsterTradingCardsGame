@@ -13,7 +13,7 @@ namespace MonsterTradingCardsGame.Interfaces
         CardType GetCardTypeFromName(string cardName);
         ElementType GetCardElementFromName(string cardName);
 
-        public void Save(Card card);
+        public bool Save(Card card);
         public bool SavePackage(List<Card> package);
         List<Card> GetCardPackage();
         void SavePackageToUser(User user, List<Card> package);

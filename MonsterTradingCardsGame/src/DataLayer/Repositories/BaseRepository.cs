@@ -37,11 +37,11 @@ namespace MonsterTradingCardsGame.Repositories
             throw new NotImplementedException();
         }
 
-        public virtual void Update(T entity)
+        public virtual bool Update(T entity)
         {
             throw new NotImplementedException();
         }
-        public abstract void Save(T obj);
+        public abstract bool Save(T obj);
 
     }
 }
