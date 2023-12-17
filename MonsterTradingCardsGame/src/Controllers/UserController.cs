@@ -311,6 +311,11 @@ namespace MonsterTradingCardsGame.Controllers
             {
                 User user = httpEventArguments.User;
 
+                if (user.Coins < 5)
+                {
+                    httpEventArguments.Reply(403, "Not enough money for buying a card package");
+                    return;
+                }
 
                 List<Card> package = _cardRepository.GetCardPackage();
 
@@ -320,11 +325,6 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                if (user.Coins < 5)
-                {
-                    httpEventArguments.Reply(403, "Not enough money for buying a card package");
-                    return;
-                }
 
                 _cardRepository.SavePackageToUser(user, package);
                 user.Coins -= 5;

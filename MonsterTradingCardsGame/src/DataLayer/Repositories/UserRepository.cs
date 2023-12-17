@@ -86,15 +86,9 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("DELETE FROM user_cards WHERE userid = @userid", connection))
-                {
-                    command.Parameters.AddWithValue("@userid", user.Id);
-                    command.ExecuteNonQuery();
-                }
-
                 foreach (Card card in cards)
                 {
-                    using (var command = new NpgsqlCommand("INSERT INTO user_cards (userid, cardid) VALUES (@userid, @cardid)", connection))
+                    using (var command = new NpgsqlCommand("UPDATE user_cards SET indeck = 'true' WHERE userid = @userid AND cardid = @cardid", connection))
                     {
                         command.Parameters.AddWithValue("@userid", user.Id);
                         command.Parameters.AddWithValue("@cardid", card.Id);
@@ -119,8 +113,8 @@ namespace MonsterTradingCardsGame.Repositories
                 {
                     command.Parameters.AddWithValue("@username", user.Username);
                     command.Parameters.AddWithValue("@name", user.Name ?? string.Empty);
-                    command.Parameters.AddWithValue("@bio", user.Bio);
-                    command.Parameters.AddWithValue("@image", user.Image);
+                    command.Parameters.AddWithValue("@bio", user.Bio ?? string.Empty);
+                    command.Parameters.AddWithValue("@image", user.Image ?? string.Empty);
                     command.Parameters.AddWithValue("@elo", user.Elo);
                     command.Parameters.AddWithValue("@coins", user.Coins);
 

@@ -172,10 +172,6 @@ namespace MonsterTradingCardsGame.Repositories
 
                 DeletePackage(randomPackageId);
 
-                /*
-                give me the sql to add a cascate on delete to the package_cards and cards table
-                */
-                // "sql" = "ALTER TABLE package_cards ADD CONSTRAINT fk_packageid FOREIGN KEY (packageid) REFERENCES packages(id) ON DELETE CASCADE; ALTER TABLE cards ADD CONSTRAINT fk_cardid FOREIGN KEY (id) REFERENCES package_cards(cardid) ON DELETE CASCADE;"
 
                 return cards;
             }
@@ -310,7 +306,7 @@ namespace MonsterTradingCardsGame.Repositories
             {
                 foreach (var card in package)
                 {
-                    using (var command = new NpgsqlCommand("INSERT INTO user_cards(userid, cardid, indeck) VALUES (@userid, @cardid, false)", connection))
+                    using (var command = new NpgsqlCommand("INSERT INTO user_cards(userid, cardid, indeck) VALUES (@userid, @cardid, 'false')", connection))
                     {
                         command.Parameters.AddWithValue("@userid", user.Id);
                         command.Parameters.AddWithValue("@cardid", card.Id);
