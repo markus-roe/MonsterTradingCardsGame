@@ -40,7 +40,7 @@ namespace MonsterTradingCardsGame.Middleware
             httpEventArguments.User = user;
         }
 
-        private string ExtractToken(HttpServerEventArguments httpEventArguments)
+        private string? ExtractToken(HttpServerEventArguments httpEventArguments)
         {
             var authHeader = httpEventArguments.Headers
                 .FirstOrDefault(h => h.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase));

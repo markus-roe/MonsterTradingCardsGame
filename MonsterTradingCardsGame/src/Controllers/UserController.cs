@@ -33,7 +33,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/users")]
-        public void GetAll(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetAll(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/users/:username")]
-        public void GetUserByUsername(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetUserByUsername(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             if (!parameters.TryGetValue("username", out var username))
             {
@@ -63,7 +63,7 @@ namespace MonsterTradingCardsGame.Controllers
                 return;
             }
 
-            User user = httpEventArguments.User;
+            User? user = httpEventArguments.User;
 
             try
             {
@@ -90,7 +90,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/users")]
-        public void RegisterUser(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void RegisterUser(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {
@@ -124,7 +124,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("PUT", "/users/:username")]
-        public void UpdateUser(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void UpdateUser(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
 
 
@@ -187,7 +187,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/sessions")]
-        public void Login(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void Login(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {
@@ -217,7 +217,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/cards")]
-        public void GetCardsByUser(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetCardsByUser(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             User user = httpEventArguments.User;
 
@@ -226,7 +226,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/deck")]
-        public void GetDeck(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetDeck(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {
@@ -262,7 +262,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("PUT", "/deck")]
-        public void ConfigureDeck(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void ConfigureDeck(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {
@@ -305,7 +305,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "transactions/packages")]
-        public void buyPackage(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void buyPackage(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
             try
             {

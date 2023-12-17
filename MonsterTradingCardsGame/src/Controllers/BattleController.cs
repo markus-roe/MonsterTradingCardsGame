@@ -1,6 +1,5 @@
 ﻿using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Services.Interfaces;
-
 namespace MonsterTradingCardsGame.Controllers
 {
     public class BattleController
@@ -15,7 +14,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/battles")]
-        public async void StartBattle(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public async void StartBattle(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
         {
 
             var user = httpEventArguments.User;

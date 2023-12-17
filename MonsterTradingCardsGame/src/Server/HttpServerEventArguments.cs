@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
 using MonsterTradingCardsGame.Models;
 
@@ -10,7 +8,7 @@ namespace MonsterTradingCardsGame.Server
     /// This class provides HTTP server event arguments, handling the parsing
     /// of HTTP requests and sending replies.
     /// </summary>
-    public class HttpServerEventArguments : EventArgs
+    public class HttpServerEventArguments : IHttpServerEventArguments
     {
         protected TcpClient _Client; // TCP client for the current connection
 
@@ -33,7 +31,7 @@ namespace MonsterTradingCardsGame.Server
         public string PlainMessage { get; private set; }
         public bool ResponseSent { get; private set; } = false;
         public int ResponseStatusCode { get; set; }
-        public User? User { get; set; }
+        public User User { get; set; } = new User();
 
         /// <summary>
         /// Sends a reply to the client.

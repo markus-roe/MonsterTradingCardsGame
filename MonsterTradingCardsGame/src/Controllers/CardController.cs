@@ -1,7 +1,6 @@
 ﻿using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Server;
-using MonsterTradingCardsGame.Services.Interfaces;
 using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Controllers
@@ -10,26 +9,33 @@ namespace MonsterTradingCardsGame.Controllers
   {
     private readonly ICardRepository _cardRepository;
 
-    public CardController(ICardRepository cardRepository, IAuthenticationService authService)
+    public CardController(ICardRepository cardRepository)
     {
       this._cardRepository = cardRepository;
     }
 
 
     [Route("POST", "/packages")]
-    public void createPackage(HttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+    public void createPackage(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
     {
       try
       {
-        User user = httpEventArguments.User;
+        User? user = httpEventArguments.User;
 
-        if (user.Username != "admin")
+
+        if (user != null && user.Username != "admin")
         {
           httpEventArguments.Reply(403, "You are not allowed to create packages");
           return;
         }
 
-        List<Card> package = JsonSerializer.Deserialize<List<Card>>(httpEventArguments.Payload);
+        List<Card>? package = JsonSerializer.Deserialize<List<Card>>(httpEventArguments.Payload);
+
+        if (package == null)
+        {
+          httpEventArguments.Reply(400, "Payload is not a valid list of cards");
+          return;
+        }
 
         //set type and element of card, since its not sent by admin (?)
         foreach (Card card in package)

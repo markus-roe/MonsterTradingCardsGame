@@ -14,6 +14,20 @@ namespace MonsterTradingCardsGame.Models
         public List<Card> Stack { get; set; }
         public List<Card> Deck { get; set; }
 
+        public User()
+        {
+            Id = 0;
+            Username = string.Empty;
+            Password = string.Empty;
+            Name = string.Empty;
+            Bio = string.Empty;
+            Image = string.Empty;
+            Coins = 20;
+            Elo = 100;
+            Stack = new List<Card>();
+            Deck = new List<Card>();
+        }
+
     }
 
 }
