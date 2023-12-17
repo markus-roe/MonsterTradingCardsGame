@@ -2,6 +2,7 @@
 using Npgsql;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Interfaces;
+using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Repositories
 {
@@ -106,6 +107,75 @@ namespace MonsterTradingCardsGame.Repositories
                 return false;
             }
         }
+
+        public string? GetStatsByUser(User user)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("SELECT * FROM user_statsview WHERE userid = @userid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            var stats = new
+                            {
+                                Name = reader["name"].ToString(),
+                                Elo = reader["elo"].ToString(),
+                                Wins = reader["wins"].ToString(),
+                                Losses = reader["losses"].ToString()
+                            };
+                            return JsonSerializer.Serialize(stats);
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetStatsByUser: " + ex.Message);
+                return null;
+            }
+        }
+
+
+        public string? GetScoreboard()
+        {
+            try
+            {
+                var statsList = new List<object>();
+
+                using (var command = new NpgsqlCommand("SELECT * FROM user_statsview ORDER BY elo DESC", connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var stats = new
+                            {
+                                Name = reader["name"].ToString(),
+                                Elo = reader["elo"].ToString(),
+                                Wins = reader["wins"].ToString(),
+                                Losses = reader["losses"].ToString()
+                            };
+
+                            statsList.Add(stats);
+                        }
+                    }
+                }
+
+                return JsonSerializer.Serialize(statsList);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetScoreboard: " + ex.Message);
+                return null;
+            }
+        }
+
+
 
         public override bool Update(User user)
         {

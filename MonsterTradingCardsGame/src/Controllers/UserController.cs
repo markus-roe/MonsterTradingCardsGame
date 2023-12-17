@@ -338,5 +338,50 @@ namespace MonsterTradingCardsGame.Controllers
             }
         }
 
+        [Route("GET", "stats")]
+        public void GetStats(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                User user = httpEventArguments.User;
+
+                var stats = _userRepository.GetStatsByUser(user);
+
+                if (stats == null)
+                {
+                    httpEventArguments.Reply(404, "No stats available for this user");
+                    return;
+                }
+
+                httpEventArguments.Reply(200, stats);
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+
+        }
+
+        [Route("GET", "scoreboard")]
+        public void GetScoreboard(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var scoreboard = _userRepository.GetScoreboard();
+
+                if (scoreboard == null)
+                {
+                    httpEventArguments.Reply(404, "No users available");
+                    return;
+                }
+
+                httpEventArguments.Reply(200, JsonSerializer.Serialize(scoreboard));
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+
+        }
     }
 }

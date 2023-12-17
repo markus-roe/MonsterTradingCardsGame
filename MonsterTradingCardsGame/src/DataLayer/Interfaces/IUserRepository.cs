@@ -6,6 +6,8 @@ namespace MonsterTradingCardsGame.Interfaces
     {
         User GetUserByUsername(string username);
         bool SetCardDeck(User user, List<Card> cards);
+        public string? GetStatsByUser(User user);
+        public string? GetScoreboard();
         bool Save(User user);
 
     }
