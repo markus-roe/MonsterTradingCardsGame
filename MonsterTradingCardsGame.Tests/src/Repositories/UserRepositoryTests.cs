@@ -112,6 +112,8 @@ namespace MonsterTradingCardsGame.Tests.Repositories
                 Username = "newUser",
                 Password = "12345678"
             };
+            // Cleanup before test
+            _userRepository.Delete(user);
 
             // Act
             bool result = _userRepository.Save(user);
