@@ -38,11 +38,6 @@ namespace MonsterTradingCardsGame.Server
             return null;
         }
 
-        private void RouteAction(HttpServerEventArguments e, Dictionary<string, string> parameters)
-        {
-            _routes[e.Method + " " + e.Path](e, parameters);
-        }
-
         // Helper methods
         private IEnumerable<Type> GetControllerTypes()
         {
