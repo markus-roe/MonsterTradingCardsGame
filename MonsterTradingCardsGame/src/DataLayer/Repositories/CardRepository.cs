@@ -220,7 +220,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public bool checkIfCardIsOwnedByUser(User user, Card card)
+        public bool CheckIfCardIsOwnedByUser(User user, Card card)
         {
             try
             {

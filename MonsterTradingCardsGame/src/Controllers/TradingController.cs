@@ -270,7 +270,7 @@ namespace MonsterTradingCardsGame.Controllers
                 }
 
                 //check if card is owned by user
-                bool cardIsOwnedByUser = _cardRepository.checkIfCardIsOwnedByUser(user, offeredCard);
+                bool cardIsOwnedByUser = _cardRepository.CheckIfCardIsOwnedByUser(user, offeredCard);
 
                 if (cardIsOwnedByUser == false)
                 {
@@ -279,15 +279,8 @@ namespace MonsterTradingCardsGame.Controllers
                 }
 
                 //check if card is locked in deck
-                bool cardIsLockedInDeck = false;
+                bool cardIsLockedInDeck = user.Deck.Any(card => card.Id == offeredCard.Id);
 
-                foreach (Card card in user.Deck)
-                {
-                    if (card.Id == offeredCard.Id)
-                    {
-                        cardIsLockedInDeck = true;
-                    }
-                }
 
                 if (cardIsLockedInDeck)
                 {
@@ -296,13 +289,7 @@ namespace MonsterTradingCardsGame.Controllers
                 }
 
                 //check if requirements of trade are met
-                if (offeredCard.Damage < tradingDeal.MinimumDamage)
-                {
-                    httpEventArguments.Reply(403, "The card does not meet the requirements of the trade!");
-                    return;
-                }
-
-                if (offeredCard.Type.ToString() != tradingDeal.Type)
+                if (offeredCard.Damage < tradingDeal.MinimumDamage || offeredCard.Type.ToString() != tradingDeal.Type)
                 {
                     httpEventArguments.Reply(403, "The card does not meet the requirements of the trade!");
                     return;
@@ -330,9 +317,3 @@ namespace MonsterTradingCardsGame.Controllers
     }
 }
 
-
-
-
-//SELECT uc.*, c.name FROM user_cards uc JOIN cards c on uc.cardid = c.id;
-// also join users and add username
-//SELECT uc.*, c.name, u.username FROM user_cards uc JOIN cards c on uc.cardid = c.id JOIN users u on uc.userid = u.id;

@@ -19,7 +19,7 @@ namespace MonsterTradingCardsGame.Interfaces
         public bool LockCardInTrade(User user, Card card);
         public bool UnlockCard(User user, Card card);
         void SavePackageToUser(User user, List<Card> package);
-        public bool checkIfCardIsOwnedByUser(User user, Card card);
+        public bool CheckIfCardIsOwnedByUser(User user, Card card);
         public void ChangeCardOwner(User user, Card card);
 
     }
