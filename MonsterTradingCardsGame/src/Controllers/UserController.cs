@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
@@ -33,20 +33,6 @@ namespace MonsterTradingCardsGame.Controllers
             public string? Image { get; set; }
         }
 
-        [Route("GET", "/users")]
-        public void GetAll(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
-        {
-            try
-            {
-                var users = _userRepository.GetAll();
-                var response = JsonSerializer.Serialize(users);
-                httpEventArguments.Reply(200, response);
-            }
-            catch (Exception ex)
-            {
-                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
         public class UserProfileResponse
         {
