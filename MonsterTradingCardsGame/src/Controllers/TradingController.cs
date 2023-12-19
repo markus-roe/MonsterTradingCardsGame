@@ -36,20 +36,6 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                // JsonArray tradingDealsJson = new JsonArray();
-
-                // foreach (TradingDeal tradingDeal in tradingDeals)
-                // {
-                //     JsonObject tradingDealJson = new JsonObject
-                //     {
-                //         { "id", tradingDeal.Id },
-                //         { "cardToTrade", tradingDeal.CardToTrade },
-                //         { "type", Enum.GetName(typeof(CardType), tradingDeals.First().Type) },
-                //         { "minimumDamage", tradingDeal.MinimumDamage }
-                //     };
-                //     tradingDealsJson.Add(tradingDealJson);
-                // }
-
                 httpEventArguments.Reply(200, JsonSerializer.Serialize(tradingDeals));
             }
             catch (Exception e)
