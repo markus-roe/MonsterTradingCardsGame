@@ -1,5 +1,5 @@
 ﻿using MonsterTradingCardsGame.Models;
-using MonsterTradingCardsGame.Repositories;
+using MonsterTradingCardsGame.Utils.UserStats;
 
 namespace MonsterTradingCardsGame.Interfaces
 {

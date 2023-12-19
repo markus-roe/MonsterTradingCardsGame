@@ -2,18 +2,12 @@
 using Npgsql;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Interfaces;
+using MonsterTradingCardsGame.Utils.UserStats;
 using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Repositories
 {
 
-    public class UserStats
-    {
-        public required string Name { get; set; }
-        public required string Elo { get; set; }
-        public required string Wins { get; set; }
-        public required string Losses { get; set; }
-    }
     public class UserRepository : BaseRepository<User>, IUserRepository
     {
         private readonly ICardRepository _cardRepository;

@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
-using MonsterTradingCardsGame.Repositories;
+using MonsterTradingCardsGame.Utils.UserStats;
 using MonsterTradingCardsGame.Services.Interfaces;
 
 namespace MonsterTradingCardsGame.Controllers

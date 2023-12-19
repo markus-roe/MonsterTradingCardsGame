@@ -7,15 +7,6 @@ using System.Text.Json;
 namespace MonsterTradingCardsGame.Controllers
 {
 
-
-
-    public class TradingDeal
-    {
-        public required string Id { get; set; }
-        public required string CardToTrade { get; set; }
-        public required CardType Type { get; set; }
-        public required float MinimumDamage { get; set; }
-    }
     public class TradingController
     {
         private readonly ICardRepository _cardRepository;
