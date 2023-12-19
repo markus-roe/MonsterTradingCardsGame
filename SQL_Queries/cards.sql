@@ -29,32 +29,16 @@ SELECT * FROM userstats;
 
 SELECT * FROM user_statsview;
 
-
-
-CREATE TABLE IF NOT EXIST userstats (
-    userid INTEGER NOT NULL,
-    wins INTEGER DEFAULT 0,
-    losses INTEGER DEFAULT 0,
-    CONSTRAINT pk_userstats PRIMARY KEY (userid),
-    CONSTRAINT fk_user
-        FOREIGN KEY(userid) 
-        REFERENCES users(id)
+CREATE TABLE tradings (
+    id VARCHAR(255) PRIMARY KEY,
+    cardtotrade VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    minimumdamage FLOAT NOT NULL,
+    userid int,
+    FOREIGN KEY (cardtotrade) REFERENCES cards(id),
+    FOREIGN KEY (userid) REFERENCES users(id)
 );
 
-CREATE VIEW user_statsview AS
-SELECT 
-	u.id as userid,
-    u.name,
-    u.elo,
-    us.wins,
-    us.losses
-FROM 
-    users u
-JOIN 
-    userstats us ON u.id = us.userid;
+SELECT * FROM tradings;
 
-
-
-
-
-
+INSERT INTO tradings (id, cardid, type, minimumdamage) VALUES ('845f0dc7-37d0-426e-994e-43fc3ac83c08', '845f0dc7-37d0-426e-994e-43fc3ac83c08', 'monster', 15);
