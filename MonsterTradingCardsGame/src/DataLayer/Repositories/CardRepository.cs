@@ -21,28 +21,28 @@ namespace MonsterTradingCardsGame.Repositories
 
         public CardType GetCardTypeFromName(string cardName)
         {
-            if (cardName.Contains("Spell"))
+            if (cardName.ToLower().Contains("spell"))
             {
-                return CardType.Spell;
+                return CardType.spell;
             }
             else
             {
-                return CardType.Monster;
+                return CardType.monster;
             }
         }
         public ElementType GetCardElementFromName(string cardName)
         {
-            if (cardName.Contains("Fire"))
+            if (cardName.ToLower().Contains("fire"))
             {
-                return ElementType.Fire;
+                return ElementType.fire;
             }
-            else if (cardName.Contains("Water"))
+            else if (cardName.ToLower().Contains("water"))
             {
-                return ElementType.Water;
+                return ElementType.water;
             }
             else
             {
-                return ElementType.Normal;
+                return ElementType.normal;
             }
         }
 
@@ -182,30 +182,66 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-
-        public bool SetCardDeck(User user, List<Card> cards)
+        public bool LockCardInTrade(User user, Card card)
         {
             try
             {
-                using (var command = new NpgsqlCommand("UPDATE user_cards SET indeck = false WHERE userid = @userid", connection))
+                using (var command = new NpgsqlCommand("UPDATE user_cards SET lockedintrade = true WHERE userid = @userid AND cardid = @cardid", connection))
                 {
                     command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
                     command.ExecuteNonQuery();
-                }
-                foreach (var card in cards)
-                {
-                    using (var command = new NpgsqlCommand("UPDATE user_cards SET indeck = true WHERE cardid = @cardId AND userid = @userid", connection))
-                    {
-                        command.Parameters.AddWithValue("@cardId", card.Id);
-                        command.Parameters.AddWithValue("@userid", user.Id);
-                        command.ExecuteNonQuery();
-                    }
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in SetCardDeck: " + ex.Message);
+                Console.WriteLine("Error in LockCardInTrade: " + ex.Message);
+                return false;
+            }
+        }
+
+        public bool UnlockCard(User user, Card card)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("UPDATE user_cards SET lockedintrade = false WHERE userid = @userid AND cardid = @cardid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
+                    command.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in UnlockCard: " + ex.Message);
+                return false;
+            }
+        }
+
+        public bool checkIfCardIsOwnedByUser(User user, Card card)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("SELECT * FROM user_cards WHERE userid = @userid AND cardid = @cardid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in checkIfCardIsOwnedByUser: " + ex.Message);
                 return false;
             }
         }
@@ -276,7 +312,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public Card GetCardById(string cardId)
+        public Card? GetCardById(string cardId)
         {
             try
             {
@@ -322,6 +358,23 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+
+        public void ChangeCardOwner(User user, Card card)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("UPDATE user_cards SET userid = @userid WHERE cardid = @cardid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in ChangeCardOwner: " + ex.Message);
+            }
+        }
 
     }
 }

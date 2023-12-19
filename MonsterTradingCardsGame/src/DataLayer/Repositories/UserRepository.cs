@@ -77,8 +77,38 @@ namespace MonsterTradingCardsGame.Repositories
             }
             catch (Exception ex)
             {
-                // Handle the exception here, e.g. log the error or throw a custom exception
                 Console.WriteLine($"An error occurred while retrieving user by username: {ex.Message}\n {ex.StackTrace}");
+                return null;
+            }
+        }
+
+
+
+        public User? GetUserById(int id)
+        {
+            User? user = null;
+            try
+            {
+                using (var command = new NpgsqlCommand("SELECT * FROM Users WHERE Id = @id", connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            user = new User();
+                            Fill(user, reader);
+                            user.Stack = _cardRepository.GetCardsByUser(user);
+                            user.Deck = _cardRepository.GetDeckByUser(user);
+                        }
+                    }
+                    return user;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while retrieving user by id: {ex.Message}\n {ex.StackTrace}");
                 return null;
             }
         }

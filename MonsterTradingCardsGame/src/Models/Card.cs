@@ -1,8 +1,8 @@
 ﻿namespace MonsterTradingCardsGame.Models
 {
-    public enum CardType { Monster, Spell }
+    public enum CardType { monster, spell }
 
-    public enum ElementType { Fire, Water, Normal }
+    public enum ElementType { fire, water, normal }
 
     public class Card
     {
