@@ -36,7 +36,13 @@ namespace MonsterTradingCardsGame.Middleware
                 return;
             }
 
-            User user = authService.GetUserFromToken(token);
+            User? user = authService.GetUserFromToken(token);
+
+            if (user == null)
+            {
+                httpEventArguments.Reply(401, "Unauthorized");
+                return;
+            }
             httpEventArguments.User = user;
         }
 

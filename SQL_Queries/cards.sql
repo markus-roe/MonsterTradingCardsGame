@@ -6,19 +6,11 @@ SELECT * FROM packages;
 
 SELECT * FROM package_cards;
 
-SELECT uc.*, c.name, c.damage, u.username FROM user_cards uc JOIN cards c on uc.cardid = c.id JOIN users u on uc.userid = u.id
-WHERE u.username = 'altenhof';
+SELECT uc.*, c.name, c.damage, u.username FROM user_cards uc JOIN cards c on uc.cardid = c.id JOIN users u on uc.userid = u.id;
 
 SELECT uc.*, u.username FROM user_cards uc JOIN users u ON uc.userid = u.id WHERE cardid = '1cb6ab86-bdb2-47e5-b6e4-68c5ab389334';
 
 SELECT uc.*, u.username FROM user_cards uc JOIN users u ON uc.userid = u.id WHERE cardid = '951e886a-0fbf-425d-8df5-af2ee4830d85';
-
-
-
-SELECT * FROM CARDS WHERE id = '1cb6ab86-bdb2-47e5-b6e4-68c5ab389334';
-
-SELECT * FROM CARDS WHERE id = '845f0dc7-37d0-426e-994e-43fc3ac83c08';
-
 
 
 ----------delete----------

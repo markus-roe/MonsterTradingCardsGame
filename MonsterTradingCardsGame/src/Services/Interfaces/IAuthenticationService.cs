@@ -7,6 +7,6 @@ namespace MonsterTradingCardsGame.Services.Interfaces
         bool VerifyCredentials(string username, string password);
         bool ValidateToken(string token);
         string GenerateToken(User user);
-        User GetUserFromToken(string token);
+        User? GetUserFromToken(string token);
     }
 }
