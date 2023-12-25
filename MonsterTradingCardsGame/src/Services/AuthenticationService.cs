@@ -13,10 +13,12 @@ namespace MonsterTradingCardsGame.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly string secret;
+        private bool isTesting;
 
-        public AuthenticationService(IUserRepository userRepository)
+        public AuthenticationService(IUserRepository userRepository, bool isTesting = false)
         {
             this._userRepository = userRepository;
+            this.isTesting = true;
             secret = "sEcrEtKey!1234567890abcdefghijklmnopqrstuvwx";
 
         }
@@ -34,6 +36,11 @@ namespace MonsterTradingCardsGame.Services
 
         public User? GetUserFromToken(string token)
         {
+            if (isTesting)
+            {
+                return _userRepository.GetUserByUsername(token.Split("-")[0]);
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = tokenHandler.ReadToken(token) as JwtSecurityToken;
             var username = tokenDescriptor?.Claims?.ToArray()[0]?.Value;
@@ -46,6 +53,12 @@ namespace MonsterTradingCardsGame.Services
 
         public bool ValidateToken(string token)
         {
+
+            if (isTesting)
+            {
+                return _userRepository.GetUserByUsername(token.Split("-")[0]) != null;
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
 
@@ -70,6 +83,11 @@ namespace MonsterTradingCardsGame.Services
 
         public string GenerateToken(User user)
         {
+            if (isTesting)
+            {
+                return user.Username + "-mtcgToken";
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
