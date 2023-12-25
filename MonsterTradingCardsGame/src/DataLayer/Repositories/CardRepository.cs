@@ -17,6 +17,7 @@ namespace MonsterTradingCardsGame.Repositories
             card.Damage = record.GetDouble(record.GetOrdinal("Damage"));
             card.Element = (ElementType)Enum.Parse(typeof(ElementType), record.GetString(record.GetOrdinal("Element")));
             card.Type = (CardType)Enum.Parse(typeof(CardType), record.GetString(record.GetOrdinal("Type")));
+            card.IsLocked = record.GetBoolean(record.GetOrdinal("lockedintrade"));
         }
 
         public CardType GetCardTypeFromName(string cardName)
@@ -344,7 +345,7 @@ namespace MonsterTradingCardsGame.Repositories
             {
                 foreach (var card in package)
                 {
-                    using (var command = new NpgsqlCommand("INSERT INTO user_cards(userid, cardid, indeck) VALUES (@userid, @cardid, 'false')", connection))
+                    using (var command = new NpgsqlCommand("INSERT INTO user_cards(userid, cardid, indeck, lockedintrade) VALUES (@userid, @cardid, 'false', 'false')", connection))
                     {
                         command.Parameters.AddWithValue("@userid", user.Id);
                         command.Parameters.AddWithValue("@cardid", card.Id);
