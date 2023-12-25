@@ -82,7 +82,45 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        public bool AddWin(User user)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("UPDATE userstats SET wins = wins + 1 WHERE userid = @userid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
 
+                    int rowsAffected = command.ExecuteNonQuery();
+                    bool rowUpdated = rowsAffected > 0;
+                    return rowUpdated;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while updating user: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool AddLoss(User user)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("UPDATE userstats SET losses = losses + 1 WHERE userid = @userid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    bool rowUpdated = rowsAffected > 0;
+                    return rowUpdated;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while updating user: {ex.Message}");
+                return false;
+            }
+        }
 
         public User? GetUserById(int id)
         {
