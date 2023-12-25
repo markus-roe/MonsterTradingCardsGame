@@ -120,7 +120,7 @@ namespace MonsterTradingCardsGame.Controllers
                 }
 
                 //create trading deal
-                TradingDeal? createdTradingDeal = _tradingRepository.createTradingDeal(tradingDeal, user);
+                TradingDeal? createdTradingDeal = _tradingRepository.CreateTradingDeal(tradingDeal, user);
 
                 if (createdTradingDeal == null)
                 {
