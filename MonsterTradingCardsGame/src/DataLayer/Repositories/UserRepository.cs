@@ -86,7 +86,7 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("UPDATE userstats SET wins = wins + 1 WHERE userid = @userid", connection))
+                using (var command = new NpgsqlCommand("UPDATE userstats SET wins = wins + 1, elo = elo + 3 WHERE userid = @userid", connection))
                 {
                     command.Parameters.AddWithValue("@userid", user.Id);
 
@@ -106,7 +106,7 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("UPDATE userstats SET losses = losses + 1 WHERE userid = @userid", connection))
+                using (var command = new NpgsqlCommand("UPDATE userstats SET losses = losses + 1, elo = elo -5 WHERE userid = @userid", connection))
                 {
                     command.Parameters.AddWithValue("@userid", user.Id);
 
@@ -226,10 +226,10 @@ namespace MonsterTradingCardsGame.Repositories
                         {
                             var stats = new UserStats
                             {
-                                Name = reader["name"].ToString(),
-                                Elo = reader["elo"].ToString(),
-                                Wins = reader["wins"].ToString(),
-                                Losses = reader["losses"].ToString()
+                                Name = reader["name"]?.ToString() ?? string.Empty,
+                                Elo = (int)reader["elo"],
+                                Wins = (int)reader["wins"],
+                                Losses = (int)reader["losses"]
                             };
 
                             statsList.Add(stats);
