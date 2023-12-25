@@ -6,7 +6,7 @@ namespace MonsterTradingCardsGame.Interfaces
     {
         public List<TradingDeal>? GetTradingDeals();
         public TradingDeal? GetTradingDealById(string id);
-        public TradingDeal? createTradingDeal(TradingDeal tradingDeal, User user);
+        public TradingDeal? CreateTradingDeal(TradingDeal tradingDeal, User user);
 
         public int GetTradingDealUserId(TradingDeal tradingDeal);
 

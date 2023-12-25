@@ -89,7 +89,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public TradingDeal? createTradingDeal(TradingDeal tradingDeal, User user)
+        public TradingDeal? CreateTradingDeal(TradingDeal tradingDeal, User user)
         {
             try
             {
