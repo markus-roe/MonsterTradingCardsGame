@@ -35,7 +35,60 @@ namespace MonsterTradingCardsGame.Tests.Controllers
         }
 
 
+        [Test]
+        public void UserController_RegisterUser()
+        {
+            // Arrange
+            string username = "testuser";
+            string password = "testpassword";
 
+            User user = new User()
+            {
+                Username = username,
+                Password = password
+            };
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/users");
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(user));
+
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+
+            // Act
+            _userController.RegisterUser(_mockHttpEventArguments.Object, parameters);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(201, "User registered successfully."), Times.Once());
+        }
+
+        [Test]
+        public void UserController_RegisterUser_UsernameAlreadyExists()
+        {
+            // Arrange
+            string username = "testuser";
+            string password = "testpassword";
+
+            User user = new User()
+            {
+                Username = username,
+                Password = password
+            };
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/users");
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(user));
+            _mockUserRepository.Setup(m => m.GetUserByUsername(username)).Returns(user);
+
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+
+            //Act
+            _userController.RegisterUser(_mockHttpEventArguments.Object, parameters);
+
+            //Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(409, "Username already exists."), Times.Once());
+        }
 
     }
 

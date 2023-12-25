@@ -102,28 +102,5 @@ namespace MonsterTradingCardsGame.Tests.Repositories
             Assert.IsFalse(result);
         }
 
-        //test for register user
-        [Test]
-        public void RegisterUser_ReturnsTrue()
-        {
-            // Arrange
-            User user = new User()
-            {
-                Username = "newUser",
-                Password = "12345678"
-            };
-            // Cleanup before test
-            _userRepository.Delete(user);
-
-            // Act
-            bool result = _userRepository.Save(user);
-
-            // Assert
-            Assert.IsTrue(result);
-
-            // Cleanup
-            _userRepository.Delete(user);
-        }
-
     }
 }
