@@ -15,7 +15,7 @@ namespace MonsterTradingCardsGame.Tests.Services
         public void Setup()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
-            _authenticationService = new AuthenticationService(_userRepositoryMock.Object);
+            _authenticationService = new AuthenticationService(_userRepositoryMock.Object, true);
         }
 
         [Test]
