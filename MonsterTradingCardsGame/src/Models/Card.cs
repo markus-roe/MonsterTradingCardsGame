@@ -11,6 +11,7 @@
         public CardType Type { get; set; }
         public ElementType Element { get; set; }
         public double Damage { get; set; }
+        public bool IsLocked { get; set; }
 
         // Constructors
         public Card() { }
