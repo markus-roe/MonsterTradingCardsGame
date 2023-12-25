@@ -13,24 +13,24 @@ public class BattleService : IBattleService
         { (ElementType.normal, ElementType.fire), 0.5 },
         { (ElementType.water, ElementType.normal), 0.5 },
     };
+    private List<string> _battleLog = new List<string>();
 
     public string StartBattle(User user1, User user2)
     {
 
-        var battleLog = new List<string>();
         int round = 1;
 
-        while (user1.Deck.Count != 0 && user2.Deck.Count != 0 && round <= 100)
+        while (round <= 100)
         {
 
             if (user1.Deck.Count == 0)
             {
-                battleLog.Add($"{user1.Username} has no cards left!");
+                _battleLog.Add($"{user1.Username} has no cards left!");
                 break;
             }
             else if (user2.Deck.Count == 0)
             {
-                battleLog.Add($"{user2.Username} has no cards left!");
+                _battleLog.Add($"{user2.Username} has no cards left!");
                 break;
             }
 
@@ -38,11 +38,25 @@ public class BattleService : IBattleService
             Card card1 = SelectRandomCard(user1.Deck);
             Card card2 = SelectRandomCard(user2.Deck);
 
+            // Check if card1 is locked
+            if (card1.IsLocked)
+            {
+                _battleLog.Add($"{user1.Username}'s card {card1.Name} is locked and cannot be played!");
+                continue;
+            }
+
+            // Check if card2 is locked
+            if (card2.IsLocked)
+            {
+                _battleLog.Add($"{user2.Username}'s card {card2.Name} is locked and cannot be played!");
+                continue;
+            }
+
             // Handle special interactions
-            Card? winner = HandleSpecialInteractions(card1, card2, user1, user2);
+            Card? winnerCard = HandleSpecialInteractions(card1, card2, user1, user2);
 
 
-            if (winner == null) //if no winner was found yet
+            if (winnerCard == null) //if no winnerCard was found yet
             {
                 //apply spell effect
                 ApplySpellEffect(card1, card2);
@@ -51,16 +65,15 @@ public class BattleService : IBattleService
                 if (card1.Damage > card2.Damage)
                 {
                     //card1 wins
-                    winner = card1;
-                    user1.Deck.Add(card2);
-                    user2.Deck.Remove(card2);
+                    winnerCard = card1;
+                    TransferCard(user1, user2, card2);
+                    
                 }
                 else if (card1.Damage < card2.Damage)
                 {
                     //card2 wins
-                    winner = card2;
-                    user2.Deck.Add(card1);
-                    user1.Deck.Remove(card1);
+                    winnerCard = card2;
+                    TransferCard(user2, user1, card1);
                 }
                 else
                 {
@@ -69,15 +82,15 @@ public class BattleService : IBattleService
             }
 
             // Log the details of this round
-            if (winner != null)
-                battleLog.Add($"Round {round}: {card1.Name} vs {card2.Name} - {winner.Name} won!");
+            if (winnerCard != null)
+                _battleLog.Add($"Round {round}: {card1.Name} vs {card2.Name} - {winnerCard.Name} won!");
             else
-                battleLog.Add($"Round {round}: {card1.Name} vs {card2.Name} - Draw!");
+                _battleLog.Add($"Round {round}: {card1.Name} vs {card2.Name} - Draw!");
 
             round++;
 
         }
-        return string.Join(Environment.NewLine, battleLog);
+        return string.Join(Environment.NewLine, _battleLog);
     }
 
     private void ApplySpellEffect(Card card1, Card card2)
@@ -99,6 +112,30 @@ public class BattleService : IBattleService
         if (_elementalEffectiveness.TryGetValue(interactionKey, out double multiplier))
         {
             card.Damage *= multiplier;
+            _battleLog.Add($"Damage adjusted based on element: {card.Name} vs {opponentElement}");
+        }
+    }
+    
+    private void ApplySpellEffect(Card card1, Card card2)
+    {
+        // Apply effects only if at least one of the cards is a spell
+        if (card1.Type == CardType.spell || card2.Type == CardType.spell)
+        {
+            AdjustDamageBasedOnElement(card1, card2.Element);
+            AdjustDamageBasedOnElement(card2, card1.Element);
+        }
+
+        if (card1.Type == CardType.spell && card2.Type == CardType.spell)
+        {
+            _battleLog.Add($"Spell effect applied: {card1.Name} ({card1.Element}) vs {card2.Name} ({card2.Element})");
+        }
+        else if (card1.Type == CardType.spell)
+        {
+            _battleLog.Add($"Spell effect applied: {card1.Name} ({card1.Element}) vs {card2.Name} (Not a spell)");
+        }
+        else if (card2.Type == CardType.spell)
+        {
+            _battleLog.Add($"Spell effect applied: {card1.Name} (Not a spell) vs {card2.Name} ({card2.Element})");
         }
     }
 
@@ -171,8 +208,9 @@ public class BattleService : IBattleService
     // Helper method to transfer a card from loser to winner
     private void TransferCard(User winner, User loser, Card card)
     {
-        winner.Deck.Add(card);
         loser.Deck.Remove(card);
+        winner.Deck.Add(card);
+        _userRepo.ChangeCardOwner(winner, card)
     }
 
 
