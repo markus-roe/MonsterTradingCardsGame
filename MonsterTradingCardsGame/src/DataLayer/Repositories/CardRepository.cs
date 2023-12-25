@@ -17,7 +17,6 @@ namespace MonsterTradingCardsGame.Repositories
             card.Damage = record.GetDouble(record.GetOrdinal("Damage"));
             card.Element = (ElementType)Enum.Parse(typeof(ElementType), record.GetString(record.GetOrdinal("Element")));
             card.Type = (CardType)Enum.Parse(typeof(CardType), record.GetString(record.GetOrdinal("Type")));
-            card.IsLocked = record.GetBoolean(record.GetOrdinal("lockedintrade"));
         }
 
         public CardType GetCardTypeFromName(string cardName)

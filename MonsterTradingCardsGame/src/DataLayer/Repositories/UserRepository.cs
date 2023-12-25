@@ -86,12 +86,20 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("UPDATE userstats SET wins = wins + 1, elo = elo + 3 WHERE userid = @userid", connection))
+                using (var command = new NpgsqlCommand("UPDATE userstats SET wins = wins + 1 WHERE userid = @userid", connection))
                 {
                     command.Parameters.AddWithValue("@userid", user.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     bool rowUpdated = rowsAffected > 0;
+                    if (rowUpdated)
+                    {
+                        using (var command2 = new NpgsqlCommand("UPDATE users SET elo = elo + 3 WHERE id = @userid", connection))
+                        {
+                            command2.Parameters.AddWithValue("@userid", user.Id);
+                            command2.ExecuteNonQuery();
+                        }
+                    }
                     return rowUpdated;
                 }
             }
@@ -106,12 +114,20 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-                using (var command = new NpgsqlCommand("UPDATE userstats SET losses = losses + 1, elo = elo -5 WHERE userid = @userid", connection))
+                using (var command = new NpgsqlCommand("UPDATE userstats SET losses = losses + 1 WHERE userid = @userid", connection))
                 {
                     command.Parameters.AddWithValue("@userid", user.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     bool rowUpdated = rowsAffected > 0;
+                    if (rowUpdated)
+                    {
+                        using (var command2 = new NpgsqlCommand("UPDATE users SET elo = elo - 5 WHERE id = @userid", connection))
+                        {
+                            command2.Parameters.AddWithValue("@userid", user.Id);
+                            command2.ExecuteNonQuery();
+                        }
+                    }
                     return rowUpdated;
                 }
             }

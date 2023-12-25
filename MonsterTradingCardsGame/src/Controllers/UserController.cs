@@ -190,7 +190,7 @@ namespace MonsterTradingCardsGame.Controllers
                 {
                     var user = _userRepository.GetUserByUsername(userCredentials.Username);
                     var token = authService.GenerateToken(user);
-                    httpEventArguments.Reply(200, JsonSerializer.Serialize(new { token = token }));
+                    httpEventArguments.Reply(200, token);
                 }
                 else
                 {
