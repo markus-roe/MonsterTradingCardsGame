@@ -209,9 +209,9 @@ namespace MonsterTradingCardsGame.Repositories
                             var stats = new
                             {
                                 Name = reader["name"].ToString(),
-                                Elo = reader["elo"].ToString(),
-                                Wins = reader["wins"].ToString(),
-                                Losses = reader["losses"].ToString()
+                                Elo = (int)reader["elo"],
+                                Wins = (int)reader["wins"],
+                                Losses = (int)reader["losses"]
                             };
                             return JsonSerializer.Serialize(stats);
                         }
