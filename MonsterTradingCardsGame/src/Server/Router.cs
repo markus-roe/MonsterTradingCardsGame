@@ -23,7 +23,6 @@ namespace MonsterTradingCardsGame.Server
         }
 
         // Get a registered route action
-        // Get a registered route action
         public Action<HttpServerEventArguments>? GetRouteAction(string method, string path)
         {
             foreach (var route in _routes)
@@ -53,7 +52,7 @@ namespace MonsterTradingCardsGame.Server
 
         private bool IsControllerType(Type type)
         {
-            return type.Namespace == "MonsterTradingCardsGame.Controllers" && type.IsClass && !type.IsAbstract && type.Name != "UserCredentials" && type.Name != "UserProfileInfo" && type.Name != "UserStats";
+            return type.Namespace == "MonsterTradingCardsGame.Controllers" && type.IsClass && !type.IsAbstract;
         }
 
         private void RegisterControllerRoutes(IServiceProvider serviceProvider, Type controllerType)

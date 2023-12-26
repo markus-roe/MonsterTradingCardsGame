@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace MonsterTradingCardsGame.Repositories
 {
 
-    public class UserRepository : BaseRepository<User>, IUserRepository
+    public class UserRepository : BaseRepository, IUserRepository
     {
         private readonly ICardRepository _cardRepository;
 
@@ -17,7 +17,7 @@ namespace MonsterTradingCardsGame.Repositories
             _cardRepository = cardRepository;
         }
 
-        protected override void Fill(User user, IDataRecord record)
+        protected void Fill(User user, IDataRecord record)
         {
             user.Id = record.GetInt32(record.GetOrdinal("id"));
             user.Username = record.GetString(record.GetOrdinal("Username"));
@@ -29,7 +29,7 @@ namespace MonsterTradingCardsGame.Repositories
             user.Image = record.IsDBNull(record.GetOrdinal("Image")) ? null : record["Image"].ToString();
         }
 
-        public override List<User> GetAll()
+        public List<User> GetAll()
         {
             var users = new List<User>();
             try
@@ -47,7 +47,6 @@ namespace MonsterTradingCardsGame.Repositories
             }
             catch (Exception ex)
             {
-                // Handle the exception here, e.g. log the error or throw a custom exception
                 Console.WriteLine($"An error occurred while retrieving users: {ex.Message}");
             }
             return users;
@@ -264,7 +263,7 @@ namespace MonsterTradingCardsGame.Repositories
 
 
 
-        public override bool Update(User user)
+        public bool UpdateUser(User user)
         {
             try
             {
@@ -284,14 +283,13 @@ namespace MonsterTradingCardsGame.Repositories
             }
             catch (Exception ex)
             {
-                // Handle the exception here, e.g. log the error or throw a custom exception
                 Console.WriteLine($"An error occurred while updating user: {ex.Message}");
                 return false;
             }
         }
 
 
-        public override bool Save(User user)
+        public bool SaveUser(User user)
         {
             try
             {
@@ -317,21 +315,11 @@ namespace MonsterTradingCardsGame.Repositories
             }
             catch (Exception ex)
             {
-                // Handle the exception here, e.g. log the error or throw a custom exception
                 Console.WriteLine($"An error occurred while saving user: {ex.Message}");
                 return false;
             }
         }
 
-        public override void Delete(User user)
-        {
-            using (var command = new NpgsqlCommand("DELETE FROM Users WHERE id = @Id", connection))
-            {
-                command.Parameters.AddWithValue("@Username", user.Id);
-
-                command.ExecuteNonQuery();
-            }
-        }
 
     }
 }

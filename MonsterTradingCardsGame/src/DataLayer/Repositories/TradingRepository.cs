@@ -6,15 +6,8 @@ using System.Data;
 namespace MonsterTradingCardsGame.Repositories
 {
 
-    public class TradingRepository : BaseRepository<TradingDeal>, ITradingRepository
+    public class TradingRepository : BaseRepository, ITradingRepository
     {
-        private readonly IUserRepository _userRepository;
-
-        public TradingRepository(IUserRepository userRepository) : base()
-        {
-            _userRepository = userRepository;
-        }
-
         public TradingDeal? GetTradingDealById(string id)
         {
             try
@@ -157,15 +150,6 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        protected override void Fill(TradingDeal entity, IDataRecord record)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Save(TradingDeal obj)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

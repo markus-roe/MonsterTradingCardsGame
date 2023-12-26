@@ -2,7 +2,7 @@
 
 namespace MonsterTradingCardsGame.Interfaces
 {
-    public interface ICardRepository : IRepository<Card>
+    public interface ICardRepository
     {
         List<Card> GetCardsByUser(User user);
 
@@ -13,7 +13,7 @@ namespace MonsterTradingCardsGame.Interfaces
         CardType GetCardTypeFromName(string cardName);
         ElementType GetCardElementFromName(string cardName);
 
-        public bool Save(Card card);
+        public bool SaveCard(Card card);
         public bool SavePackage(List<Card> package);
         List<Card> GetCardPackage();
         public bool LockCardInTrade(User user, Card card);

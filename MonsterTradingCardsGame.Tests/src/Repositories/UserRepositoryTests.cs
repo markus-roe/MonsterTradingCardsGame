@@ -75,7 +75,7 @@ namespace MonsterTradingCardsGame.Tests.Repositories
             };
 
             // Act
-            bool result = _userRepository.Update(user);
+            bool result = _userRepository.UpdateUser(user);
 
             // Assert
             Assert.IsTrue(result);
@@ -96,7 +96,7 @@ namespace MonsterTradingCardsGame.Tests.Repositories
             };
 
             // Act
-            bool result = _userRepository.Update(user);
+            bool result = _userRepository.UpdateUser(user);
 
             // Assert
             Assert.IsFalse(result);

@@ -63,7 +63,6 @@ namespace MonsterTradingCardsGame
                 .AddScoped<ICardRepository, CardRepository>() // Card-specific repository
                 .AddScoped<IUserRepository, UserRepository>() // User-specific repository
                 .AddScoped<ITradingRepository, TradingRepository>() // Trading-specific repository
-                .AddScoped<IRepository<User>, UserRepository>() // General repository for User
                 .AddTransient<UserController>() // Transient lifecycle
                 .AddSingleton<HttpServer>() // Singleton lifecycle
                 .AddSingleton<AuthenticationMiddleware>()

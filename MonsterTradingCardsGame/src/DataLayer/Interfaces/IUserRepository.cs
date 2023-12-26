@@ -3,7 +3,7 @@ using MonsterTradingCardsGame.Utils.UserStats;
 
 namespace MonsterTradingCardsGame.Interfaces
 {
-    public interface IUserRepository : IRepository<User>
+    public interface IUserRepository
     {
         User? GetUserByUsername(string username);
         public User? GetUserById(int id);
@@ -12,7 +12,8 @@ namespace MonsterTradingCardsGame.Interfaces
         public List<UserStats>? GetScoreboard();
         public bool AddWin(User user);
         public bool AddLoss(User user);
-        bool Save(User user);
+        bool SaveUser(User user);
+        bool UpdateUser(User user);
 
     }
 }

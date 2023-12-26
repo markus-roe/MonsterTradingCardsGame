@@ -5,11 +5,11 @@ using MonsterTradingCardsGame.Models;
 
 namespace MonsterTradingCardsGame.Repositories
 {
-    public class CardRepository : BaseRepository<Card>, ICardRepository
+    public class CardRepository : BaseRepository, ICardRepository
     {
         public CardRepository() : base() { }
 
-        protected override void Fill(Card card, IDataRecord record)
+        protected void Fill(Card card, IDataRecord record)
         {
             // Fill card details from the record
             card.Id = record.GetString(record.GetOrdinal("Id"));
@@ -289,7 +289,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public override bool Save(Card card)
+        public bool SaveCard(Card card)
         {
             try
             {

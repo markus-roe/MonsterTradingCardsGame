@@ -87,7 +87,7 @@ namespace MonsterTradingCardsGame.Controllers
                     Password = userCredentials.Password,
                 };
 
-                _userRepository.Save(newUser);
+                _userRepository.SaveUser(newUser);
                 httpEventArguments.Reply(201, "User registered successfully.");
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace MonsterTradingCardsGame.Controllers
                 existingUser.Bio = userInfo.Bio;
                 existingUser.Image = userInfo.Image;
 
-                _userRepository.Update(existingUser);
+                _userRepository.UpdateUser(existingUser);
                 httpEventArguments.Reply(200, "User updated successfully.");
             }
             catch (Exception ex)
@@ -301,7 +301,7 @@ namespace MonsterTradingCardsGame.Controllers
 
                 _cardRepository.SavePackageToUser(user, package);
                 user.Coins -= 5;
-                _userRepository.Update(user);
+                _userRepository.UpdateUser(user);
 
                 httpEventArguments.Reply(200, "Package and cards successfully bought");
             }

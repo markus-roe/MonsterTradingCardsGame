@@ -1,10 +1,8 @@
-﻿using System.Data;
-using Npgsql;
-using MonsterTradingCardsGame.Interfaces;
+﻿using Npgsql;
 
 namespace MonsterTradingCardsGame.Repositories
 {
-    public abstract class BaseRepository<T> : IRepository<T> where T : class
+    public abstract class BaseRepository
     {
         protected readonly NpgsqlConnection connection;
 
@@ -14,34 +12,6 @@ namespace MonsterTradingCardsGame.Repositories
             connection = new NpgsqlConnection(connectionString);
             connection.Open();
         }
-
-        protected abstract void Fill(T entity, IDataRecord record);
-
-        public virtual List<T> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void Delete(T entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public T GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(T entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual bool Update(T entity)
-        {
-            throw new NotImplementedException();
-        }
-        public abstract bool Save(T obj);
 
     }
 }
