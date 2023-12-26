@@ -3,6 +3,7 @@ using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Utils.UserStats;
+using MonsterTradingCardsGame.Utils.UserProfile;
 using MonsterTradingCardsGame.Services.Interfaces;
 
 namespace MonsterTradingCardsGame.Controllers
@@ -26,21 +27,6 @@ namespace MonsterTradingCardsGame.Controllers
             public string? Password { get; set; }
         }
 
-        public class UserProfileInfo
-        {
-            public string? Name { get; set; }
-            public string? Bio { get; set; }
-            public string? Image { get; set; }
-        }
-
-
-        public class UserProfileResponse
-        {
-            public string? Name { get; set; }
-            public string? Bio { get; set; }
-            public string? Image { get; set; }
-        }
-
         [Route("GET", "/users/:username")]
         public void GetUserByUsername(IHttpServerEventArguments httpEventArguments)
         {
@@ -60,7 +46,7 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                var userProfile = new UserProfileResponse
+                UserProfile userProfile = new()
                 {
                     Name = user.Name,
                     Bio = user.Bio,
@@ -136,7 +122,7 @@ namespace MonsterTradingCardsGame.Controllers
             try
             {
 
-                var userInfo = JsonSerializer.Deserialize<UserProfileInfo>(httpEventArguments.Payload);
+                var userInfo = JsonSerializer.Deserialize<UserProfile>(httpEventArguments.Payload);
                 if (userInfo == null)
                 {
                     httpEventArguments.Reply(400, "Invalid user data.");
