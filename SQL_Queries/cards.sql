@@ -1,6 +1,8 @@
 SELECT * FROM users;
 
 SELECT * FROM cards;
+
+SELECT * FROM user_cards;
 	
 SELECT * FROM packages;
 
@@ -31,17 +33,5 @@ SELECT * FROM userstats;
 
 SELECT * FROM user_statsview;
 
-CREATE TABLE tradings (
-    id VARCHAR(255) PRIMARY KEY,
-    cardtotrade VARCHAR(255) NOT NULL,
-    type VARCHAR(255) NOT NULL,
-    minimumdamage FLOAT NOT NULL,
-    userid int,
-    FOREIGN KEY (cardtotrade) REFERENCES cards(id),
-    FOREIGN KEY (userid) REFERENCES users(id)
-);
-
 SELECT * FROM tradings;
-
-INSERT INTO tradings (id, cardtotrade, type, minimumdamage, userid) VALUES ('845f0dc7-37d0-426e-994e-43fc3ac83c08', '845f0dc7-37d0-426e-994e-43fc3ac83c08', 'monster', 15, 6);
 
