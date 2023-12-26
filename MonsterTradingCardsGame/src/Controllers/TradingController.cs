@@ -22,7 +22,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/tradings")]
-        public void getTradingDeals(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void getTradingDeals(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/tradings")]
-        public void createTradingDeal(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void createTradingDeal(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -148,13 +148,13 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("DELETE", "/tradings/:tradingdealid")]
-        public void deleteTradingDeal(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void deleteTradingDeal(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
                 User? user = httpEventArguments.User;
 
-                string tradingDealId = parameters["tradingdealid"];
+                string tradingDealId = httpEventArguments.Parameters["tradingdealid"];
 
                 TradingDeal? tradingDeal = _tradingRepository.GetTradingDealById(tradingDealId);
 
@@ -198,13 +198,13 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/tradings/:tradingdealid")]
-        public void ExecuteTradingDeal(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void ExecuteTradingDeal(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
                 User? user = httpEventArguments.User;
 
-                string tradingDealId = parameters["tradingdealid"];
+                string tradingDealId = httpEventArguments.Parameters["tradingdealid"];
 
                 //get trading deal
                 TradingDeal? tradingDeal = _tradingRepository.GetTradingDealById(tradingDealId);

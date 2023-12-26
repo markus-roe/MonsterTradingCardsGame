@@ -52,8 +52,7 @@ namespace MonsterTradingCardsGame.Server
                 var routeAction = _router.GetRouteAction(httpEventArguments.Method, httpEventArguments.Path);
                 if (routeAction != null)
                 {
-                    var parameters = new Dictionary<string, string>();
-                    routeAction(httpEventArguments, parameters);
+                    routeAction(httpEventArguments);
 
                 }
                 else

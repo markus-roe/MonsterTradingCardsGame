@@ -4,10 +4,10 @@ namespace MonsterTradingCardsGame.Server
 {
     public class Router
     {
-        private readonly Dictionary<string, Action<HttpServerEventArguments, Dictionary<string, string>>> _routes = new();
+        private readonly Dictionary<string, Action<HttpServerEventArguments>> _routes = new();
 
         // Add a route to the router
-        public void AddRoute(string method, string path, Action<HttpServerEventArguments, Dictionary<string, string>> action)
+        public void AddRoute(string method, string path, Action<HttpServerEventArguments> action)
         {
             _routes[$"{method} {path}"] = action;
         }
@@ -23,20 +23,26 @@ namespace MonsterTradingCardsGame.Server
         }
 
         // Get a registered route action
-        public Action<HttpServerEventArguments, Dictionary<string, string>>? GetRouteAction(string method, string path)
+        // Get a registered route action
+        public Action<HttpServerEventArguments>? GetRouteAction(string method, string path)
         {
             foreach (var route in _routes)
             {
                 var parameters = new Dictionary<string, string>();
                 if (IsRouteMatch(route.Key, method, path, ref parameters))
                 {
-                    Action<HttpServerEventArguments, Dictionary<string, string>> action = (e, _) => route.Value(e, parameters);
+                    Action<HttpServerEventArguments> action = (e) =>
+                    {
+                        e.Parameters = parameters;
+                        route.Value(e);
+                    };
                     return action;
                 }
             }
 
             return null;
         }
+
 
         // Helper methods
         private IEnumerable<Type> GetControllerTypes()
@@ -61,8 +67,7 @@ namespace MonsterTradingCardsGame.Server
             {
                 try
                 {
-                    var action = (Action<HttpServerEventArguments, Dictionary<string, string>>)Delegate.CreateDelegate(
-                        typeof(Action<HttpServerEventArguments, Dictionary<string, string>>), controller, method);
+                    var action = (Action<HttpServerEventArguments>)Delegate.CreateDelegate(typeof(Action<HttpServerEventArguments>), controller, method);
                     AddRoute(attribute.Method, attribute.Path, action);
                 }
                 catch (Exception)

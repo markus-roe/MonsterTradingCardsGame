@@ -14,7 +14,8 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/battles")]
-        public async void StartBattle(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public async void StartBattle(IHttpServerEventArguments httpEventArguments)
+
         {
 
             var user = httpEventArguments.User;

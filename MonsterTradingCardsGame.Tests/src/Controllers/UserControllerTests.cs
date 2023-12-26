@@ -51,11 +51,8 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/users");
             _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(user));
 
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-
             // Act
-            _userController.RegisterUser(_mockHttpEventArguments.Object, parameters);
+            _userController.RegisterUser(_mockHttpEventArguments.Object);
 
             // Assert
             _mockHttpEventArguments.Verify(m => m.Reply(201, "User registered successfully."), Times.Once());
@@ -94,7 +91,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
 
             //Act
-            _userController.RegisterUser(_mockHttpEventArguments.Object, new Dictionary<string, string>());
+            _userController.RegisterUser(_mockHttpEventArguments.Object);
 
             //Assert
             _mockHttpEventArguments.Verify(m => m.Reply(409, "Username already exists."), Times.Once());
@@ -134,7 +131,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
 
             // Act
-            _userController.Login(_mockHttpEventArguments.Object, new Dictionary<string, string>());
+            _userController.Login(_mockHttpEventArguments.Object);
 
             // Assert
             _mockHttpEventArguments.Verify(m => m.Reply(200, "testuser-mtcgToken"), Times.Once());
@@ -168,7 +165,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 _mockCardRepository.Object);
 
             // Act
-            _userController.Login(_mockHttpEventArguments.Object, new Dictionary<string, string>());
+            _userController.Login(_mockHttpEventArguments.Object);
 
             // Assert
             _mockHttpEventArguments.Verify(m => m.Reply(401, "Invalid username/password provided"), Times.Once());

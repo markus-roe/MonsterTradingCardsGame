@@ -16,7 +16,7 @@ namespace MonsterTradingCardsGame.Controllers
 
 
     [Route("POST", "/packages")]
-    public void createPackage(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+    public void createPackage(IHttpServerEventArguments httpEventArguments)
     {
       try
       {

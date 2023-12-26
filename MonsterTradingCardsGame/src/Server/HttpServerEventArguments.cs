@@ -27,6 +27,7 @@ namespace MonsterTradingCardsGame.Server
         public string Path { get; private set; } = string.Empty;
         public Dictionary<string, string> QueryParameters { get; private set; }
         public List<HttpHeader> Headers { get; private set; } = new List<HttpHeader>();
+        public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
         public string Payload { get; private set; } = string.Empty;
         public string PlainMessage { get; private set; }
         public bool ResponseSent { get; private set; } = false;

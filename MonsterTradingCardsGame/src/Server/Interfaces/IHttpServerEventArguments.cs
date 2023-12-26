@@ -13,6 +13,7 @@ namespace MonsterTradingCardsGame.Server
         User User { get; set; }
 
         int ResponseStatusCode { get; set; }
+        Dictionary<string, string> Parameters { get; set; }
 
         void Reply(int status, string? payload = null);
 

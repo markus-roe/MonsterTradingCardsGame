@@ -42,9 +42,9 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/users/:username")]
-        public void GetUserByUsername(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetUserByUsername(IHttpServerEventArguments httpEventArguments)
         {
-            if (!parameters.TryGetValue("username", out var username))
+            if (!httpEventArguments.Parameters.TryGetValue("username", out var username))
             {
                 httpEventArguments.Reply(400, "Bad Request: Username parameter is missing.");
                 return;
@@ -77,7 +77,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/users")]
-        public void RegisterUser(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void RegisterUser(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -111,11 +111,11 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("PUT", "/users/:username")]
-        public void UpdateUser(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void UpdateUser(IHttpServerEventArguments httpEventArguments)
         {
 
 
-            if (!parameters.TryGetValue("username", out var username))
+            if (!httpEventArguments.Parameters.TryGetValue("username", out var username))
             {
                 httpEventArguments.Reply(400, "Bad Request: Username parameter is missing.");
                 return;
@@ -174,7 +174,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/sessions")]
-        public void Login(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void Login(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -204,7 +204,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/cards")]
-        public void GetCardsByUser(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetCardsByUser(IHttpServerEventArguments httpEventArguments)
         {
             User user = httpEventArguments.User;
 
@@ -213,7 +213,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "/deck")]
-        public void GetDeck(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetDeck(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -249,7 +249,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("PUT", "/deck")]
-        public void ConfigureDeck(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void ConfigureDeck(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -292,7 +292,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "transactions/packages")]
-        public void buyPackage(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void buyPackage(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -326,7 +326,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "stats")]
-        public void GetStats(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetStats(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -350,7 +350,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("GET", "scoreboard")]
-        public void GetScoreboard(IHttpServerEventArguments httpEventArguments, Dictionary<string, string> parameters)
+        public void GetScoreboard(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
