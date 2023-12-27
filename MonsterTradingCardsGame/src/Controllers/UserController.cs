@@ -107,7 +107,7 @@ namespace MonsterTradingCardsGame.Controllers
                 return;
             }
 
-            if (username != httpEventArguments.User.Username || httpEventArguments.User.Username == "admin")
+            if (username != httpEventArguments.User.Username && httpEventArguments.User.Username != "admin")
             {
                 httpEventArguments.Reply(403, "Forbidden: You are not allowed to access this resource.");
                 return;
@@ -188,52 +188,6 @@ namespace MonsterTradingCardsGame.Controllers
                 httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        [Route("GET", "/cards")]
-        public void GetCardsByUser(IHttpServerEventArguments httpEventArguments)
-        {
-            User user = httpEventArguments.User;
-
-            var response = JsonSerializer.Serialize(user.Stack);
-            httpEventArguments.Reply(200, response);
-        }
-
-        [Route("GET", "/deck")]
-        public void GetDeck(IHttpServerEventArguments httpEventArguments)
-        {
-            try
-            {
-                User user = httpEventArguments.User;
-                var deck = user.Deck;
-
-                if (deck.Count == 0)
-                {
-                    httpEventArguments.Reply(204, "The request was fine, but the deck doesn't have any cards");
-                    return;
-                }
-
-                // Extract the format parameter from the query parameters
-                httpEventArguments.QueryParameters.TryGetValue("format", out var format);
-                format = format?.ToLower() ?? "json";
-
-                string response;
-                if (format == "plain")
-                {
-                    response = string.Join("\n", deck.Select(card => card.ToString()));
-                }
-                else
-                {
-                    response = JsonSerializer.Serialize(deck);
-                }
-
-                httpEventArguments.Reply(200, response);
-            }
-            catch (Exception ex)
-            {
-                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
         [Route("PUT", "/deck")]
         public void ConfigureDeck(IHttpServerEventArguments httpEventArguments)
         {
@@ -270,40 +224,6 @@ namespace MonsterTradingCardsGame.Controllers
                 _userRepository.SetCardDeck(user, cards.ToList());
 
                 httpEventArguments.Reply(200, "The deck has been successfully configured.");
-            }
-            catch (Exception ex)
-            {
-                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [Route("POST", "transactions/packages")]
-        public void buyPackage(IHttpServerEventArguments httpEventArguments)
-        {
-            try
-            {
-                User user = httpEventArguments.User;
-
-                if (user.Coins < 5)
-                {
-                    httpEventArguments.Reply(403, "Not enough money for buying a card package");
-                    return;
-                }
-
-                List<Card> package = _cardRepository.GetCardPackage();
-
-                if (package.Count == 0)
-                {
-                    httpEventArguments.Reply(404, "No card package available for buying");
-                    return;
-                }
-
-
-                _cardRepository.SavePackageToUser(user, package);
-                user.Coins -= 5;
-                _userRepository.UpdateUser(user);
-
-                httpEventArguments.Reply(200, "Package and cards successfully bought");
             }
             catch (Exception ex)
             {
