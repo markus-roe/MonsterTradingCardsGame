@@ -138,48 +138,13 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(200, "testuser-mtcgToken"), Times.Once());
         }
 
-        //login with wrong password
+        //login with wrong credentials
         [Test]
         public void UserController_LoginUser_WrongCredentials()
         {
             // Arrange
-            string username = "testuser";
-            string password = "testpassword";
-
-            User user = new User()
-            {
-                Username = username,
-                Password = password
-            };
-
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-
-            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
-            _mockHttpEventArguments.Setup(m => m.Path).Returns("/session");
-            _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(user));
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object);
-
-            // Act
-            _userController.Login(_mockHttpEventArguments.Object);
-
-            // Assert
-            _mockHttpEventArguments.Verify(m => m.Reply(401, "Invalid username/password provided"), Times.Once());
-
-        }
-
-        //login with wrong username
-        [Test]
-        public void UserController_LoginUser_WrongUsername()
-        {
-            // Arrange
-            string username = "testuser";
-            string password = "testpassword";
+            string username = "wronguser";
+            string password = "wrongpassword";
 
             User user = new User()
             {
@@ -255,6 +220,98 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             _mockHttpEventArguments.Verify(m => m.Reply(200, response), Times.Once());
         }
+
+
+        //change user profile data
+        [Test]
+        public void UserController_ChangeUserProfile()
+        {
+            // Arrange
+            User user = new User()
+            {
+                Username = "testuser",
+                Password = "testpassword",
+                Name = "testuser",
+                Bio = "testbio",
+                Image = "testimage"
+            };
+
+            UserProfile userProfile = new()
+            {
+                Name = user.Name,
+                Bio = user.Bio,
+                Image = user.Image
+            };
+
+            _mockUserRepository = new Mock<IUserRepository>();
+            _mockAuthService = new Mock<IAuthenticationService>();
+            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
+
+            _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("PUT");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/users/testuser");
+            _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(userProfile));
+
+            _userController = new UserController(
+                _mockUserRepository.Object,
+                _mockAuthService.Object,
+                _mockCardRepository.Object);
+
+            // Act
+            _userController.UpdateUser(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, "User updated successfully."), Times.Once());
+        }
+
+        //change user profile data with wrong credentials
+        [Test]
+        public void UserController_ChangeUserProfileOfOtherUser()
+        {
+            // Arrange
+            User user = new User()
+            {
+                Username = "wronguser",
+                Password = "wrongpassword",
+                Name = "testuser",
+                Bio = "testbio",
+                Image = "testimage"
+            };
+
+            UserProfile userProfile = new()
+            {
+                Name = user.Name,
+                Bio = user.Bio,
+                Image = user.Image
+            };
+
+            _mockUserRepository = new Mock<IUserRepository>();
+            _mockAuthService = new Mock<IAuthenticationService>();
+            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
+
+            _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("PUT");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/users/testuser");
+            _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(userProfile));
+
+            _userController = new UserController(
+                _mockUserRepository.Object,
+                _mockAuthService.Object,
+                _mockCardRepository.Object);
+
+            // Act
+            _userController.UpdateUser(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(403, "Forbidden: You are not allowed to access this resource."), Times.Once());
+        }
+
     }
 
 }
