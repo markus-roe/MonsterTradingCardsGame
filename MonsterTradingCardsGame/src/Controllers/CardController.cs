@@ -122,6 +122,49 @@ namespace MonsterTradingCardsGame.Controllers
       }
     }
 
+    [Route("PUT", "/deck")]
+    public void ConfigureDeck(IHttpServerEventArguments httpEventArguments)
+    {
+      try
+      {
+        User user = httpEventArguments.User;
+
+        // Check if the request body is empty
+        if (string.IsNullOrEmpty(httpEventArguments.Payload))
+        {
+          httpEventArguments.Reply(400, "Bad Request: Request body is missing or empty.");
+          return;
+        }
+
+        // Deserialize the request body
+        var cardIds = JsonSerializer.Deserialize<string[]>(httpEventArguments.Payload);
+
+        // Check if the request body is valid
+        if (cardIds == null || cardIds.Length != 4)
+        {
+          httpEventArguments.Reply(400, "Bad Request: Request body is invalid.");
+          return;
+        }
+
+        // Check if the user owns all the cards
+        var cards = user.Stack.Where(card => cardIds.Contains(card.Id));
+        if (cards.Count() != 4)
+        {
+          httpEventArguments.Reply(403, "Forbidden: At least one of the provided cards does not belong to the user or is not available.");
+          return;
+        }
+
+        // Configure the deck
+        _userRepository.SetCardDeck(user, cards.ToList());
+
+        httpEventArguments.Reply(200, "The deck has been successfully configured.");
+      }
+      catch (Exception ex)
+      {
+        httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+      }
+    }
+
     [Route("POST", "transactions/packages")]
     public void buyPackage(IHttpServerEventArguments httpEventArguments)
     {
