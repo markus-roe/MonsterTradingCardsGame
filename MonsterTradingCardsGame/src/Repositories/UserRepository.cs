@@ -193,7 +193,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public string? GetStatsByUser(User user)
+        public UserStats? GetStatsByUser(User user)
         {
             try
             {
@@ -205,14 +205,14 @@ namespace MonsterTradingCardsGame.Repositories
                     {
                         if (reader.Read())
                         {
-                            var stats = new
+                            var stats = new UserStats
                             {
-                                Name = reader["name"].ToString(),
+                                Name = reader["name"].ToString() ?? string.Empty,
                                 Elo = (int)reader["elo"],
                                 Wins = (int)reader["wins"],
                                 Losses = (int)reader["losses"]
                             };
-                            return JsonSerializer.Serialize(stats);
+                            return stats;
                         }
                     }
                     return null;

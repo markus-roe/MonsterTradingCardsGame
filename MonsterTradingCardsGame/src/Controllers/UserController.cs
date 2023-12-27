@@ -197,7 +197,7 @@ namespace MonsterTradingCardsGame.Controllers
             {
                 User user = httpEventArguments.User;
 
-                var stats = _userRepository.GetStatsByUser(user);
+                UserStats stats = _userRepository.GetStatsByUser(user);
 
                 if (stats == null)
                 {
@@ -205,7 +205,7 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                httpEventArguments.Reply(200, stats);
+                httpEventArguments.Reply(200, JsonSerializer.Serialize(stats));
             }
             catch (Exception ex)
             {
