@@ -1,4 +1,4 @@
-using Moq;
+﻿using Moq;
 using MonsterTradingCardsGame.Controllers;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
@@ -6,6 +6,7 @@ using System.Text.Json;
 using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Utils.UserProfile;
+using MonsterTradingCardsGame.Utils.UserStats;
 
 
 namespace MonsterTradingCardsGame.Tests.Controllers
@@ -17,8 +18,9 @@ namespace MonsterTradingCardsGame.Tests.Controllers
         private Mock<IUserRepository> _mockUserRepository;
         private Mock<IAuthenticationService> _mockAuthService;
         private Mock<ICardRepository> _mockCardRepository;
-        private UserController _userController;
         private Mock<IHttpServerEventArguments> _mockHttpEventArguments;
+
+        private UserController _userController;
 
         [SetUp]
         public void Setup()
