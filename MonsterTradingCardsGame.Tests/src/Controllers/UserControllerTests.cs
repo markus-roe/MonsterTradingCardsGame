@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using MonsterTradingCardsGame.Controllers;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
@@ -310,6 +310,50 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             // Assert
             _mockHttpEventArguments.Verify(m => m.Reply(403, "Forbidden: You are not allowed to access this resource."), Times.Once());
+        }
+
+        //stats request
+        [Test]
+        public void UserController_GetStats()
+        {
+            // Arrange
+            User user = new User()
+            {
+                Username = "testuser",
+                Name = "testuser",
+            };
+
+            UserStats stats = new UserStats()
+            {
+                Name = user.Name,
+                Elo = 100,
+                Wins = 5,
+                Losses = 2
+            };
+
+            _mockUserRepository = new Mock<IUserRepository>();
+            _mockAuthService = new Mock<IAuthenticationService>();
+            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
+
+            _mockUserRepository.Setup(m => m.GetStatsByUser(user)).Returns(stats);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("GET");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/stats");
+            _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
+
+            _userController = new UserController(
+                _mockUserRepository.Object,
+                _mockAuthService.Object,
+                _mockCardRepository.Object);
+
+            // Act
+            _userController.GetStats(_mockHttpEventArguments.Object);
+
+            string returnedStats = JsonSerializer.Serialize(stats);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, returnedStats), Times.Once());
         }
 
     }
