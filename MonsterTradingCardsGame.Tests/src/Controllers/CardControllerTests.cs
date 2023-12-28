@@ -85,6 +85,30 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
         }
 
+        //admin tries to create new packages with invalid payload
+        [Test]
+        public void CardController_CreatePackage_InvalidPayload()
+        {
+
+            string payload = "invalid payload";
+
+            //mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/packages");
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(payload);
+            _mockHttpEventArguments.Setup(m => m.User).Returns(new User() { Username = "admin" });
+
+            //mock card repository
+            _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns((Card)null);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+
+            // Act
+            _cardController.CreatePackage(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(400, "Payload is not a valid list of cards"), Times.Once());
+        }
+
     }
 
 }
