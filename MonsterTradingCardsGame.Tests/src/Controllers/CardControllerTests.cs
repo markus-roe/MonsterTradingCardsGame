@@ -658,6 +658,38 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(403, "Not enough money for buying a card package"), Times.Once());
         }
 
+        //test if no package is available
+        [Test]
+        public void CardController_BuyPackage_NoPackageAvailable()
+        {
+            // Arrange user with empty stack
+            User user = new User()
+            {
+                Username = "testuser",
+                Stack = new List<Card>(),
+                Deck = new List<Card>(),
+                Coins = 100
+            };
+
+            //available package
+            List<Card> availablePackage = new List<Card>();
+
+            // Arrange mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/transactions");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+
+            // Arrange mock card repository
+            _mockCardRepository.Setup(m => m.GetCardPackage()).Returns(availablePackage);
+            _mockCardRepository.Setup(m => m.SavePackageToUser(user, availablePackage)).Returns(true);
+
+            // Act
+            _cardController.BuyPackage(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(404, "No card package available for buying"), Times.Once());
+        }
+
     }
 
 }
