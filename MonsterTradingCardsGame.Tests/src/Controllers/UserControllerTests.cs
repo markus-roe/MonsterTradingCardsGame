@@ -356,6 +356,51 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(200, returnedStats), Times.Once());
         }
 
+        // get scoreboard for all users
+        [Test]
+        public void UserController_GetScoreboard()
+        {
+
+            List<UserStats> scoreboard = new List<UserStats>();
+            scoreboard.Add(new UserStats()
+            {
+                Name = "Testuser1",
+                Elo = 100,
+                Wins = 5,
+                Losses = 2
+            });
+            scoreboard.Add(new UserStats()
+            {
+                Name = "Testuser2",
+                Elo = 200,
+                Wins = 10,
+                Losses = 3
+            });
+
+
+            _mockUserRepository = new Mock<IUserRepository>();
+            _mockAuthService = new Mock<IAuthenticationService>();
+            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
+
+            _mockUserRepository.Setup(m => m.GetScoreboard()).Returns(scoreboard);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("GET");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/scoreboard");
+
+            _userController = new UserController(
+                _mockUserRepository.Object,
+                _mockAuthService.Object,
+                _mockCardRepository.Object);
+
+            // Act
+            _userController.GetScoreboard(_mockHttpEventArguments.Object);
+
+            string returnedScoreboard = JsonSerializer.Serialize(scoreboard);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, returnedScoreboard), Times.Once());
+        }
+
     }
 
 }
