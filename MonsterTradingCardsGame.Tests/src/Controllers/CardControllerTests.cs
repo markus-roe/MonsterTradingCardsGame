@@ -317,6 +317,60 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(200, userDeck), Times.Once());
         }
 
+        //test configuring deck
+        [Test]
+        public void CardController_ConfigureDeck()
+        {
+            // user with empty deck
+            User initialUser = new User()
+            {
+                Username = "testuser",
+                Stack = {
+                    new Card()
+                    {
+                        Id = "845f0dc7-37d0-426e-994e-43fc3ac83c08",
+                        Name = "WaterGoblin",
+                        Damage = 10.0
+                    },
+                    new Card()
+                    {
+                        Id = "99f8f8dc-e25e-4a95-aa2c-782823f36e2a",
+                        Name = "Dragon",
+                        Damage = 50.0
+                    },
+                    new Card()
+                    {
+                        Id = "e85e3976-7c86-4d06-9a80-641c2019a79f",
+                        Name = "WaterSpell",
+                        Damage = 20.0
+                    },
+                    new Card()
+                    {
+                        Id = "1cb6ab86-bdb2-47e5-b6e4-68c5ab389334",
+                        Name = "Ork",
+                        Damage = 45.0
+                    },
+                },
+                Deck = new List<Card>(),
+            };
+
+
+            string payload = "[\"845f0dc7-37d0-426e-994e-43fc3ac83c08\", \"99f8f8dc-e25e-4a95-aa2c-782823f36e2a\", \"e85e3976-7c86-4d06-9a80-641c2019a79f\", \"1cb6ab86-bdb2-47e5-b6e4-68c5ab389334\"]";
+
+            // Arrange mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("PUT");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/deck");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(initialUser);
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(payload);
+
+
+            // Act
+            _cardController.ConfigureDeck(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, "The deck has been successfully configured."), Times.Once());
+        }
+
     }
 
 }
