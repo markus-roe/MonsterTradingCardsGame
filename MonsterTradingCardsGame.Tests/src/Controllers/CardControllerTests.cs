@@ -530,6 +530,70 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(400, "The provided deck did not include the required amount of cards"), Times.Once());
 
         }
+
+        [Test]
+        public void CardController_BuyPackage()
+        {
+            // Arrange user with empty stack
+            User user = new User()
+            {
+                Username = "testuser",
+                Stack = new List<Card>(),
+                Deck = new List<Card>(),
+            };
+
+            //available package
+            List<Card> availablePackage = new List<Card>()
+            {
+                new Card()
+                {
+                    Id = "845f0dc7-37d0-426e-994e-43fc3ac83c08",
+                    Name = "WaterGoblin",
+                    Damage = 10.0
+                },
+                new Card()
+                {
+                    Id = "99f8f8dc-e25e-4a95-aa2c-782823f36e2a",
+                    Name = "Dragon",
+                    Damage = 50.0
+                },
+                new Card()
+                {
+                    Id = "e85e3976-7c86-4d06-9a80-641c2019a79f",
+                    Name = "WaterSpell",
+                    Damage = 20.0
+                },
+                new Card()
+                {
+                    Id = "1cb6ab86-bdb2-47e5-b6e4-68c5ab389334",
+                    Name = "Ork",
+                    Damage = 45.0
+                },
+                new Card()
+                {
+                    Id = "dfdd758f-649c-40f9-ba3a-8657f4b3439f",
+                    Name = "FireSpell",
+                    Damage = 25.0
+                }
+            };
+
+
+            // Arrange mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/transactions");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+
+            // Arrange mock card repository
+            _mockCardRepository.Setup(m => m.GetCardPackage()).Returns(availablePackage);
+            _mockCardRepository.Setup(m => m.SavePackageToUser(user, availablePackage)).Returns(true);
+
+            // Act
+            _cardController.BuyPackage(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, "Package and cards successfully bought"), Times.Once());
+        }
+
     }
 
 }
