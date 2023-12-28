@@ -109,6 +109,31 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(400, "Payload is not a valid list of cards"), Times.Once());
         }
 
+        //admin tries to create new packages with less than 5 cards
+        [Test]
+        public void CardController_CreatePackage_LessThan5Cards()
+        {
+
+            string payload = "[{\"Id\":\"845f0dc7-37d0-426e-994e-43fc3ac83c08\", \"Name\":\"WaterGoblin\", \"Damage\": 10.0}, {\"Id\":\"99f8f8dc-e25e-4a95-aa2c-782823f36e2a\", \"Name\":\"Dragon\", \"Damage\": 50.0}, {\"Id\":\"e85e3976-7c86-4d06-9a80-641c2019a79f\", \"Name\":\"WaterSpell\", \"Damage\": 20.0}, {\"Id\":\"1cb6ab86-bdb2-47e5-b6e4-68c5ab389334\", \"Name\":\"Ork\", \"Damage\": 45.0}]";
+
+
+            //mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/packages");
+            _mockHttpEventArguments.Setup(m => m.Payload).Returns(payload);
+            _mockHttpEventArguments.Setup(m => m.User).Returns(new User() { Username = "admin" });
+
+            //mock card repository
+            _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns((Card)null);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+
+            // Act
+            _cardController.CreatePackage(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(400, "You need to provide 5 cards"), Times.Once());
+        }
+
     }
 
 }
