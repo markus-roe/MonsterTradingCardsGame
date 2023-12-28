@@ -338,7 +338,7 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public void SavePackageToUser(User user, List<Card> package)
+        public bool SavePackageToUser(User user, List<Card> package)
         {
             try
             {
@@ -351,10 +351,12 @@ namespace MonsterTradingCardsGame.Repositories
                         command.ExecuteNonQuery();
                     }
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in SavePackageToUser: " + ex.Message);
+                return false;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using MonsterTradingCardsGame.Interfaces;
+using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Server;
 using System.Text.Json;
@@ -187,7 +187,14 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
 
-        _cardRepository.SavePackageToUser(user, package);
+        bool successfullySaved = _cardRepository.SavePackageToUser(user, package);
+
+        if (successfullySaved == false)
+        {
+          httpEventArguments.Reply(500, "Internal server error: Could not save package to user");
+          return;
+        }
+
         user.Coins -= 5;
         _userRepository.UpdateUser(user);
 
