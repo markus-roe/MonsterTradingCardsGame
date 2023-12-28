@@ -22,17 +22,17 @@ namespace MonsterTradingCardsGame.Middleware
             }
 
             // Extract the token from the Authorization header
-            var token = ExtractToken(httpEventArguments);
+            string? token = ExtractToken(httpEventArguments);
+
             if (string.IsNullOrEmpty(token))
             {
-                httpEventArguments.Reply(401, "Unauthorized");
+                httpEventArguments.Reply(401, "Access token is missing or invalid");
                 return;
             }
 
-            bool isAuthenticated = authService.ValidateToken(token);
-            if (!isAuthenticated)
+            if (authService.ValidateToken(token) == false)
             {
-                httpEventArguments.Reply(401, "Unauthorized");
+                httpEventArguments.Reply(401, "Access token is missing or invalid");
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace MonsterTradingCardsGame.Middleware
 
             if (user == null)
             {
-                httpEventArguments.Reply(401, "Unauthorized");
+                httpEventArguments.Reply(401, "Access token is missing or invalid");
                 return;
             }
             httpEventArguments.User = user;
