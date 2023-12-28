@@ -12,13 +12,13 @@ namespace MonsterTradingCardsGame.Controllers
 
     public CardController(ICardRepository cardRepository, IUserRepository userRepository)
     {
-      this._cardRepository = cardRepository;
-      this._userRepository = userRepository;
+      _cardRepository = cardRepository;
+      _userRepository = userRepository;
     }
 
 
     [Route("POST", "/packages")]
-    public void createPackage(IHttpServerEventArguments httpEventArguments)
+    public void CreatePackage(IHttpServerEventArguments httpEventArguments)
     {
       try
       {
@@ -166,7 +166,7 @@ namespace MonsterTradingCardsGame.Controllers
     }
 
     [Route("POST", "transactions/packages")]
-    public void buyPackage(IHttpServerEventArguments httpEventArguments)
+    public void BuyPackage(IHttpServerEventArguments httpEventArguments)
     {
       try
       {
