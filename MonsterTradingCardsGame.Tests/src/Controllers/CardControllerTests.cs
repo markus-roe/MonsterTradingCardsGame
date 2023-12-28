@@ -159,6 +159,45 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
         }
 
+        //get cards
+        [Test]
+        public void CardController_GetUserCards()
+        {
+            // Arrange user with stack of cards
+            User user = new User()
+            {
+                Username = "testuser",
+                Stack = new List<Card>()
+                {
+                    new Card()
+                    {
+                        Id = "1",
+                        Name = "testcard",
+                        Damage = 10.0
+                    },
+                    new Card()
+                    {
+                        Id = "2",
+                        Name = "testcard2",
+                        Damage = 20.0
+                    }
+                }
+            };
+
+            // Arrange mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("GET");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/cards");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+
+            // Act
+            _cardController.GetCardsByUser(_mockHttpEventArguments.Object);
+
+            string userStack = JsonSerializer.Serialize(user.Stack);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, userStack), Times.Once());
+        }
+
     }
 
 }
