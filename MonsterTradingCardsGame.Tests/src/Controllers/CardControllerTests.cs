@@ -198,6 +198,45 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(200, userStack), Times.Once());
         }
 
+        //get user deck
+        [Test]
+        public void CardController_GetUserDeck_DefaultJson()
+        {
+            // Arrange user with deck of cards
+            User user = new User()
+            {
+                Username = "testuser",
+                Deck = new List<Card>()
+                {
+                    new Card()
+                    {
+                        Id = "1",
+                        Name = "testcard",
+                        Damage = 10.0
+                    },
+                    new Card()
+                    {
+                        Id = "2",
+                        Name = "testcard2",
+                        Damage = 20.0
+                    }
+                }
+            };
+
+            // Arrange mock http event arguments
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("GET");
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/deck");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+
+            // Act
+            _cardController.GetDeck(_mockHttpEventArguments.Object);
+
+            string userDeck = JsonSerializer.Serialize(user.Deck);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, userDeck), Times.Once());
+        }
+
     }
 
 }
