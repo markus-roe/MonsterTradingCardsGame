@@ -1,4 +1,4 @@
-using MonsterTradingCardsGame.Interfaces;
+﻿using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Server;
 using System.Text.Json;
@@ -30,6 +30,25 @@ namespace MonsterTradingCardsGame.Controllers
           httpEventArguments.Reply(403, "You are not allowed to create packages");
           return;
         }
+
+        if (string.IsNullOrWhiteSpace(httpEventArguments.Payload))
+        {
+          httpEventArguments.Reply(400, "Payload is not a valid list of cards");
+          return;
+        }
+
+        //check if payload is valid json
+        try
+        {
+          var obj = JsonSerializer.Deserialize<object>(httpEventArguments.Payload.Trim());
+        }
+        catch (JsonException)
+        {
+          httpEventArguments.Reply(400, "Payload is not a valid list of cards");
+          return;
+        }
+
+
 
         List<Card>? package = JsonSerializer.Deserialize<List<Card>>(httpEventArguments.Payload);
 
@@ -76,7 +95,6 @@ namespace MonsterTradingCardsGame.Controllers
       }
     }
 
-
     [Route("GET", "/cards")]
     public void GetCardsByUser(IHttpServerEventArguments httpEventArguments)
     {
@@ -100,9 +118,12 @@ namespace MonsterTradingCardsGame.Controllers
           return;
         }
 
-        // Extract the format parameter from the query parameters
-        httpEventArguments.QueryParameters.TryGetValue("format", out var format);
-        format = format?.ToLower() ?? "json";
+        string format = "json";
+
+        if (httpEventArguments?.QueryParameters?.ContainsKey("format") != null)
+        {
+          format = httpEventArguments.QueryParameters["format"].ToLower();
+        }
 
         string response;
         if (format == "plain")
@@ -132,7 +153,18 @@ namespace MonsterTradingCardsGame.Controllers
         // Check if the request body is empty
         if (string.IsNullOrEmpty(httpEventArguments.Payload))
         {
-          httpEventArguments.Reply(400, "Bad Request: Request body is missing or empty.");
+          httpEventArguments.Reply(400, "The provided deck did not include the required amount of cards");
+          return;
+        }
+
+        //check if payload is valid json
+        try
+        {
+          var obj = JsonSerializer.Deserialize<object>(httpEventArguments.Payload.Trim());
+        }
+        catch (JsonException)
+        {
+          httpEventArguments.Reply(400, "The provided deck did not include the required amount of cards");
           return;
         }
 
@@ -142,15 +174,15 @@ namespace MonsterTradingCardsGame.Controllers
         // Check if the request body is valid
         if (cardIds == null || cardIds.Length != 4)
         {
-          httpEventArguments.Reply(400, "Bad Request: Request body is invalid.");
+          httpEventArguments.Reply(400, "The provided deck did not include the required amount of cards");
           return;
         }
 
-        // Check if the user owns all the cards
-        var cards = user.Stack.Where(card => cardIds.Contains(card.Id));
+        // Check if the user owns all the cards and they are not locked
+        var cards = user.Stack.Where(card => cardIds.Contains(card.Id) && !card.IsLocked);
         if (cards.Count() != 4)
         {
-          httpEventArguments.Reply(403, "Forbidden: At least one of the provided cards does not belong to the user or is not available.");
+          httpEventArguments.Reply(403, "At least one of the provided cards does not belong to the user or is not available.");
           return;
         }
 
