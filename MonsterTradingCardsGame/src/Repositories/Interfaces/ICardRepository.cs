@@ -8,14 +8,15 @@ namespace MonsterTradingCardsGame.Interfaces
 
         List<Card> GetDeckByUser(User user);
 
-        Card? GetCardById(string cardId);
+        Card? GetCardById(string cardId); //tested
 
-        CardType GetCardTypeFromName(string cardName);
-        ElementType GetCardElementFromName(string cardName);
+        CardType GetCardTypeFromName(string cardName); //tested
+        ElementType GetCardElementFromName(string cardName); //tested
+        public int? SavePackage(List<Card> package); //tested
 
-        public bool SaveCard(Card card);
-        public bool SavePackage(List<Card> package);
-        List<Card> GetCardPackage();
+        public bool DeletePackageById(int packageId); //tested
+
+        List<Card> GetCardPackage(); //tested
         public bool LockCardInTrade(User user, Card card);
         public bool UnlockCard(User user, Card card);
         bool SavePackageToUser(User user, List<Card> package);

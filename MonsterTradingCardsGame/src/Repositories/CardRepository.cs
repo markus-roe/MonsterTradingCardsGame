@@ -101,19 +101,27 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public bool DeletePackage(int packageId)
+        public bool DeletePackageById(int packageId)
         {
             try
             {
                 using (var command = new NpgsqlCommand("DELETE FROM package_cards WHERE packageid = @packageId", connection))
                 {
                     command.Parameters.AddWithValue("@packageId", packageId);
-                    command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        return false;
+                    }
                 }
                 using (var command = new NpgsqlCommand("DELETE FROM packages WHERE id = @packageId", connection))
                 {
                     command.Parameters.AddWithValue("@packageId", packageId);
-                    command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -123,8 +131,6 @@ namespace MonsterTradingCardsGame.Repositories
                 return false;
             }
         }
-
-
 
         public List<Card> GetCardPackage()
         {
@@ -170,7 +176,7 @@ namespace MonsterTradingCardsGame.Repositories
                     }
                 }
 
-                DeletePackage(randomPackageId);
+                DeletePackageById(randomPackageId);
 
 
                 return cards;
@@ -246,17 +252,16 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-        public bool SavePackage(List<Card> cards)
+        public int? SavePackage(List<Card> cards)
         {
             try
             {
-                int packageId;
+                int? packageId;
                 using (var command = new NpgsqlCommand("INSERT INTO packages(packagename, packagecost) VALUES ('defaultPackage', 5) RETURNING id", connection))
                 {
-                    packageId = (int)command.ExecuteScalar();
+                    packageId = (int?)command.ExecuteScalar();
                 }
 
-                //save cards to cards tableq
                 foreach (var card in cards)
                 {
                     using (var command = new NpgsqlCommand("INSERT INTO cards(name, damage, element, type, id) VALUES (@name, @damage, @element, @type, @id)", connection))
@@ -280,12 +285,12 @@ namespace MonsterTradingCardsGame.Repositories
                         command.ExecuteNonQuery();
                     }
                 }
-                return true;
+                return packageId;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error in SavePackage: " + ex.Message);
-                return false;
+                return null;
             }
         }
 
