@@ -12,8 +12,9 @@ namespace MonsterTradingCardsGame.Interfaces
         public List<UserStats>? GetScoreboard();
         public bool AddWin(User user);
         public bool AddLoss(User user);
-        bool SaveUser(User user);
+        int? SaveUser(User user);
         bool UpdateUser(User user);
+        bool DeleteUser(User user);
 
     }
 }

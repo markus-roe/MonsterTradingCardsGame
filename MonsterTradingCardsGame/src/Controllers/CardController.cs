@@ -120,7 +120,7 @@ namespace MonsterTradingCardsGame.Controllers
 
         string format = "json";
 
-        if (httpEventArguments?.QueryParameters?.ContainsKey("format") != null)
+        if (httpEventArguments?.QueryParameters?.ContainsKey("format") == true)
         {
           format = httpEventArguments.QueryParameters["format"].ToLower();
         }

@@ -121,7 +121,7 @@ namespace MonsterTradingCardsGame.Repositories
                     bool rowUpdated = rowsAffected > 0;
                     if (rowUpdated)
                     {
-                        using (var command2 = new NpgsqlCommand("UPDATE users SET elo = elo - 5 WHERE id = @userid", connection))
+                        using (var command2 = new NpgsqlCommand("UPDATE users SET elo = GREATEST(elo - 5, 0) WHERE id = @userid", connection))
                         {
                             command2.Parameters.AddWithValue("@userid", user.Id);
                             command2.ExecuteNonQuery();
@@ -289,17 +289,19 @@ namespace MonsterTradingCardsGame.Repositories
         }
 
 
-        public bool SaveUser(User user)
+        public int? SaveUser(User user)
         {
             try
             {
+                int? userId = null;
+
                 using (var command = new NpgsqlCommand("INSERT INTO Users (Username, Password_Hash) VALUES (@username, @password) RETURNING Id", connection))
                 {
                     command.Parameters.AddWithValue("@username", user.Username);
                     command.Parameters.AddWithValue("@password", user.Password);
 
                     object result = command.ExecuteScalar();
-                    int? userId = result as int?;
+                    userId = result as int?;
 
                     if (userId.HasValue)
                     {
@@ -311,15 +313,34 @@ namespace MonsterTradingCardsGame.Repositories
                         }
                     }
                 }
-                return true;
+                return userId;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while saving user: {ex.Message}");
-                return false;
+                return null;
             }
         }
 
+        public bool DeleteUser(User user)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("DELETE FROM Users WHERE Username = @username", connection))
+                {
+                    command.Parameters.AddWithValue("@username", user.Username);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    bool rowDeleted = rowsAffected > 0;
+                    return rowDeleted;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while deleting user: {ex.Message}");
+                return false;
+            }
+        }
 
     }
 }
