@@ -50,7 +50,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             //mock card repository
             _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns((Card)null);
-            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(It.IsAny<int>());
 
             // Act
             _cardController.CreatePackage(_mockHttpEventArguments.Object);
@@ -75,7 +75,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             //mock card repository
             _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns((Card)null);
-            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(It.IsAny<int>());
 
             // Act
             _cardController.CreatePackage(_mockHttpEventArguments.Object);
@@ -100,7 +100,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             //mock card repository
             _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns((Card)null);
-            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(It.IsAny<int>());
 
             // Act
             _cardController.CreatePackage(_mockHttpEventArguments.Object);
@@ -125,7 +125,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             //mock card repository
             _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns((Card)null);
-            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(It.IsAny<int>());
 
             // Act
             _cardController.CreatePackage(_mockHttpEventArguments.Object);
@@ -149,7 +149,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
 
             //mock card repository
             _mockCardRepository.Setup(m => m.GetCardById(It.IsAny<string>())).Returns(new Card());
-            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(true);
+            _mockCardRepository.Setup(m => m.SavePackage(It.IsAny<List<Card>>())).Returns(It.IsAny<int>());
 
             // Act
             _cardController.CreatePackage(_mockHttpEventArguments.Object);
