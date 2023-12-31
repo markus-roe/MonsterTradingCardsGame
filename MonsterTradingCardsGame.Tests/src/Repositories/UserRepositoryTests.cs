@@ -15,20 +15,14 @@ namespace MonsterTradingCardsGame.Tests.Repositories
     internal class UserRepositoryTests
     {
 
-        private Mock<IUserRepository> _mockUserRepository;
-        private Mock<IAuthenticationService> _mockAuthService;
         private Mock<ICardRepository> _mockCardRepository;
-        private Mock<IHttpServerEventArguments> _mockHttpEventArguments;
         private UserRepository _userRepository;
 
         //Setup for the tests
         [SetUp]
         public void Setup()
         {
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
             _mockCardRepository = new Mock<ICardRepository>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
 
             _userRepository = new UserRepository(_mockCardRepository.Object);
 
