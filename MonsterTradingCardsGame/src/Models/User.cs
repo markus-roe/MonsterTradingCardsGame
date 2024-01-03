@@ -1,4 +1,6 @@
 ﻿
+using MonsterTradingCardsGame.Repositories;
+
 namespace MonsterTradingCardsGame.Models
 {
     public class User
@@ -13,6 +15,7 @@ namespace MonsterTradingCardsGame.Models
         public int Elo { get; set; }
         public List<Card> Stack { get; set; }
         public List<Card> Deck { get; set; }
+        public Session Session { get; set; }
 
         public User()
         {
