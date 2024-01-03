@@ -5,21 +5,23 @@ using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Utils.UserStats;
 using MonsterTradingCardsGame.Utils.UserProfile;
 using MonsterTradingCardsGame.Services.Interfaces;
+using MonsterTradingCardsGame.Repositories;
 
 namespace MonsterTradingCardsGame.Controllers
 {
     public class UserController
     {
         private readonly IUserRepository _userRepository;
-        private readonly IAuthenticationService authService;
+        private readonly IAuthenticationService _authService;
         private readonly ICardRepository _cardRepository;
+        private readonly ISessionRepository _sessionRepository;
 
-        public UserController(IUserRepository userRepository, IAuthenticationService authService, ICardRepository cardRepository)
+        public UserController(IUserRepository userRepository, IAuthenticationService authService, ICardRepository cardRepository, ISessionRepository sessionRepository)
         {
-            this._userRepository = userRepository;
-
-            this.authService = authService;
-            this._cardRepository = cardRepository;
+            _userRepository = userRepository;
+            _authService = authService;
+            _cardRepository = cardRepository;
+            _sessionRepository = sessionRepository;
         }
         public class UserCredentials
         {
@@ -172,15 +174,52 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                if (authService.VerifyCredentials(userCredentials.Username, userCredentials.Password))
+                if (_authService.VerifyCredentials(userCredentials.Username, userCredentials.Password))
                 {
                     var user = _userRepository.GetUserByUsername(userCredentials.Username);
-                    var token = authService.GenerateToken(user);
+
+                    var session = new Session
+                    {
+                        SessionId = Guid.NewGuid().ToString(),
+                        UserId = user.Id,
+                        StartTime = DateTime.UtcNow,
+                        EndTime = DateTime.UtcNow.AddDays(7),
+                    };
+
+                    if (_sessionRepository.AddSession(session) == false)
+                    {
+                        httpEventArguments.Reply(500, "Internal server error: Could not create session.");
+                        return;
+                    }
+
+                    user.Session = session;
+
+                    var token = _authService.GenerateToken(user);
                     httpEventArguments.Reply(200, token);
                 }
                 else
                 {
                     httpEventArguments.Reply(401, "Invalid username/password provided");
+                }
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [Route("DELETE", "/sessions")]
+        public void Logout(IHttpServerEventArguments httpEventArguments)
+        {
+            try
+            {
+                if (_sessionRepository.RemoveSession(httpEventArguments.User.Session))
+                {
+                    httpEventArguments.Reply(200, "Logout successful.");
+                }
+                else
+                {
+                    httpEventArguments.Reply(500, "Internal server error: Could not delete session.");
                 }
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using MonsterTradingCardsGame.Models;
+using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Services.Interfaces;
 
@@ -16,7 +17,7 @@ namespace MonsterTradingCardsGame.Middleware
         public void Invoke(HttpServerEventArguments httpEventArguments)
         {
             // Bypass token validation for specific login and registration requests
-            if (httpEventArguments.Method == "POST" && httpEventArguments.Path.Equals("/users") || httpEventArguments.Path.Equals("/sessions"))
+            if (httpEventArguments.Method == "POST" && httpEventArguments.Path.Equals("/users") || httpEventArguments.Method == "POST" && httpEventArguments.Path.Equals("/sessions"))
             {
                 return;
             }
