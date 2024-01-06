@@ -78,23 +78,7 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Password = password
             };
 
-            _mockUserRepository = new Mock<IUserRepository>();
             _mockUserRepository.Setup(m => m.GetUserByUsername(username)).Returns(user);
-
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockCardRepository = new Mock<ICardRepository>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
-
-
-
-
             _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/users");
             _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(user));
@@ -122,22 +106,10 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             };
 
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
-
             _mockUserRepository.Setup(m => m.GetUserByUsername(username)).Returns(user);
             _mockSessionRepository.Setup(m => m.AddSession(It.IsAny<Session>())).Returns(true);
             _mockAuthService.Setup(m => m.GenerateToken(user)).Returns($"{user.Username}-mtcgToken");
             _mockAuthService.Setup(m => m.VerifyCredentials(user.Username, user.Password)).Returns(true);
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
-
-
 
 
             _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
@@ -166,23 +138,9 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Password = password
             };
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-
             _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/session");
             _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(user));
-            _mockSessionRepository = new Mock<ISessionRepository>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
-
-
 
             // Act
             _userController.Login(_mockHttpEventArguments.Object);
@@ -213,9 +171,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Image = user.Image
             };
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
 
             _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
 
@@ -223,14 +178,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Setup(m => m.User).Returns(user);
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/users/testuser");
             _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
-            _mockSessionRepository = new Mock<ISessionRepository>();
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
-
 
             // Act
             _userController.GetUserByUsername(_mockHttpEventArguments.Object);
@@ -264,10 +211,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Image = user.Image
             };
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
 
             _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
 
@@ -277,12 +220,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
             _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(userProfile));
 
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
 
             // Act
             _userController.UpdateUser(_mockHttpEventArguments.Object);
@@ -312,10 +249,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Image = user.Image
             };
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
 
             _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
 
@@ -324,13 +257,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/users/testuser");
             _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
             _mockHttpEventArguments.Setup(m => m.Payload).Returns(JsonSerializer.Serialize(userProfile));
-
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
 
 
             // Act
@@ -359,10 +285,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Losses = 2
             };
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
 
             _mockUserRepository.Setup(m => m.GetStatsByUser(user)).Returns(stats);
 
@@ -371,12 +293,6 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/stats");
             _mockHttpEventArguments.Setup(m => m.Parameters).Returns(new Dictionary<string, string> { { "username", "testuser" } });
 
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
 
             // Act
             _userController.GetStats(_mockHttpEventArguments.Object);
@@ -409,22 +325,11 @@ namespace MonsterTradingCardsGame.Tests.Controllers
             });
 
 
-            _mockUserRepository = new Mock<IUserRepository>();
-            _mockAuthService = new Mock<IAuthenticationService>();
-            _mockHttpEventArguments = new Mock<IHttpServerEventArguments>();
-            _mockSessionRepository = new Mock<ISessionRepository>();
-
             _mockUserRepository.Setup(m => m.GetScoreboard()).Returns(scoreboard);
 
             _mockHttpEventArguments.Setup(m => m.Method).Returns("GET");
             _mockHttpEventArguments.Setup(m => m.Path).Returns("/scoreboard");
 
-
-            _userController = new UserController(
-                _mockUserRepository.Object,
-                _mockAuthService.Object,
-                _mockCardRepository.Object,
-                _mockSessionRepository.Object);
 
             // Act
             _userController.GetScoreboard(_mockHttpEventArguments.Object);
