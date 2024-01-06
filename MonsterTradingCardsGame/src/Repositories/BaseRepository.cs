@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace MonsterTradingCardsGame.Repositories
 {
@@ -8,10 +9,17 @@ namespace MonsterTradingCardsGame.Repositories
 
         public BaseRepository()
         {
-            var connectionString = "Server=127.0.0.1;Port=5432;Database=MTCG;User Id=postgres;Password=mtcgpw;";
+            // Build configuration
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            IConfigurationRoot configuration = builder.Build();
+
+            // Get connection string
+            var connectionString = configuration.GetConnectionString("MTCGDatabase");
+
             connection = new NpgsqlConnection(connectionString);
             connection.Open();
         }
-
     }
 }
