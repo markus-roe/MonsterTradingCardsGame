@@ -7,6 +7,7 @@ using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace MonsterTradingCardsGame
 {
@@ -53,7 +54,14 @@ namespace MonsterTradingCardsGame
         /// <returns>Configured service provider.</returns>
         private static ServiceProvider ConfigureServices()
         {
+
+            var configuration = new ConfigurationBuilder()
+                   .SetBasePath(Directory.GetCurrentDirectory())
+                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                   .Build();
+
             return new ServiceCollection()
+                .AddSingleton<IConfiguration>(configuration)
                 .AddSingleton<IAuthenticationService, AuthenticationService>()
                 .AddSingleton<IBattleService, BattleService>()
                 .AddSingleton<LobbyService>()

@@ -1,4 +1,5 @@
-﻿using MonsterTradingCardsGame.Models;
+﻿using Microsoft.Extensions.Configuration;
+using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Repositories;
 using MonsterTradingCardsGame.Interfaces;
@@ -17,12 +18,12 @@ namespace MonsterTradingCardsGame.Services
         private readonly string secret;
         private bool isTesting;
 
-        public AuthenticationService(IUserRepository userRepository, ISessionRepository sessionRepository, bool isTesting = false)
+        public AuthenticationService(IUserRepository userRepository, ISessionRepository sessionRepository, IConfiguration configuration)
         {
-            this._userRepository = userRepository;
-            this._sessionRepository = sessionRepository;
-            this.isTesting = true;
-            secret = "sEcrEtKey!1234567890abcdefghijklmnopqrstuvwx";
+            _userRepository = userRepository;
+            _sessionRepository = sessionRepository;
+            bool.TryParse(configuration["IsTesting"], out isTesting);
+            secret = configuration.GetSection("SecretKey")?.Value ?? string.Empty;
         }
 
         public bool VerifyCredentials(string username, string password)
