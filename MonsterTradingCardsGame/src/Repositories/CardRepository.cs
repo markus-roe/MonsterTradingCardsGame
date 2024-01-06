@@ -136,12 +136,6 @@ namespace MonsterTradingCardsGame.Repositories
         {
             try
             {
-
-                //get random package from packages table
-                //get all cards from package_cards table with packageid = packageid from packages table
-                //return list of cards
-
-                //get package count for random limit
                 List<int> packageIds = new List<int>();
                 using (var command = new NpgsqlCommand("SELECT id FROM packages", connection))
                 {
