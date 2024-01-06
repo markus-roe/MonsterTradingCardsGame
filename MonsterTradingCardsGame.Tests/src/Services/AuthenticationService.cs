@@ -2,6 +2,8 @@
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Services;
+using Microsoft.Extensions.Configuration;
+
 
 namespace MonsterTradingCardsGame.Tests.Services
 {
@@ -10,14 +12,19 @@ namespace MonsterTradingCardsGame.Tests.Services
     {
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<ISessionRepository> _sessionRepositoryMock;
+        private Mock<IConfiguration> _configurationMock;
         private AuthenticationService _authenticationService;
+
         [SetUp]
         public void Setup()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
             _sessionRepositoryMock = new Mock<ISessionRepository>();
-            bool isTesting = true;
-            _authenticationService = new AuthenticationService(_userRepositoryMock.Object, _sessionRepositoryMock.Object, isTesting);
+            _configurationMock = new Mock<IConfiguration>();
+
+            _configurationMock.Setup(config => config["IsTesting"]).Returns("true");
+
+            _authenticationService = new AuthenticationService(_userRepositoryMock.Object, _sessionRepositoryMock.Object, _configurationMock.Object);
 
         }
 
