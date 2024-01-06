@@ -6,8 +6,8 @@
 
     public class Card
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
         public CardType Type { get; set; }
         public ElementType Element { get; set; }
         public double Damage { get; set; }

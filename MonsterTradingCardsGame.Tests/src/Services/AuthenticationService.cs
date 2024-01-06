@@ -40,7 +40,7 @@ namespace MonsterTradingCardsGame.Tests.Services
         {
             // Arrange
             User user = new User { Username = "testUser", Password = "testPassword" };
-            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testUser")).Returns((User)null);
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testUser")).Returns(It.IsAny<User>());
 
             // Act
             var result = _authenticationService.VerifyCredentials("testUser", "wrongPassword");
@@ -67,7 +67,7 @@ namespace MonsterTradingCardsGame.Tests.Services
         public void ValidateToken_WithInvalidToken_ReturnsFalse()
         {
             // Arrange
-            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("invalidUser")).Returns((User)null);
+            _userRepositoryMock.Setup(repo => repo.GetUserByUsername("invalidUser")).Returns(It.IsAny<User>());
 
             // Act
             var result = _authenticationService.ValidateToken("invalidUser-mtcgToken");
@@ -97,7 +97,7 @@ namespace MonsterTradingCardsGame.Tests.Services
             // ... nothing to arrange here ?
 
             // Act
-            User result = _authenticationService.GetUserFromToken("invalidUser-mtcgToken");
+            User? result = _authenticationService.GetUserFromToken("invalidUser-mtcgToken");
 
             // Assert
             Assert.IsNull(result);

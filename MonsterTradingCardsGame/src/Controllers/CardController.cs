@@ -135,7 +135,10 @@ namespace MonsterTradingCardsGame.Controllers
           response = JsonSerializer.Serialize(deck);
         }
 
-        httpEventArguments.Reply(200, response);
+        if (httpEventArguments != null) //Idk why this is needed, but it is getting rid of the null warning...? only method where this appears
+        {
+          httpEventArguments.Reply(200, response);
+        }
       }
       catch (Exception ex)
       {
