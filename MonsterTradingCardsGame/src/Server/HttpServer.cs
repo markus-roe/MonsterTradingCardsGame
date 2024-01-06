@@ -86,37 +86,6 @@ namespace MonsterTradingCardsGame.Server
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // public methods                                                                                                   //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>Runs the HTTP server.</summary>
- /*         public void Run()
-          {
-              if (Active) return;
-
-              Active = true;
-              _Listener = new(IPAddress.Parse("127.0.0.1"), 10001);
-              _Listener.Start();
-              Console.WriteLine("Listening on 127.0.0.1:10001");
-
-
-              byte[] buf = new byte[256];
-
-              while (Active)
-              {
-                  TcpClient client = _Listener.AcceptTcpClient();
-
-                  string data = string.Empty;
-                  while (client.GetStream().DataAvailable || string.IsNullOrEmpty(data))
-                  {
-                      int n = client.GetStream().Read(buf, 0, buf.Length);
-                      data += Encoding.ASCII.GetString(buf, 0, n);
-                  }
-
-                  Incoming?.Invoke(this, new HttpServerEventArguments(client, data));
-              }
-
-              _Listener.Stop();
-          }*/
-
         public void Run()
         {
             if (Active) return;
