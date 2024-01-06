@@ -27,93 +27,201 @@ public class BattleService : IBattleService
 
     public string StartBattle(User user1, User user2)
     {
-
+        InitializeBattle();
         int round = 1;
-
-        while (round <= 100)
+        while (round <= 100 && !CheckForEmptyDecks(user1, user2))
         {
-            // Round start timestamp
-            _battleLog.Add($"---------------------------------------------------");
-            _battleLog.Add($"Round {round})");
-            _battleLog.Add($"---------------------------------------------------");
-
-            if (user1.Deck.Count == 0)
-            {
-                _battleLog.Add($"{user1.Username} has no cards left!");
-                break;
-            }
-            else if (user2.Deck.Count == 0)
-            {
-                _battleLog.Add($"{user2.Username} has no cards left!");
-                break;
-            }
-
-            Card card1 = SelectRandomCard(user1.Deck);
-            Card card2 = SelectRandomCard(user2.Deck);
-
-            // Check if card1 is locked
-            if (card1.IsLocked)
-            {
-                _battleLog.Add($"{user1.Username}'s card {card1.Name} is locked and cannot be played!");
-                continue;
-            }
-
-            // Check if card2 is locked
-            if (card2.IsLocked)
-            {
-                _battleLog.Add($"{user2.Username}'s card {card2.Name} is locked and cannot be played!");
-                continue;
-            }
-
-            _battleLog.Add($"- {user1.Username} ({user1.Deck.Count} cards remaining) vs {user2.Username} ({user2.Deck.Count} cards remaining)");
-            _battleLog.Add($"- {user1.Username}'s \"{card1.Name}\" (Damage: {card1.Damage}) vs {user2.Username}'s \"{card2.Name}\" (Damage: {card2.Damage})");
-
-            // Handle special interactions
-            Card? winnerCard = HandleSpecialInteractions(card1, card2, user1, user2);
-            if (winnerCard != null)
-            {
-                _battleLog.Add($"  > Special Interaction: \"{winnerCard.Name}\" won!");
-            }
-
-            // If no special interaction determines the winner, proceed with the battle
-            if (winnerCard == null)
-            {
-                // Apply spell effect and adjust damage
-                ApplySpellEffectAndAdjustDamage(card1, card2);
-
-                if (card1.Damage > card2.Damage)
-                {
-                    winnerCard = card1;
-                    TransferCard(user1, user2, card2);
-                }
-                else if (card1.Damage < card2.Damage)
-                {
-                    winnerCard = card2;
-                    TransferCard(user2, user1, card1);
-                }
-            }
-
-            // Log the result of the round
-            if (winnerCard != null)
-            {
-                string loserUsername = winnerCard == card1 ? user2.Username : user1.Username;
-                string winnerUsername = winnerCard == card1 ? user1.Username : user2.Username;
-                Card lostCard = winnerCard == card1 ? card2 : card1;
-                _battleLog.Add($"- Result: \"{winnerCard.Name}\" won! ({winnerUsername} gains \"{lostCard.Name}\" from {loserUsername})");
-            }
-            else
-            {
-                _battleLog.Add($"- Result: Draw!");
-            }
-
-            _battleLog.Add($"---------------------------------------------------\n");
-
+            ExecuteRound(user1, user2, round);
             round++;
         }
-
-
         return string.Join(Environment.NewLine, _battleLog);
     }
+
+    private void InitializeBattle()
+    {
+        _battleLog = new List<string>();
+    }
+
+    private void ExecuteRound(User user1, User user2, int round)
+    {
+        LogRoundStart(round);
+        if (CheckForEmptyDecks(user1, user2)) return;
+
+        Card card1 = SelectRandomCard(user1.Deck);
+        Card card2 = SelectRandomCard(user2.Deck);
+
+        if (CheckForLockedCards(card1, user1, card2, user2)) return;
+
+        LogPreBattleState(user1, card1, user2, card2);
+
+        Card? winnerCard = DetermineRoundWinner(user1, card1, user2, card2);
+
+        if (winnerCard != null)
+        {
+            HandleRoundResult(winnerCard, user1, card1, user2, card2);
+        }
+        else
+        {
+            _battleLog.Add($"- Result: Draw!");
+        }
+
+        _battleLog.Add($"---------------------------------------------------\\n");
+    }
+
+    private void LogRoundStart(int round)
+    {
+        _battleLog.Add($"---------------------------------------------------");
+        _battleLog.Add($"Round {round})");
+        _battleLog.Add($"---------------------------------------------------");
+    }
+
+    private bool CheckForEmptyDecks(User user1, User user2)
+    {
+        if (user1.Deck.Count == 0)
+        {
+            _battleLog.Add($"{user1.Username} has no cards left!");
+            return true;
+        }
+        else if (user2.Deck.Count == 0)
+        {
+            _battleLog.Add($"{user2.Username} has no cards left!");
+            return true;
+        }
+        return false;
+    }
+
+
+    private bool CheckForLockedCards(Card card1, User user1, Card card2, User user2)
+    {
+        bool isLocked = false;
+        if (card1.IsLocked)
+        {
+            _battleLog.Add($"{user1.Username}'s card {card1.Name} is locked and cannot be played!");
+            isLocked = true;
+        }
+
+        if (card2.IsLocked)
+        {
+            _battleLog.Add($"{user2.Username}'s card {card2.Name} is locked and cannot be played!");
+            isLocked = true;
+        }
+        return isLocked;
+    }
+
+
+    private void LogPreBattleState(User user1, Card card1, User user2, Card card2)
+    {
+        _battleLog.Add($"- {user1.Username} ({user1.Deck.Count} cards remaining, ELO: {user1.Elo}) vs {user2.Username} ({user2.Deck.Count} cards remaining, ELO: {user2.Elo})");
+        _battleLog.Add($"- {user1.Username}'s \"{card1.Name}\" (Damage: {card1.Damage}) vs {user2.Username}'s \"{card2.Name}\" (Damage: {card2.Damage})");
+    }
+
+
+    private Card? DetermineRoundWinner(User user1, Card card1, User user2, Card card2)
+    {
+        Card? winnerCard = HandleSpecialInteractions(card1, card2, user1, user2);
+
+        if (winnerCard == null)
+        {
+            ApplySpellEffectAndAdjustDamage(card1, card2);
+            winnerCard = CompareCardDamage(card1, card2);
+        }
+        return winnerCard;
+    }
+
+    private void HandleRoundResult(Card? winnerCard, User user1, Card card1, User user2, Card card2)
+    {
+        if (winnerCard == null)
+        {
+            _battleLog.Add("- Result: Draw!");
+        }
+        else
+        {
+            User winner = winnerCard == card1 ? user1 : user2;
+            User loser = winnerCard == card1 ? user2 : user1;
+            Card lostCard = winnerCard == card1 ? card2 : card1;
+
+            TransferCard(winner, loser, lostCard);
+            UpdateWinLossRecords(winner, loser);
+            UpdateEloScores(winner, loser);
+
+            _battleLog.Add($"- Result: \"{winnerCard.Name}\" won! ({winner.Username} gains \"{lostCard.Name}\" from {loser.Username})");
+        }
+    }
+
+    private void UpdateWinLossRecords(User winner, User loser)
+    {
+        _userRepository.AddWin(winner);
+        _userRepository.AddLoss(loser);
+    }
+
+    private void UpdateEloScores(User winner, User loser)
+    {
+        _userRepository.UpdateElo(winner, 3);
+        _userRepository.UpdateElo(loser, -5);
+    }
+
+    private Card SelectRandomCard(List<Card> deck)
+    {
+        int randomIndex = _random.Next(0, deck.Count);
+        Card originalCard = deck[randomIndex];
+
+        Card battleCard = originalCard.Clone();
+
+        return battleCard;
+    }
+
+    /// <summary>Handles special interactions between cards </summary>
+    /// <returns>The winning card, or null if no special interaction was found</returns>
+    private Card? HandleSpecialInteractions(Card card1, Card card2, User user1, User user2)
+    {
+        Dictionary<(string, string), string> specialInteractions = new Dictionary<(string, string), string>
+        {
+            { ("Goblin", "Dragon"), "Goblins are too afraid of Dragons to attack." },
+            { ("Wizard", "Orc"), "Wizards can control Orcs, making them unable to attack." },
+            { ("Knight", "WaterSpell"), "The heavy armor of Knights makes them drown instantly in Water Spells." },
+            { ("Kraken", "Spell"), "Krakens are immune against all spells." },
+            { ("FireElf", "Dragon"), "Fire Elves can evade attacks from Dragons due to their familiarity." }
+        };
+
+        foreach (var interaction in specialInteractions)
+        {
+            // Check if the special interaction applies
+            if (card1.Name.Contains(interaction.Key.Item1) && card2.Name.Contains(interaction.Key.Item2))
+            {
+                _battleLog.Add($"Special Interaction: {interaction.Value}");
+                _battleLog.Add($"{user2.Username}'s {card2.Name} wins against {user1.Username}'s {card1.Name}.");
+                return card2;
+            }
+            else if (card2.Name.Contains(interaction.Key.Item1) && card1.Name.Contains(interaction.Key.Item2))
+            {
+                _battleLog.Add($"Special Interaction: {interaction.Value}");
+                _battleLog.Add($"{user1.Username}'s {card1.Name} wins against {user2.Username}'s {card2.Name}.");
+                return card1;
+            }
+        }
+
+        // No special interaction found
+        return null;
+    }
+
+    private void TransferCard(User winner, User loser, Card clonedCard)
+    {
+        // Find the original card in the loser's deck
+        Card? originalCard = loser.Deck.FirstOrDefault(card => card.Id == clonedCard.Id);
+
+        if (originalCard != null)
+        {
+            loser.Stack.Remove(originalCard);
+            loser.Deck.Remove(originalCard);
+
+            winner.Stack.Add(originalCard);
+            winner.Deck.Add(originalCard);
+
+            _cardRepository.ChangeCardOwner(winner, originalCard);
+        }
+
+    }
+
     private void ApplySpellEffectAndAdjustDamage(Card card1, Card card2)
     {
         // Apply effects only if at least one of the cards is a spell
@@ -161,68 +269,20 @@ public class BattleService : IBattleService
         return false;
     }
 
-    /// <summary>Handles special interactions between cards </summary>
-    /// <returns>The winning card, or null if no special interaction was found</returns>
-    private Card? HandleSpecialInteractions(Card card1, Card card2, User user1, User user2)
+    private Card? CompareCardDamage(Card card1, Card card2)
     {
-        Dictionary<(string, string), string> specialInteractions = new Dictionary<(string, string), string>
+        if (card1.Damage > card2.Damage)
         {
-            { ("Goblin", "Dragon"), "Goblins are too afraid of Dragons to attack." },
-            { ("Wizard", "Orc"), "Wizards can control Orcs, making them unable to attack." },
-            { ("Knight", "WaterSpell"), "The heavy armor of Knights makes them drown instantly in Water Spells." },
-            { ("Kraken", "Spell"), "Krakens are immune against all spells." },
-            { ("FireElf", "Dragon"), "Fire Elves can evade attacks from Dragons due to their familiarity." }
-        };
-
-        foreach (var interaction in specialInteractions)
-        {
-            // Check if the special interaction applies
-            if (card1.Name.Contains(interaction.Key.Item1) && card2.Name.Contains(interaction.Key.Item2))
-            {
-                _battleLog.Add($"Special Interaction: {interaction.Value}");
-                _battleLog.Add($"{user2.Username}'s {card2.Name} wins against {user1.Username}'s {card1.Name}.");
-                TransferCard(user2, user1, card1);
-                return card2;
-            }
-            else if (card2.Name.Contains(interaction.Key.Item1) && card1.Name.Contains(interaction.Key.Item2))
-            {
-                _battleLog.Add($"Special Interaction: {interaction.Value}");
-                _battleLog.Add($"{user1.Username}'s {card1.Name} wins against {user2.Username}'s {card2.Name}.");
-                TransferCard(user1, user2, card2);
-                return card1;
-            }
+            return card1;
         }
-
-        // No special interaction found
-        return null;
-    }
-
-
-    private void TransferCard(User winner, User loser, Card clonedCard)
-    {
-        // Find the original card in the loser's deck
-        Card? originalCard = loser.Deck.FirstOrDefault(card => card.Id == clonedCard.Id);
-
-        if (originalCard != null)
+        else if (card2.Damage > card1.Damage)
         {
-            loser.Deck.Remove(originalCard); // Remove the original card
-            winner.Deck.Add(originalCard); // Add the original card to the winner's deck
-            _cardRepository.ChangeCardOwner(winner, originalCard);
-            _userRepository.AddWin(winner);
-            _userRepository.AddLoss(loser);
+            return card2;
         }
-
-    }
-
-
-    private Card SelectRandomCard(List<Card> deck)
-    {
-        int randomIndex = _random.Next(0, deck.Count);
-        Card originalCard = deck[randomIndex];
-
-        Card battleCard = originalCard.Clone();
-
-        return battleCard;
+        else
+        {
+            return null;
+        }
     }
 
 
