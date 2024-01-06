@@ -137,6 +137,24 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        public void UpdateElo(User user, int eloChange)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("UPDATE users SET elo = GREATEST(elo + @eloChange, 0) WHERE id = @userid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@eloChange", eloChange);
+                    command.ExecuteNonQuery();
+                }
+                user.Elo = Math.Max(user.Elo + eloChange, 0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while updating user ELO: {ex.Message}");
+            }
+        }
+
         public User? GetUserById(int id)
         {
             User? user = null;
