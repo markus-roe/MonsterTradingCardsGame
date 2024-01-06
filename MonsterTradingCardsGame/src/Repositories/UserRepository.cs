@@ -279,8 +279,6 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
-
-
         public bool UpdateUser(User user)
         {
             try
@@ -356,6 +354,28 @@ namespace MonsterTradingCardsGame.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while deleting user: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool SaveCardToUser(User user, Card card)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("INSERT INTO user_cards (userid, cardid, indeck, lockedintrade) VALUES (@userid, @cardid, 'true', 'false')", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
+                    command.ExecuteNonQuery();
+                }
+
+                user.Deck.Add(card);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in SaveCardToUser: " + ex.Message);
                 return false;
             }
         }

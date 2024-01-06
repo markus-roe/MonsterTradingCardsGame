@@ -16,6 +16,6 @@ namespace MonsterTradingCardsGame.Interfaces
         int? SaveUser(User user);
         bool UpdateUser(User user);
         bool DeleteUser(User user);
-
+        public bool SaveCardToUser(User user, Card card);
     }
 }

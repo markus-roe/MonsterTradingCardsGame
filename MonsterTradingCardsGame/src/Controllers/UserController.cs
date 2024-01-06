@@ -274,5 +274,62 @@ namespace MonsterTradingCardsGame.Controllers
             }
 
         }
+
+        [Route("POST", "merge")]
+        public void MergeCards(IHttpServerEventArguments httpEventArguments)
+        {
+            try
+            {
+                User user = httpEventArguments.User;
+
+                if (user.Coins < 3)
+                {
+                    httpEventArguments.Reply(400, "Not enough coins");
+                    return;
+                }
+
+                List<Card> cards = user.Stack.ToList();
+
+                if (cards.Count < 2)
+                {
+                    httpEventArguments.Reply(400, "Not enough cards");
+                    return;
+                }
+
+                Card card1 = cards[new Random().Next(0, cards.Count)];
+
+                cards.Remove(card1);
+
+                Card card2 = cards[new Random().Next(0, cards.Count)];
+
+                if (card1.Element != card2.Element)
+                {
+                    httpEventArguments.Reply(400, "Cards are not of the same type");
+                    return;
+                }
+
+                Card newCard = new Card
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = $"{card1.Name} {card2.Name} Fusion",
+                    Type = (new Random().Next(0, 2) == 0) ? CardType.monster : CardType.spell,
+                    Element = (new Random().Next(0, 2) == 0) ? ElementType.fire : ElementType.water,
+                    Damage = card1.Damage + card2.Damage,
+                    IsLocked = false,
+                };
+
+                _userRepository.SaveCardToUser(user, newCard);
+
+                user.Coins -= 3;
+                _userRepository.UpdateUser(user);
+
+                httpEventArguments.Reply(200, "Cards merged successfully");
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+
+        }
     }
 }
