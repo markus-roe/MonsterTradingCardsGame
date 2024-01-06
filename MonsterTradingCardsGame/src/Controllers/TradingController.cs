@@ -2,7 +2,6 @@ using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Server;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 
 namespace MonsterTradingCardsGame.Controllers
