@@ -50,8 +50,6 @@ public class BattleService : IBattleService
         Card card1 = SelectRandomCard(user1.Deck);
         Card card2 = SelectRandomCard(user2.Deck);
 
-        if (CheckForLockedCards(card1, user1, card2, user2)) return;
-
         LogPreBattleState(user1, card1, user2, card2);
 
         Card? winnerCard = DetermineRoundWinner(user1, card1, user2, card2);
@@ -77,37 +75,22 @@ public class BattleService : IBattleService
 
     private bool CheckForEmptyDecks(User user1, User user2)
     {
-        if (user1.Deck.Count == 0)
+        int notLockedCardsCountUser1 = user1.Deck.Count(card => !card.IsLocked);
+        int notLockedCardsCountUser2 = user2.Deck.Count(card => !card.IsLocked);
+
+        if (notLockedCardsCountUser1 == 0)
         {
-            _battleLog.Add($"{user1.Username} has no cards left!");
+            _battleLog.Add($"{user1.Username} has no playable cards left!");
             return true;
         }
-        else if (user2.Deck.Count == 0)
+        else if (notLockedCardsCountUser2 == 0)
         {
-            _battleLog.Add($"{user2.Username} has no cards left!");
+            _battleLog.Add($"{user2.Username} has no unlocked cards left!");
             return true;
         }
+
         return false;
     }
-
-
-    private bool CheckForLockedCards(Card card1, User user1, Card card2, User user2)
-    {
-        bool isLocked = false;
-        if (card1.IsLocked)
-        {
-            _battleLog.Add($"{user1.Username}'s card {card1.Name} is locked and cannot be played!");
-            isLocked = true;
-        }
-
-        if (card2.IsLocked)
-        {
-            _battleLog.Add($"{user2.Username}'s card {card2.Name} is locked and cannot be played!");
-            isLocked = true;
-        }
-        return isLocked;
-    }
-
 
     private void LogPreBattleState(User user1, Card card1, User user2, Card card2)
     {
@@ -162,8 +145,11 @@ public class BattleService : IBattleService
 
     private Card SelectRandomCard(List<Card> deck)
     {
-        int randomIndex = _random.Next(0, deck.Count);
-        Card originalCard = deck[randomIndex];
+        List<Card> unlockedCards = deck.Where(card => !card.IsLocked).ToList();
+
+        int randomIndex = _random.Next(0, unlockedCards.Count);
+
+        Card originalCard = unlockedCards[randomIndex];
 
         Card battleCard = originalCard.Clone();
 
@@ -258,7 +244,7 @@ public class BattleService : IBattleService
         }
     }
 
-    private bool AdjustDamageBasedOnElement(Card card, ElementType opponentElement)
+    public bool AdjustDamageBasedOnElement(Card card, ElementType opponentElement)
     {
         var interactionKey = (card.Element, opponentElement);
         if (_elementalEffectiveness.TryGetValue(interactionKey, out double multiplier))
@@ -269,7 +255,7 @@ public class BattleService : IBattleService
         return false;
     }
 
-    private Card? CompareCardDamage(Card card1, Card card2)
+    public Card? CompareCardDamage(Card card1, Card card2)
     {
         if (card1.Damage > card2.Damage)
         {
