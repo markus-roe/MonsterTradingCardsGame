@@ -228,7 +228,8 @@ namespace MonsterTradingCardsGame.Repositories
                                 Name = reader["name"].ToString() ?? string.Empty,
                                 Elo = (int)reader["elo"],
                                 Wins = (int)reader["wins"],
-                                Losses = (int)reader["losses"]
+                                Losses = (int)reader["losses"],
+                                Winratio = (double)reader["winratio"]
                             };
                             return stats;
                         }
@@ -262,7 +263,8 @@ namespace MonsterTradingCardsGame.Repositories
                                 Name = reader["name"]?.ToString() ?? string.Empty,
                                 Elo = (int)reader["elo"],
                                 Wins = (int)reader["wins"],
-                                Losses = (int)reader["losses"]
+                                Losses = (int)reader["losses"],
+                                Winratio = (double)reader["winratio"]
                             };
 
                             statsList.Add(stats);
