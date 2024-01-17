@@ -34,7 +34,30 @@ public class BattleService : IBattleService
             ExecuteRound(user1, user2, round);
             round++;
         }
+
+        DetermineBattleOutcome(user1, user2);
+
         return string.Join(Environment.NewLine, _battleLog);
+    }
+
+    private void DetermineBattleOutcome(User user1, User user2)
+    {
+        if (user1.Deck.Count == 0 && user2.Deck.Count == 0)
+        {
+            _battleLog.Add($"The battle ended in a draw!");
+        }
+        else if (user1.Deck.Count == 0)
+        {
+            _battleLog.Add($"{user2.Username} won the battle!");
+        }
+        else if (user2.Deck.Count == 0)
+        {
+            _battleLog.Add($"{user1.Username} won the battle!");
+        }
+        else
+        {
+            _battleLog.Add($"The battle ended in a draw!");
+        }
     }
 
     private void InitializeBattle()
@@ -85,7 +108,7 @@ public class BattleService : IBattleService
         }
         else if (notLockedCardsCountUser2 == 0)
         {
-            _battleLog.Add($"{user2.Username} has no unlocked cards left!");
+            _battleLog.Add($"{user2.Username} has no playable cards left!");
             return true;
         }
 

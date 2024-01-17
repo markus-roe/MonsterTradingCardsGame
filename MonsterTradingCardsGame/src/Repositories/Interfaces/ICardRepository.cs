@@ -13,6 +13,7 @@ namespace MonsterTradingCardsGame.Interfaces
         CardType GetCardTypeFromName(string cardName); //tested
         ElementType GetCardElementFromName(string cardName); //tested
         public int? SavePackage(List<Card> package); //tested
+        public bool SaveCard(Card card);
 
         public bool DeletePackageById(int packageId); //tested
 
@@ -22,6 +23,7 @@ namespace MonsterTradingCardsGame.Interfaces
         bool SavePackageToUser(User user, List<Card> package);
         public bool CheckIfCardIsOwnedByUser(User user, Card card);
         public void ChangeCardOwner(User user, Card card);
+
 
     }
 }
