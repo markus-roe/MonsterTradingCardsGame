@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 
 namespace MonsterTradingCardsGame.Services
@@ -15,15 +16,31 @@ namespace MonsterTradingCardsGame.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly ISessionRepository _sessionRepository;
-        private readonly string secret;
-        private bool isTesting;
+        private readonly string _secret;
+        private bool _isTesting;
 
         public AuthenticationService(IUserRepository userRepository, ISessionRepository sessionRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _sessionRepository = sessionRepository;
-            bool.TryParse(configuration["IsTesting"], out isTesting);
-            secret = configuration.GetSection("SecretKey")?.Value ?? string.Empty;
+            bool.TryParse(configuration["IsTesting"], out _isTesting);
+            _secret = configuration.GetSection("SecretKey")?.Value ?? string.Empty;
+        }
+
+        public string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+                byte[] hashBytes = sha256.ComputeHash(passwordBytes);
+                string hashedPassword = Convert.ToBase64String(hashBytes);
+                return hashedPassword;
+            }
+        }
+
+        public bool VerifyPassword(string password, string hashedPassword)
+        {
+            return HashPassword(password) == hashedPassword;
         }
 
         public bool VerifyCredentials(string username, string password)
@@ -31,7 +48,7 @@ namespace MonsterTradingCardsGame.Services
             var user = _userRepository.GetUserByUsername(username);
             if (user != null)
             {
-                return password == user.Password;
+                return VerifyPassword(password, user.Password);
             }
 
             return false;
@@ -41,7 +58,7 @@ namespace MonsterTradingCardsGame.Services
         {
             try
             {
-                if (isTesting)
+                if (_isTesting)
                 {
                     return _userRepository.GetUserByUsername(token.Split("-")[0]);
                 }
@@ -77,13 +94,13 @@ namespace MonsterTradingCardsGame.Services
         public bool ValidateToken(string token)
         {
 
-            if (isTesting)
+            if (_isTesting)
             {
                 return _userRepository.GetUserByUsername(token.Split("-")[0]) != null;
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secret);
+            var key = Encoding.ASCII.GetBytes(_secret);
 
             try
             {
@@ -106,13 +123,13 @@ namespace MonsterTradingCardsGame.Services
 
         public string GenerateToken(User user)
         {
-            if (isTesting)
+            if (_isTesting)
             {
                 return user.Username + "-mtcgToken";
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secret);
+            var key = Encoding.ASCII.GetBytes(_secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
