@@ -83,10 +83,12 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
+                string hashedPassword = _authService.HashPassword(userCredentials.Password);
+
                 var newUser = new User
                 {
                     Username = userCredentials.Username,
-                    Password = userCredentials.Password,
+                    Password = hashedPassword,
                 };
 
                 _userRepository.SaveUser(newUser);
@@ -275,6 +277,7 @@ namespace MonsterTradingCardsGame.Controllers
 
         }
 
+        //mandatory feature
         [Route("POST", "merge")]
         public void MergeCards(IHttpServerEventArguments httpEventArguments)
         {
@@ -284,7 +287,7 @@ namespace MonsterTradingCardsGame.Controllers
 
                 if (user.Coins < 3)
                 {
-                    httpEventArguments.Reply(400, "Not enough coins");
+                    httpEventArguments.Reply(400, "Not enough coins! You need 3 coins to merge cards.");
                     return;
                 }
 
@@ -292,7 +295,7 @@ namespace MonsterTradingCardsGame.Controllers
 
                 if (cards.Count < 2)
                 {
-                    httpEventArguments.Reply(400, "Not enough cards");
+                    httpEventArguments.Reply(400, "Not enough cards. You need at least 2 cards to merge.");
                     return;
                 }
 
@@ -302,9 +305,12 @@ namespace MonsterTradingCardsGame.Controllers
 
                 Card card2 = cards[new Random().Next(0, cards.Count)];
 
+                user.Coins -= 3;
+                _userRepository.UpdateUser(user);
+
                 if (card1.Element != card2.Element)
                 {
-                    httpEventArguments.Reply(400, "Cards are not of the same type");
+                    httpEventArguments.Reply(400, "No luck today! Cards are not of the same type");
                     return;
                 }
 
@@ -318,10 +324,8 @@ namespace MonsterTradingCardsGame.Controllers
                     IsLocked = false,
                 };
 
+                _cardRepository.SaveCard(newCard);
                 _userRepository.SaveCardToUser(user, newCard);
-
-                user.Coins -= 3;
-                _userRepository.UpdateUser(user);
 
                 httpEventArguments.Reply(200, "Cards merged successfully");
             }

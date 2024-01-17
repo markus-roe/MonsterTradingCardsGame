@@ -15,13 +15,13 @@ namespace MonsterTradingCardsGame.Controllers
 
         public TradingController(ITradingRepository tradingRepository, IUserRepository userRepository, ICardRepository cardRepository)
         {
-            this._tradingRepository = tradingRepository;
-            this._userRepository = userRepository;
-            this._cardRepository = cardRepository;
+            _tradingRepository = tradingRepository;
+            _userRepository = userRepository;
+            _cardRepository = cardRepository;
         }
 
         [Route("GET", "/tradings")]
-        public void getTradingDeals(IHttpServerEventArguments httpEventArguments)
+        public void GetTradingDeals(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("POST", "/tradings")]
-        public void createTradingDeal(IHttpServerEventArguments httpEventArguments)
+        public void CreateTradingDeal(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
@@ -147,7 +147,7 @@ namespace MonsterTradingCardsGame.Controllers
         }
 
         [Route("DELETE", "/tradings/:tradingdealid")]
-        public void deleteTradingDeal(IHttpServerEventArguments httpEventArguments)
+        public void DeleteTradingDeal(IHttpServerEventArguments httpEventArguments)
         {
             try
             {
