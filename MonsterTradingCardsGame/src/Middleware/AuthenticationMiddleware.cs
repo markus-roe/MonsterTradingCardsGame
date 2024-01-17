@@ -7,11 +7,11 @@ namespace MonsterTradingCardsGame.Middleware
 {
     public class AuthenticationMiddleware : IMiddleware
     {
-        private readonly IAuthenticationService authService;
+        private readonly IAuthenticationService _authService;
 
         public AuthenticationMiddleware(IAuthenticationService authService)
         {
-            this.authService = authService;
+            _authService = authService;
         }
 
         public void Invoke(HttpServerEventArguments httpEventArguments)
@@ -31,13 +31,13 @@ namespace MonsterTradingCardsGame.Middleware
                 return;
             }
 
-            if (authService.ValidateToken(token) == false)
+            if (_authService.ValidateToken(token) == false)
             {
                 httpEventArguments.Reply(401, "Access token is missing or invalid");
                 return;
             }
 
-            User? user = authService.GetUserFromToken(token);
+            User? user = _authService.GetUserFromToken(token);
 
             if (user == null)
             {
