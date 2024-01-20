@@ -4,7 +4,6 @@ using MonsterTradingCardsGame.Controllers;
 using MonsterTradingCardsGame.Middleware;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Repositories;
-using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Services;
 using Microsoft.Extensions.Configuration;
@@ -13,52 +12,61 @@ namespace MonsterTradingCardsGame
 {
     internal class Program
     {
+        static async Task Main(string[] args)
+        {
+            var serviceProvider = ConfigureServices();
+            await InitializeDatabase(serviceProvider);
+            StartHttpServer(serviceProvider);
+        }
 
-        static void Main(string[] args)
+        private static async Task InitializeDatabase(ServiceProvider serviceProvider)
         {
             try
             {
-                // Configure Dependency Injection container
-                var serviceProvider = ConfigureServices();
+                var dbInitService = serviceProvider.GetService<IDatabaseInitializationService>();
+                var configuration = serviceProvider.GetService<IConfiguration>();
 
-                // Resolve HttpServer
-                var httpServer = serviceProvider.GetService<HttpServer>();
-                if (httpServer == null)
-                {
-                    throw new InvalidOperationException("HttpServer could not be resolved.");
-                }
+                var resetDB = configuration?.GetValue<bool?>("ResetDB") ?? false;
+                Console.WriteLine(resetDB ? "Resetting Database" : "Initializing Database");
 
-                var authMiddleware = serviceProvider.GetService<AuthenticationMiddleware>();
-                if (authMiddleware != null)
-                {
-                    httpServer.UseMiddleware(authMiddleware);
-                }
-                else
-                {
-                    throw new InvalidOperationException("AuthenticationMiddleware could not be resolved.");
-                }
+                if (dbInitService == null)
+                    throw new InvalidOperationException("Database could not be initialized.");
 
+                await dbInitService.InitializeOrResetDatabase(resetDB);
+            }
+            catch (Exception ex)
+            {
+                LogException("Error in database initialization", ex);
+            }
+        }
+
+        private static void StartHttpServer(ServiceProvider serviceProvider)
+        {
+            try
+            {
+                var httpServer = serviceProvider.GetService<HttpServer>()
+                    ?? throw new InvalidOperationException("HttpServer could not be resolved.");
+
+                var authMiddleware = serviceProvider.GetService<AuthenticationMiddleware>()
+                    ?? throw new InvalidOperationException("AuthenticationMiddleware could not be resolved.");
+
+                httpServer.UseMiddleware(authMiddleware);
                 httpServer.Incoming += ProcessMessage;
                 httpServer.Run();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unhandled Exception: {ex.Message}\n{ex.StackTrace}");
-
-
+                LogException("Unhandled exception", ex);
                 Console.WriteLine("An error occurred. The application will now close.");
             }
         }
 
-        /// <summary>Configures services and returns the service provider for dependency injection.</summary>
-        /// <returns>Configured service provider.</returns>
         private static ServiceProvider ConfigureServices()
         {
-
             var configuration = new ConfigurationBuilder()
-                   .SetBasePath(Directory.GetCurrentDirectory())
-                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                   .Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
 
             return new ServiceCollection()
                 .AddSingleton<IConfiguration>(configuration)
@@ -75,19 +83,20 @@ namespace MonsterTradingCardsGame
                 .AddTransient<UserController>() // Transient lifecycle
                 .AddSingleton<HttpServer>() // Singleton lifecycle
                 .AddSingleton<AuthenticationMiddleware>()
+                .AddSingleton<IDatabaseInitializationService, DatabaseInitializationService>()
                 .BuildServiceProvider(); // Build service provider (DI container)
         }
 
-        /// <summary>Event handler for incoming server requests.</summary>
-        /// <param name="sender">Sender.</param>
-        /// <param name="httpEventArguments">Event arguments.</param>
         private static void ProcessMessage(object sender, HttpServerEventArguments httpEventArguments)
         {
             Console.WriteLine(httpEventArguments.PlainMessage);
-
-            // Call the HandleIncomingRequests method to process specific requests
             var httpServer = sender as HttpServer;
             httpServer?.HandleIncomingRequests(httpEventArguments);
+        }
+
+        private static void LogException(string message, Exception ex)
+        {
+            Console.WriteLine($"{message}: {ex.Message}\n{ex.StackTrace}");
         }
     }
 }

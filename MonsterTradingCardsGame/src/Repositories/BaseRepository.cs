@@ -16,7 +16,7 @@ namespace MonsterTradingCardsGame.Repositories
             IConfigurationRoot configuration = builder.Build();
 
             // Get connection string
-            var connectionString = configuration.GetConnectionString("MTCGDatabase");
+            var connectionString = configuration.GetConnectionString("postgres");
 
             connection = new NpgsqlConnection(connectionString);
             connection.Open();
