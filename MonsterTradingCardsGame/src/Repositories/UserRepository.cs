@@ -17,6 +17,12 @@ namespace MonsterTradingCardsGame.Repositories
             _cardRepository = cardRepository;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Fills a User object with data from a database record. </summary>
+        /// <param name="user">The User object to fill.</param>
+        /// <param name="record">The data record containing user information.</param>
         protected void Fill(User user, IDataRecord record)
         {
             user.Id = record.GetInt32(record.GetOrdinal("id"));
@@ -29,6 +35,11 @@ namespace MonsterTradingCardsGame.Repositories
             user.Image = record.IsDBNull(record.GetOrdinal("Image")) ? null : record["Image"].ToString();
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Retrieves all users from the database. </summary>
+        /// <returns>A list of all users.</returns>
         public List<User> GetAll()
         {
             var users = new List<User>();
@@ -52,6 +63,12 @@ namespace MonsterTradingCardsGame.Repositories
             return users;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Retrieves a user by username. </summary>
+        /// <param name="username">The username of the user to retrieve.</param>
+        /// <returns>The User object if found, null otherwise.</returns>
         public User? GetUserByUsername(string username)
         {
             User? user = null;
@@ -81,6 +98,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Increments the win count of a user and updates their ELO score. </summary>
+        /// <param name="user">The user to update.</param>
+        /// <returns>True if the update is successful, false otherwise.</returns>
         public bool AddWin(User user)
         {
             try
@@ -109,6 +132,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Increments the loss count of a user and updates their ELO score. </summary>
+        /// <param name="user">The user to update.</param>
+        /// <returns>True if the update is successful, false otherwise.</returns>
         public bool AddLoss(User user)
         {
             try
@@ -137,6 +166,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Updates the ELO rating of a user. </summary>
+        /// <param name="user">The user whose ELO rating is to be updated.</param>
+        /// <param name="eloChange">The amount to change the ELO rating by.</param>
         public void UpdateElo(User user, int eloChange)
         {
             try
@@ -155,6 +190,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Retrieves a user by their ID. </summary>
+        /// <param name="id">The ID of the user to retrieve.</param>
+        /// <returns>The User object if found, null otherwise.</returns>
         public User? GetUserById(int id)
         {
             User? user = null;
@@ -186,6 +227,13 @@ namespace MonsterTradingCardsGame.Repositories
 
 
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Sets the deck for a user. </summary>
+        /// <param name="user">The user whose deck is to be set.</param>
+        /// <param name="cards">The list of cards to be set as the deck.</param>
+        /// <returns>True if the deck is successfully set, false otherwise.</returns>
         public bool SetCardDeck(User user, List<Card> cards)
         {
             try
@@ -211,6 +259,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Retrieves statistics for a user. </summary>
+        /// <param name="user">The user whose statistics are to be retrieved.</param>
+        /// <returns>The UserStats object if found, null otherwise.</returns>
         public UserStats? GetStatsByUser(User user)
         {
             try
@@ -244,8 +298,11 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+        /// <summary> Retrieves the scoreboard with user statistics. </summary>
+        /// <returns>A list of UserStats objects representing the scoreboard.</returns>
         public List<UserStats>? GetScoreboard()
         {
             try
@@ -281,6 +338,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Updates a user's profile information. </summary>
+        /// <param name="user">The user whose information is to be updated.</param>
+        /// <returns>True if the update is successful, false otherwise.</returns>
         public bool UpdateUser(User user)
         {
             try
@@ -307,6 +370,12 @@ namespace MonsterTradingCardsGame.Repositories
         }
 
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Saves a new user to the database. </summary>
+        /// <param name="user">The user to save.</param>
+        /// <returns>The ID of the saved user, null if the operation fails.</returns>
         public int? SaveUser(User user)
         {
             try
@@ -340,6 +409,12 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Deletes a user from the database. </summary>
+        /// <param name="user">The user to delete.</param>
+        /// <returns>True if the user is successfully deleted, false otherwise.</returns>
         public bool DeleteUser(User user)
         {
             try
@@ -360,6 +435,13 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Saves a card to a users stack. </summary>
+        /// <param name="user">The user to save the card to.</param>
+        /// <param name="card">The card to save to the user.</param>
+        /// <returns>True if the association is successful, false otherwise.</returns>
         public bool SaveCardToUser(User user, Card card)
         {
             try
@@ -378,6 +460,32 @@ namespace MonsterTradingCardsGame.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine("Error in SaveCardToUser: " + ex.Message);
+                return false;
+            }
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> Removes a card from a users stack. </summary>
+        /// <param name="user">The user from whom the card is to be removed.</param>
+        /// <param name="card">The card to remove from the user.</param>
+        /// <returns>True if the removal is successful, false otherwise.</returns>
+        public bool RemoveCardFromUser(User user, Card card)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("DELETE FROM user_cards WHERE userid = @userid AND cardid = @cardid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
+                    command.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in RemoveCardFromUser: " + ex.Message);
                 return false;
             }
         }

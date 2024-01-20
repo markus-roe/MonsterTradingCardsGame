@@ -78,18 +78,18 @@ public class DatabaseInitializationService : IDatabaseInitializationService
     {
         try
         {
-            await ResetCardsTable(connection);
             await ResetPackageCardsTable(connection);
             await ResetPackagesTable(connection);
-            await ResetUsersTable(connection);
-            await ResetUserStatsTable(connection);
             await ResetUserCardsTable(connection);
+            await ResetCardsTable(connection);
+            await ResetUserStatsTable(connection);
+            await ResetUsersTable(connection);
             await ResetTradingsTable(connection);
             await ResetSessionsTable(connection);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error creating tables: {ex.Message}");
+            Console.WriteLine($"Error reseting tables: {ex.Message}");
             throw;
         }
     }
@@ -401,16 +401,21 @@ public class DatabaseInitializationService : IDatabaseInitializationService
     {
         try
         {
-            var cmdText = @"CREATE OR REPLACE VIEW public.user_statsview
-                            AS
-                            SELECT u.id AS userid,
-                                u.username,
-                                u.name,
-                                u.elo,
-                                us.wins,
-                                us.losses
-                            FROM users u
-                                JOIN userstats us ON u.id = us.userid;";
+            var cmdText = @"
+            CREATE OR REPLACE VIEW public.user_statsview
+            AS
+            SELECT u.id AS userid,
+                u.username,
+                u.name,
+                u.elo,
+                us.wins,
+                us.losses,
+                CASE
+                    WHEN us.wins + us.losses = 0 THEN 0  -- To handle the case when there are no games played.
+                    ELSE us.wins::double precision / (us.wins + us.losses)::double precision
+                END AS winratio
+            FROM users u
+            JOIN userstats us ON u.id = us.userid;";
             await ExecuteCommand(connection, cmdText);
         }
         catch (Exception ex)
@@ -420,20 +425,21 @@ public class DatabaseInitializationService : IDatabaseInitializationService
         }
     }
 
+
     private async Task CreateUserCardsTable(NpgsqlConnection connection)
     {
         try
         {
             var cmdText = @"CREATE TABLE IF NOT EXISTS public.user_cards
                             (
-                                userid integer NOT NULL,
-                                cardid character varying,
+                                userid integer REFERENCES public.users(id),
+                                cardid character varying REFERENCES public.cards(id),
                                 indeck boolean,
                                 id integer NOT NULL DEFAULT nextval('user_cards_id_seq'::regclass),
                                 lockedintrade boolean,
-                                CONSTRAINT user_cards_pkey PRIMARY KEY (id)
+                                CONSTRAINT user_cards_pkey PRIMARY KEY(id)
                             )
-                            TABLESPACE pg_default;";
+                            TABLESPACE pg_default; ";
             await ExecuteCommand(connection, cmdText);
         }
         catch (Exception ex)

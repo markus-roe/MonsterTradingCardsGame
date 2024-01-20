@@ -23,10 +23,20 @@ namespace MonsterTradingCardsGame.Services
         {
             _userRepository = userRepository;
             _sessionRepository = sessionRepository;
+
+            // Read configuration settings from appsettings.json
             bool.TryParse(configuration["IsTesting"], out _isTesting);
             _secret = configuration.GetSection("SecretKey")?.Value ?? string.Empty;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Hashes a password using SHA256.
+        /// </summary>
+        /// <param name="password">The password to hash.</param>
+        /// <returns>The hashed password.</returns>
         public string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
@@ -38,11 +48,32 @@ namespace MonsterTradingCardsGame.Services
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Verifies if a given password matches the hashed password.
+        /// </summary>
+        /// <param name="password">The plaintext password.</param>
+        /// <param name="hashedPassword">The hashed password for comparison.</param>
+        /// <returns>True if the passwords match, otherwise false.</returns>
         public bool VerifyPassword(string password, string hashedPassword)
         {
+            if (_isTesting)
+                return password.Equals(hashedPassword);
+
             return HashPassword(password) == hashedPassword;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Verifies a user's credentials.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>True if credentials are valid, otherwise false.</returns>
         public bool VerifyCredentials(string username, string password)
         {
             var user = _userRepository.GetUserByUsername(username);
@@ -54,6 +85,14 @@ namespace MonsterTradingCardsGame.Services
             return false;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Retrieves a user from a given JWT token.
+        /// </summary>
+        /// <param name="token">The JWT token.</param>
+        /// <returns>The user if token is valid, otherwise null.</returns>
         public User? GetUserFromToken(string token)
         {
             try
@@ -90,7 +129,14 @@ namespace MonsterTradingCardsGame.Services
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Validates a JWT token.
+        /// </summary>
+        /// <param name="token">The JWT token to validate.</param>
+        /// <returns>True if the token is valid, otherwise false.</returns>
         public bool ValidateToken(string token)
         {
 
@@ -121,6 +167,14 @@ namespace MonsterTradingCardsGame.Services
             return true;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Generates a JWT token for a user.
+        /// </summary>
+        /// <param name="user">The user for whom the token is being generated.</param>
+        /// <returns>The generated JWT token.</returns>
         public string GenerateToken(User user)
         {
             if (_isTesting)

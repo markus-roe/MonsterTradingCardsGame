@@ -7,15 +7,17 @@ namespace MonsterTradingCardsGame.Repositories
     {
         protected readonly NpgsqlConnection connection;
 
+        /// <summary>
+        /// This is the constructor for the BaseRepository class.
+        /// It creates a connection to the database and provides it to the derived classes.
+        /// </summary>
         public BaseRepository()
         {
-            // Build configuration
             var builder = new ConfigurationBuilder()
                .SetBasePath(Directory.GetCurrentDirectory())
                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             IConfigurationRoot configuration = builder.Build();
 
-            // Get connection string
             var connectionString = configuration.GetConnectionString("postgres");
 
             connection = new NpgsqlConnection(connectionString);

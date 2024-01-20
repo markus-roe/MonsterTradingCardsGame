@@ -10,11 +10,13 @@ namespace MonsterTradingCardsGame.Controllers
             this.lobbyService = lobbyService;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> This method is used to start a battle. It calls the EnterLobbyAsync method from the LobbyService class. </summary>
         [Route("POST", "/battles")]
         public async void StartBattle(IHttpServerEventArguments httpEventArguments)
-
         {
-
             var user = httpEventArguments.User;
 
             string battleResult = await lobbyService.EnterLobbyAsync(user);
