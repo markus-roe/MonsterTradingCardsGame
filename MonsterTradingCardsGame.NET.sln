@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterTradingCardsGame", "MonsterTradingCardsGame\MonsterTradingCardsGame.csproj", "{89EC67CB-2029-4378-80B7-DC0C07170E2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonsterTradingCardsGame.Tests", "MonsterTradingCardsGame.Tests\MonsterTradingCardsGame.Tests.csproj", "{F4588982-EB23-4938-B19A-880BC24D6050}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterTradingCardsGame.Tests", "MonsterTradingCardsGame.Tests\MonsterTradingCardsGame.Tests.csproj", "{F4588982-EB23-4938-B19A-880BC24D6050}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
