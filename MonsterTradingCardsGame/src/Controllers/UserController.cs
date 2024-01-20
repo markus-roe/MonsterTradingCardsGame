@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using MonsterTradingCardsGame.Server;
 using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Models;
@@ -277,7 +277,53 @@ namespace MonsterTradingCardsGame.Controllers
 
         }
 
-        //mandatory feature
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> This is a mandatory feature. A user can trade a random card of his stack (not in deck) for 6 coins </summary>
+        [Route("POST", "coins")]
+        public void TradeCardForCoins(IHttpServerEventArguments httpEventArguments)
+        {
+            try
+            {
+                User user = httpEventArguments.User;
+
+                List<Card> cards = user.Stack.ToList();
+
+                if (cards.Count < 1)
+                {
+                    httpEventArguments.Reply(400, "Not enough cards. You need at least 1 card to trade.");
+                    return;
+                }
+
+                // Get random card which is not in deck
+                List<Card> cardsNotInDeck = cards.Where(c => !user.Deck.Contains(c)).ToList();
+
+                if (cardsNotInDeck.Count < 1)
+                {
+                    httpEventArguments.Reply(400, "No cards available to trade. All cards are in the deck.");
+                    return;
+                }
+
+                Card card = cardsNotInDeck[new Random().Next(0, cardsNotInDeck.Count)];
+
+                user.Coins += 6;
+                _userRepository.UpdateUser(user);
+
+                _userRepository.RemoveCardFromUser(user, card);
+
+                httpEventArguments.Reply(200, "Card traded successfully, you received 6 coins.");
+            }
+            catch (Exception ex)
+            {
+                httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        /// <summary> This is a mandatory feature. It merges two random cards and if they are the same element, creates a new one, costs 3 coins. </summary>
         [Route("POST", "merge")]
         public void MergeCards(IHttpServerEventArguments httpEventArguments)
         {
