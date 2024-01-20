@@ -10,7 +10,7 @@ using MonsterTradingCardsGame.Utils.UserStats;
 using MonsterTradingCardsGame.Repositories;
 
 
-namespace MonsterTradingCardsGame.Tests.Controllers
+namespace MonsterTradingCardsGame.UnitTests.Controllers
 {
 
     [TestFixture]
@@ -282,7 +282,8 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Name = user.Name,
                 Elo = 100,
                 Wins = 5,
-                Losses = 2
+                Losses = 2,
+                Winratio = 0.71
             };
 
 
@@ -314,14 +315,16 @@ namespace MonsterTradingCardsGame.Tests.Controllers
                 Name = "Testuser1",
                 Elo = 100,
                 Wins = 5,
-                Losses = 2
+                Losses = 2,
+                Winratio = 0.71
             });
             scoreboard.Add(new UserStats()
             {
                 Name = "Testuser2",
                 Elo = 200,
                 Wins = 10,
-                Losses = 3
+                Losses = 3,
+                Winratio = 0.77
             });
 
 

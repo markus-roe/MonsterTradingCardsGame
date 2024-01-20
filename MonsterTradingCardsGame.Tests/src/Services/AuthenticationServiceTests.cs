@@ -5,7 +5,7 @@ using MonsterTradingCardsGame.Services;
 using Microsoft.Extensions.Configuration;
 
 
-namespace MonsterTradingCardsGame.Tests.Services
+namespace MonsterTradingCardsGame.UnitTests.Services
 {
     [TestFixture]
     public class AuthenticationServiceTests
@@ -34,6 +34,8 @@ namespace MonsterTradingCardsGame.Tests.Services
             // Arrange
             var user = new User { Username = "testUser", Password = "testPassword" };
             _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testUser")).Returns(user);
+
+            _authenticationService = new AuthenticationService(_userRepositoryMock.Object, _sessionRepositoryMock.Object, _configurationMock.Object);
 
             // Act
             var result = _authenticationService.VerifyCredentials("testUser", "testPassword");

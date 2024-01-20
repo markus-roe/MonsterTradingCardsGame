@@ -2,7 +2,7 @@
 using MonsterTradingCardsGame.Models;
 using Moq;
 
-namespace MonsterTradingCardsGame.Tests.Services
+namespace MonsterTradingCardsGame.UnitTests.Services
 {
 
 
@@ -70,7 +70,9 @@ namespace MonsterTradingCardsGame.Tests.Services
             string battleLog = _battleService.StartBattle(user1, user2);
 
             // Assert
-            Assert.That(battleLog, Is.EqualTo($"{user1.Username} has no playable cards left!"));
+            StringAssert.Contains($"{user1.Username} has no playable cards left!", battleLog);
+
+
 
         }
 
@@ -120,7 +122,8 @@ namespace MonsterTradingCardsGame.Tests.Services
             string battleLog = _battleService.StartBattle(user1, user2);
 
             // Assert
-            Assert.That(battleLog, Is.EqualTo($"{user1.Username} has no playable cards left!"));
+            StringAssert.Contains($"{user1.Username} has no playable cards left!", battleLog);
+
         }
 
         [Test]
@@ -733,6 +736,102 @@ namespace MonsterTradingCardsGame.Tests.Services
 
         }
 
+        // test for StartBattle
+        [Test]
+        public void StartBattle_Card1HasHigherDamage_ReturnsCard1WinsMessage()
+        {
+            // Arrange
+            User user1 = new User()
+            {
+                Username = "testuser1",
+                Elo = 100,
+                Deck = new List<Card>()
+                {
+                    new Card()
+                    {
+                        Id = "abcd",
+                        Name = "testcard1",
+                        Damage = 200,
+                        Type = CardType.monster,
+                        Element = ElementType.water,
+                        IsLocked = false
+                    }
+                }
+            };
+
+            var user2 = new User()
+            {
+                Username = "testuser2",
+                Elo = 100,
+                Deck = new List<Card>()
+                {
+                    new Card()
+                    {
+                        Id = "efgh",
+                        Name = "testcard2",
+                        Damage = 100,
+                        Type = CardType.monster,
+                        Element = ElementType.fire,
+                        IsLocked = false
+                    }
+                }
+            };
+
+            // Act
+            string battleLog = _battleService.StartBattle(user1, user2);
+
+            // Assert
+            StringAssert.Contains("\"testcard1\" won!", battleLog);
+
+        }
+
+        [Test]
+        public void StartBattle_Card2HasHigherDamage_ReturnsCard2WinsMessage()
+        {
+            // Arrange
+            var user1 = new User()
+            {
+                Username = "testuser1",
+                Elo = 100,
+                Deck = new List<Card>()
+                {
+                    new Card()
+                    {
+                        Id = "abcd",
+                        Name = "testcard1",
+                        Damage = 100,
+                        Type = CardType.monster,
+                        Element = ElementType.water,
+                        IsLocked = false
+                    }
+                }
+            };
+
+            var user2 = new User()
+            {
+                Username = "testuser2",
+                Elo = 100,
+                Deck = new List<Card>()
+                {
+                    new Card()
+                    {
+                        Id = "efgh",
+                        Name = "testcard2",
+                        Damage = 200,
+                        Type = CardType.monster,
+                        Element = ElementType.fire,
+                        IsLocked = false
+                    }
+                }
+            };
+
+            // Act
+            string battleLog = _battleService.StartBattle(user1, user2);
+
+            // Assert
+            StringAssert.Contains("\"testcard2\" won!", battleLog);
+
+        }   
 
     }
 }

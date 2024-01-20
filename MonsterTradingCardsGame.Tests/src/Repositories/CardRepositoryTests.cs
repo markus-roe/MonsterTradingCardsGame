@@ -6,7 +6,7 @@ using MonsterTradingCardsGame.Services.Interfaces;
 using MonsterTradingCardsGame.Utils.UserStats;
 using Moq;
 
-namespace MonsterTradingCardsGame.Tests.Repositories
+namespace MonsterTradingCardsGame.UnitTests.Repositories
 {
 
     [TestFixture]

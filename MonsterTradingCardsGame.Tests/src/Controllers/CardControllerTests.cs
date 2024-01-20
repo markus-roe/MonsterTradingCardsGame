@@ -6,7 +6,7 @@ using System.Text.Json;
 using MonsterTradingCardsGame.Server;
 
 
-namespace MonsterTradingCardsGame.Tests.Controllers
+namespace MonsterTradingCardsGame.UnitTests.Controllers
 {
 
     [TestFixture]
