@@ -35,19 +35,43 @@ namespace MonsterTradingCardsGame.UnitTests.Repositories
             _userRepository.DeleteUser(testuser);
         }
 
-        [Test]
-        public void GetUserByUsername_ExistingUsername_ReturnsUser()
-        {
-            // Arrange
-            string username = "kienboec";
+        //test for save user -> only works if user exists (=functionality is tested by integration test -> curl script)
+        /*        [Test]
+                public void GetUserByUsername_ExistingUsername_ReturnsUser()
+                {
+                    // Arrange
+                    string username = "kienboec";
 
-            // Act
-            User? user = _userRepository.GetUserByUsername(username);
+                    // Act
+                    User? user = _userRepository.GetUserByUsername(username);
 
-            // Assert
-            Assert.IsNotNull(user);
-            Assert.That(user.Username, Is.EqualTo(username));
-        }
+                    // Assert
+                    Assert.IsNotNull(user);
+                    Assert.That(user.Username, Is.EqualTo(username));
+                }*/
+
+
+        //test for update user -> only works if user exists (=functionality is tested by integration test -> curl script)
+        /*        [Test]
+                public void UpdateUser_ExistingUser_ReturnsTrue()
+                {
+                    // Arrange
+                    User user = new User()
+                    {
+                        Username = "kienboec",
+                        Name = "Kienboec",
+                        Bio = "I am a cool guy",
+                        Image = ":----D",
+                        Coins = 100,
+                        Elo = 1000
+                    };
+
+                    // Act
+                    bool result = _userRepository.UpdateUser(user);
+
+                    // Assert
+                    Assert.IsTrue(result);
+                }*/
 
         [Test]
         public void GetUserByUsername_NonExistingUsername_ReturnsNull()
@@ -116,28 +140,6 @@ namespace MonsterTradingCardsGame.UnitTests.Repositories
 
             // Assert
             Assert.IsNull(_userRepository.GetUserByUsername("testuser"));
-        }
-
-        //test for update user
-        [Test]
-        public void UpdateUser_ExistingUser_ReturnsTrue()
-        {
-            // Arrange
-            User user = new User()
-            {
-                Username = "kienboec",
-                Name = "Kienboec",
-                Bio = "I am a cool guy",
-                Image = ":----D",
-                Coins = 100,
-                Elo = 1000
-            };
-
-            // Act
-            bool result = _userRepository.UpdateUser(user);
-
-            // Assert
-            Assert.IsTrue(result);
         }
 
         [Test]

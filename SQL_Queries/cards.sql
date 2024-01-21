@@ -16,15 +16,15 @@ SELECT * from user_cards WHERE cardid = 'd181b9e4-52e0-4d98-aee2-8f471913d85e';
 
 
 ----------delete----------
-DELETE FROM tradings;
-DELETE FROM users WHERE username = 'altenhof';
-DELETE FROM users WHERE username = 'kienboec';
-DELETE FROM users WHERE username = 'admin';
-DELETE FROM userstats;
-DELETE FROM package_cards;
-DELETE FROM packages;
-DELETE FROM cards;
-DELETE FROM user_cards;
+-- DELETE FROM tradings;
+-- DELETE FROM users WHERE username = 'altenhof';
+-- DELETE FROM users WHERE username = 'kienboec';
+-- DELETE FROM users WHERE username = 'admin';
+-- DELETE FROM userstats;
+-- DELETE FROM package_cards;
+-- DELETE FROM packages;
+-- DELETE FROM cards;
+-- DELETE FROM user_cards;
 
 
 ---
