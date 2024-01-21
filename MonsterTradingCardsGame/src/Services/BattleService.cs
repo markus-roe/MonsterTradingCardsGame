@@ -216,8 +216,6 @@ public class BattleService : IBattleService
             Card lostCard = winnerCard == card1 ? card2 : card1;
 
             TransferCard(winner, loser, lostCard);
-            // UpdateWinLossRecords(winner, loser);
-            // UpdateEloScores(winner, loser);
 
             _battleLog.Add($"- Result: \"{winnerCard.Name}\" won! ({winner.Username} gains \"{lostCard.Name}\" from {loser.Username})");
         }

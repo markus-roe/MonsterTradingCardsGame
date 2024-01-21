@@ -114,14 +114,6 @@ namespace MonsterTradingCardsGame.Repositories
 
                     int rowsAffected = command.ExecuteNonQuery();
                     bool rowUpdated = rowsAffected > 0;
-                    if (rowUpdated)
-                    {
-                        using (var command2 = new NpgsqlCommand("UPDATE users SET elo = elo + 3 WHERE id = @userid", connection))
-                        {
-                            command2.Parameters.AddWithValue("@userid", user.Id);
-                            command2.ExecuteNonQuery();
-                        }
-                    }
                     return rowUpdated;
                 }
             }
@@ -148,14 +140,6 @@ namespace MonsterTradingCardsGame.Repositories
 
                     int rowsAffected = command.ExecuteNonQuery();
                     bool rowUpdated = rowsAffected > 0;
-                    if (rowUpdated)
-                    {
-                        using (var command2 = new NpgsqlCommand("UPDATE users SET elo = GREATEST(elo - 5, 0) WHERE id = @userid", connection))
-                        {
-                            command2.Parameters.AddWithValue("@userid", user.Id);
-                            command2.ExecuteNonQuery();
-                        }
-                    }
                     return rowUpdated;
                 }
             }
