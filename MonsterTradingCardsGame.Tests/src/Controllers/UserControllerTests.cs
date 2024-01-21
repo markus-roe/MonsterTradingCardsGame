@@ -343,6 +343,126 @@ namespace MonsterTradingCardsGame.UnitTests.Controllers
             _mockHttpEventArguments.Verify(m => m.Reply(200, returnedScoreboard), Times.Once());
         }
 
+        // TradeCardForCoins with not enough cards
+        [Test]
+        public void UserController_TradeCardForCoins_NotEnoughCards()
+        {
+            // Arrange
+            User user = new User()
+            {
+                Username = "testuser",
+                Password = "testpassword",
+                Name = "testuser",
+                Bio = "testbio",
+                Image = "testimage",
+                Coins = 0
+            };
+
+            List<Card> cards = new List<Card>();
+
+            _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
+            _mockCardRepository.Setup(m => m.GetCardsByUser(user)).Returns(cards);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/coins");
+
+
+            // Act
+            _userController.TradeCardForCoins(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(400, "Not enough cards. You need at least 1 card to trade."), Times.Once());
+        }
+
+        // TradeCardForCoins with no cards available to trade
+        [Test]
+        public void UserController_TradeCardForCoins_NoCardsAvailableToTrade()
+        {
+            // Arrange
+            User user = new User()
+            {
+                Username = "testuser",
+                Password = "testpassword",
+                Name = "testuser",
+                Bio = "testbio",
+                Image = "testimage",
+                Coins = 0
+            };
+
+            List<Card> cards = new List<Card>();
+            cards.Add(new Card()
+            {
+                Id = "testid",
+                Name = "testcard",
+                Damage = 100,
+                Element = ElementType.fire,
+                Type = CardType.spell
+            });
+
+            user.Stack = cards;
+            user.Deck = cards;
+
+            _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
+            _mockCardRepository.Setup(m => m.GetCardsByUser(user)).Returns(cards);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/coins");
+
+
+            // Act
+            _userController.TradeCardForCoins(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(400, "No cards available to trade. All cards are in the deck."), Times.Once());
+
+        }
+
+        // TradeCardForCoins with success
+        [Test]
+        public void UserController_TradeCardForCoins_Success()
+        {
+            // Arrange
+            User user = new User()
+            {
+                Username = "testuser",
+                Password = "testpassword",
+                Name = "testuser",
+                Bio = "testbio",
+                Image = "testimage",
+                Coins = 0
+            };
+
+            List<Card> cards = new List<Card>();
+            cards.Add(new Card()
+            {
+                Id = "testid",
+                Name = "testcard",
+                Damage = 100,
+                Element = ElementType.fire,
+                Type = CardType.spell
+            });
+
+            user.Stack = cards;
+
+            _mockUserRepository.Setup(m => m.GetUserByUsername(user.Username)).Returns(user);
+            _mockCardRepository.Setup(m => m.GetCardsByUser(user)).Returns(cards);
+            _mockUserRepository.Setup(m => m.UpdateUser(user)).Returns(true);
+            _mockUserRepository.Setup(m => m.RemoveCardFromUser(user, cards[0])).Returns(true);
+
+            _mockHttpEventArguments.Setup(m => m.Method).Returns("POST");
+            _mockHttpEventArguments.Setup(m => m.User).Returns(user);
+            _mockHttpEventArguments.Setup(m => m.Path).Returns("/coins");
+
+
+            // Act
+            _userController.TradeCardForCoins(_mockHttpEventArguments.Object);
+
+            // Assert
+            _mockHttpEventArguments.Verify(m => m.Reply(200, "Card traded successfully, you received 6 coins."), Times.Once());
+        }
+
     }
 
 }
