@@ -59,9 +59,6 @@ namespace MonsterTradingCardsGame.Services
         /// <returns>True if the passwords match, otherwise false.</returns>
         public bool VerifyPassword(string password, string hashedPassword)
         {
-            if (_isTesting)
-                return password.Equals(hashedPassword);
-
             return HashPassword(password) == hashedPassword;
         }
 

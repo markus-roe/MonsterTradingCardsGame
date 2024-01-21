@@ -32,7 +32,9 @@ namespace MonsterTradingCardsGame.UnitTests.Services
         public void VerifyCredentials_WithValidCredentials_ReturnsTrue()
         {
             // Arrange
-            var user = new User { Username = "testUser", Password = "testPassword" };
+            string hashedPassword = _authenticationService.HashPassword("testPassword");
+            User user = new User { Username = "testUser", Password = hashedPassword };
+
             _userRepositoryMock.Setup(repo => repo.GetUserByUsername("testUser")).Returns(user);
 
             _authenticationService = new AuthenticationService(_userRepositoryMock.Object, _sessionRepositoryMock.Object, _configurationMock.Object);
