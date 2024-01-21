@@ -442,7 +442,7 @@ namespace MonsterTradingCardsGame.Repositories
         /// <param name="user">The user to save the card to.</param>
         /// <param name="card">The card to save to the user.</param>
         /// <returns>True if the association is successful, false otherwise.</returns>
-        public bool SaveCardToUser(User user, Card card)
+        public bool SaveCardToUserDeck(User user, Card card)
         {
             try
             {

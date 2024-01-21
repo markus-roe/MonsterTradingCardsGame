@@ -260,5 +260,83 @@ namespace MonsterTradingCardsGame.Controllers
       }
     }
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /// <summary> This is a mandatory feature. It merges two random deck cards and if they are different element type.
+    /// Creates a new one, replacing one random old card.
+    /// Costs 3 coins </summary>
+    [Route("POST", "merge")]
+    public void MergeCards(IHttpServerEventArguments httpEventArguments)
+    {
+      try
+      {
+        User user = httpEventArguments.User;
+
+        if (user.Coins < 3)
+        {
+          httpEventArguments.Reply(400, "Not enough coins! You need 3 coins to merge cards.");
+          return;
+        }
+
+        List<Card> cards = user.Deck.ToList();
+
+        if (cards.Count < 2)
+        {
+          httpEventArguments.Reply(400, "Not enough cards. You need at least 2 cards to merge.");
+          return;
+        }
+
+        Card card1 = cards[new Random().Next(0, cards.Count)];
+
+        cards.Remove(card1);
+
+        Card card2 = cards[new Random().Next(0, cards.Count)];
+
+        user.Coins -= 3;
+        _userRepository.UpdateUser(user);
+
+        if (card1.Element == card2.Element)
+        {
+          httpEventArguments.Reply(400, "No luck today! Cards has to be of different element type to merge.");
+          return;
+        }
+
+        Card newCard = new Card
+        {
+          Id = Guid.NewGuid().ToString(),
+          Name = $"{card1.Name} {card2.Name} Fusion",
+          Type = (new Random().Next(0, 2) == 0) ? card1.Type : card2.Type,
+          Element = (new Random().Next(0, 2) == 0) ? card1.Element : card2.Element,
+          Damage = card1.Damage + card2.Damage,
+          IsLocked = false,
+        };
+
+        // Save new card
+        _cardRepository.SaveCard(newCard);
+
+        // Randomly choose whether to remove card1 or card2
+        if (new Random().Next(0, 2) == 0)
+          _cardRepository.RemoveCardFromDeck(user, card1);
+        else
+          _cardRepository.RemoveCardFromDeck(user, card2);
+
+        // Add new card to user
+        _userRepository.SaveCardToUserDeck(user, newCard);
+
+        string card1Name = card1.Name;
+        string card2Name = card2.Name;
+        string mergedName = $"{card1Name} {card2Name} Fusion";
+
+        httpEventArguments.Reply(200, $"You got lucky! Cards {card1Name} and {card2Name} merged successfully. You got: {mergedName}");
+      }
+      catch (Exception ex)
+      {
+        httpEventArguments.Reply(500, $"Internal server error: {ex.Message}");
+      }
+
+    }
+
   }
 }

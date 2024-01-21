@@ -18,7 +18,7 @@ namespace MonsterTradingCardsGame.Interfaces
         bool SavePackageToUser(User user, List<Card> package);
         public bool CheckIfCardIsOwnedByUser(User user, Card card);
         public void ChangeCardOwner(User user, Card card);
-
+        public bool RemoveCardFromDeck(User user, Card card);
 
     }
 }

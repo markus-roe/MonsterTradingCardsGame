@@ -471,5 +471,32 @@ namespace MonsterTradingCardsGame.Repositories
             }
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        /// <summary> Remove card from user's deck. </summary>
+        /// <param name="user">The user whose deck is to be modified.</param>
+        /// <param name="card">The card to be removed.</param
+        /// <returns> True if the card is successfully removed from the deck, false otherwise.</returns>
+        public bool RemoveCardFromDeck(User user, Card card)
+        {
+            try
+            {
+                using (var command = new NpgsqlCommand("UPDATE user_cards SET indeck = false WHERE userid = @userid AND cardid = @cardid", connection))
+                {
+                    command.Parameters.AddWithValue("@userid", user.Id);
+                    command.Parameters.AddWithValue("@cardid", card.Id);
+                    command.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in RemoveCardFromDeck: " + ex.Message);
+                return false;
+            }
+        }
+
+
     }
 }
