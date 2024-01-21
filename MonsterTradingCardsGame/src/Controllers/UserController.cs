@@ -323,8 +323,8 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                // Get random card which is not in deck
-                List<Card> cardsNotInDeck = cards.Where(c => !user.Deck.Contains(c)).ToList();
+                // Get random card which is not in deck and not locked
+                List<Card> cardsNotInDeck = cards.Where(c => !user.Deck.Contains(c) && !c.IsLocked).ToList();
 
                 if (cardsNotInDeck.Count < 1)
                 {
