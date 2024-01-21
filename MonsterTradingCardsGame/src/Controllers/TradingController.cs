@@ -296,8 +296,7 @@ namespace MonsterTradingCardsGame.Controllers
                     return;
                 }
 
-                // -----------------
-                // EXECUTE TRADE
+                // execute trade
 
                 _cardRepository.ChangeCardOwner(tradingUser, offeredCard);
                 _cardRepository.ChangeCardOwner(user, tradingDealCard);
