@@ -67,6 +67,7 @@ public class BattleService : IBattleService
             UpdateEloScores(winner, loser);
 
             _battleLog.Add($"{user2.Username} won the battle!");
+            _battleLog.Add($"");
         }
         else if (user2.Deck.Count == 0)
         {
@@ -77,10 +78,12 @@ public class BattleService : IBattleService
             UpdateEloScores(winner, loser);
 
             _battleLog.Add($"{user1.Username} won the battle!");
+            _battleLog.Add($"");
         }
         else
         {
             _battleLog.Add($"The battle ended in a draw!");
+            _battleLog.Add($"");
         }
     }
 
@@ -171,7 +174,7 @@ public class BattleService : IBattleService
     /// </summary>
     private void LogPreBattleState(User user1, Card card1, User user2, Card card2)
     {
-        _battleLog.Add($"- {user1.Username} ({user1.Deck.Count} cards remaining, ELO: {user1.Elo}) vs {user2.Username} ({user2.Deck.Count} cards remaining, ELO: {user2.Elo})");
+        _battleLog.Add($"- {user1.Username} ({user1.Deck.Count} cards in deck) vs {user2.Username} ({user2.Deck.Count} cards in deck)");
         _battleLog.Add($"- {user1.Username}'s \"{card1.Name}\" (Damage: {card1.Damage}) vs {user2.Username}'s \"{card2.Name}\" (Damage: {card2.Damage})");
     }
 
